@@ -2,6 +2,7 @@ namespace OrganizationPlatform.Models;
 
 public class Venue
 {
+    public int Id {get; set;}
     public required string Name {get; set;} 
     public required string City {get; set;}
     public required int Capacity {get; set;}
@@ -10,4 +11,3 @@ public class Venue
     public List<PhysicalFeature> PhysicalFeatures {get; set;} = new List<PhysicalFeature> ();
     
 }
-

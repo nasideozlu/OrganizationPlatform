@@ -4,6 +4,7 @@ namespace OrganizationPlatform.Models;
 
 public class PhysicalFeature
 {
+    public int Id {get; set;}
     public required string Name {get; set;}
     public required FeatureCategory Category {get; set;}
 }
