@@ -7,7 +7,7 @@ public class Venue
     public required int Capacity {get; set;}
     public string? Description {get; set;}
     public string? Address {get; set;}
-    public List<string> PhysicalFeatures {get; set;} = new List<string> ();
+    public List<PhysicalFeature> PhysicalFeatures {get; set;} = new List<PhysicalFeature> ();
     
 }
 
