@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using OrganizationPlatform.Models;
 
 namespace OrganizationPlatform.Data;
 
@@ -9,4 +10,8 @@ public class ApplicationDbContext : DbContext
         : base(options)
     {
     }
+
+    public DbSet<Venue> Venues {get; set;}
+    public DbSet<PhysicalFeature> PhysicalFeatures {get; set;}
+    public DbSet<FeatureCategory> FeatureCategories {get; set;}
 }
