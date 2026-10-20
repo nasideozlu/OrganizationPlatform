@@ -11,23 +11,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider
-        .GetRequiredService<ApplicationDbContext>();
-
-    try
-    {
-        var canConnect = db.Database.CanConnect();
-
-        Console.WriteLine(
-            $"PostgreSQL bağlantısı: {(canConnect ? "Başarılı" : "Başarısız")}");
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Veritabanı bağlantı hatası: {ex.Message}");
-    }
-}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
