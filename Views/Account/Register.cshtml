@@ -1,0 +1,38 @@
+@model OrganizationPlatform.Models.RegisterViewModel
+
+<form method="post">
+<div asp-validation-summary="All"></div>
+
+<div>
+    <label asp-for="Name"></label>
+    <input asp-for="Name" />
+    <span asp-validation-for="Name"></span>
+</div>
+<div>
+    <label asp-for="Surname"></label>
+    <input asp-for="Surname" />
+    <span asp-validation-for="Surname"></span>
+</div>
+<div>
+    <label asp-for="Email"></label>
+    <input asp-for="Email" />
+    <span asp-validation-for="Email"></span>
+</div>
+<div>
+    <label asp-for="PhoneNumber"></label>
+    <input asp-for="PhoneNumber" />
+    <span asp-validation-for="PhoneNumber"></span>
+</div>
+<div>
+    <label asp-for="Password"></label>
+    <input asp-for="Password" type="password" />
+    <span asp-validation-for="Password"></span>
+</div>
+<div>
+    <label asp-for="PasswordConfirmation"></label>
+    <input asp-for="PasswordConfirmation" type="password" />
+    <span asp-validation-for="PasswordConfirmation"></span>
+</div>
+<button type="submit">Kayıt Ol</button>
+
+</form>
