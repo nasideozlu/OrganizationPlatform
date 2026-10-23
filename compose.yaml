@@ -22,6 +22,7 @@ services:
     ports:
       - "8080:8080"
     environment:
+      Jwt__SigningKey: ${Jwt__SigningKey}
       ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=organization;Username=appuser;Password=${DB_PASSWORD}"
     depends_on:
       db:

@@ -1,19 +1,23 @@
 @model OrganizationPlatform.Models.LoginViewModel
-
-<form method="post">
-    <div>
-        <label asp-for="Email"></label>
-        <input asp-for="Email" />
-        <span asp-validation-for="Email"></span>
+@{ ViewData["Title"] = "Giriş yap"; }
+<section class="form-page">
+    <div class="form-shell">
+        <aside class="form-aside">
+            <div class="eyebrow"><span class="eyebrow-dot"></span> Yeniden hoş geldin</div>
+            <h1>Güzel günün kaldığı yerden.</h1>
+            <p>Etkinlik planına, mekânlarına ve biriktirdiğin tüm detaylara kaldığın yerden devam et.</p>
+            <div class="form-aside-note">“En güzel anlar, birlikte planlananlardır.”</div>
+        </aside>
+        <div class="form-content">
+            <h2>Hesabına giriş yap</h2>
+            <p class="form-intro">Planlarını görmek için bilgilerini gir.</p>
+            <form method="post">
+                <div asp-validation-summary="All" class="validation-summary-errors"></div>
+                <div class="field"><label asp-for="Email">E-posta adresi</label><input asp-for="Email" class="form-control" autocomplete="email" placeholder="ornek@mail.com" /><span asp-validation-for="Email"></span></div>
+                <div class="field"><label asp-for="Password">Parola</label><input asp-for="Password" type="password" class="form-control" autocomplete="current-password" placeholder="Parolanı gir" /><span asp-validation-for="Password"></span></div>
+                <button type="submit" class="btn btn-primary form-submit">Giriş yap <span aria-hidden="true">↗</span></button>
+            </form>
+            <p class="form-bottom">Henüz hesabın yok mu? <a asp-action="Register">Ücretsiz kayıt ol</a></p>
+        </div>
     </div>
-
-    <div>
-        <label asp-for="Password"></label>
-        <input asp-for="Password" type="password" />
-        <span asp-validation-for="Password"></span>
-    </div>
-
-    <div asp-validation-summary="All"></div>
-
-    <button type="submit">Giriş Yap</button>
-</form>
+</section>

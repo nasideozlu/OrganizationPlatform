@@ -1,15 +1,49 @@
 @model OrganizationPlatform.Models.BusinessProfile
-<h2>İşletme Profilim</h2>
+@{
+    ViewData["Title"] = "İşletme yönetimi";
+    var hasDescription = !string.IsNullOrWhiteSpace(Model.Description);
+    var hasPhone = !string.IsNullOrWhiteSpace(Model.ApplicationUser.PhoneNumber);
+    var completedItems = 3 + (hasDescription ? 1 : 0) + (hasPhone ? 1 : 0);
+    var completion = completedItems * 20;
+}
+<section class="dashboard-page business-dashboard">
+    <div class="dashboard-welcome business-welcome">
+        <div><div class="eyebrow"><span class="eyebrow-dot"></span> İşletme paneli</div><h1>Hoş geldin, @Model.Name</h1><p>İşletme bilgilerini tek bir yerden gözden geçir ve güncel tut.</p></div>
+        <a class="btn btn-primary" asp-controller="Profile" asp-action="EditBusiness">Profili düzenle <span aria-hidden="true">↗</span></a>
+    </div>
 
-<div>
-    <p>İşletme Adı: @Model.Name</p>
-    <p>Açıklama: @Model.Description</p>
-    <p>Şehir: @Model.City</p>
-    <p>Kategori: @Model.Category.Name</p>
-    <p>E-posta: @Model.ApplicationUser.Email</p>
-    <p>Telefon: @Model.ApplicationUser.PhoneNumber</p>
-</div>
+    <div class="business-summary-grid">
+        <article class="business-profile-summary">
+            <div class="business-profile-top"><div class="business-avatar">✳</div><div><span class="business-category">@Model.Category.Name</span><h2>@Model.Name</h2><p><span aria-hidden="true">⌖</span> @Model.City</p></div><a class="business-edit-link" asp-controller="Profile" asp-action="EditBusiness" aria-label="İşletme profilini düzenle">↗</a></div>
+            <div class="business-profile-description">@(hasDescription ? Model.Description : "İşletmeni tanıtan kısa bir açıklama ekleyerek profilini tamamla.")</div>
+            <div class="business-profile-contact"><span>✉</span> @Model.ApplicationUser.Email <span class="contact-separator">·</span> <span>⌕</span> @(hasPhone ? Model.ApplicationUser.PhoneNumber : "Telefon eklenmemiş")</div>
+        </article>
+        <aside class="profile-health-card">
+            <div class="dashboard-card-head"><div><span class="dashboard-kicker">PROFİL DURUMU</span><h3>Bilgilerin güncel mi?</h3></div><span class="dashboard-icon">◉</span></div>
+            <div class="health-progress"><span style="width:@completion%"></span></div>
+            <div class="health-score"><strong>@completion%</strong><span>@completedItems / 5 bilgi tamam</span></div>
+            <ul class="health-checklist">
+                <li class="is-complete"><span>✓</span> İşletme adı</li>
+                <li class="is-complete"><span>✓</span> Şehir ve kategori</li>
+                <li class="@(hasDescription ? "is-complete" : "")"><span>@(hasDescription ? "✓" : "+")</span> İşletme açıklaması</li>
+                <li class="@(hasPhone ? "is-complete" : "")"><span>@(hasPhone ? "✓" : "+")</span> Telefon numarası</li>
+                <li class="is-complete"><span>✓</span> E-posta adresi</li>
+            </ul>
+            @if (!hasDescription || !hasPhone)
+            {
+                <a class="dashboard-text-link" asp-controller="Profile" asp-action="EditBusiness">Eksik bilgileri tamamla <span aria-hidden="true">→</span></a>
+            }
+            else
+            {
+                <span class="profile-ready-label">Profil bilgilerin tamamlandı ✓</span>
+            }
+        </aside>
+    </div>
 
-<a asp-controller="Profile" asp-action="EditBusiness">
-    İşletme Profilini Düzenle
-</a>
+    <div class="dashboard-section-title business-section-title"><div><span class="dashboard-kicker">HESAP YÖNETİMİ</span><h2>İşletme bilgilerin</h2></div></div>
+    <div class="business-details-grid">
+        <article class="business-detail-card"><span class="detail-icon">⌖</span><div><small>Hizmet şehri</small><strong>@Model.City</strong></div><a asp-action="EditBusiness" aria-label="Şehri düzenle">↗</a></article>
+        <article class="business-detail-card"><span class="detail-icon">✳</span><div><small>İşletme kategorisi</small><strong>@Model.Category.Name</strong></div><a asp-action="EditBusiness" aria-label="Kategoriyi düzenle">↗</a></article>
+        <article class="business-detail-card"><span class="detail-icon">✉</span><div><small>İletişim e-postası</small><strong>@Model.ApplicationUser.Email</strong></div><span class="locked-detail" title="E-posta hesabı giriş bilgilerinden yönetilir">•</span></article>
+    </div>
+</section>

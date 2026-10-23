@@ -1,37 +1,16 @@
-
 @model List<OrganizationPlatform.Models.Venue>
-
-@{
-    ViewData["Title"] = "Mekânlar";
-}
-
-<h1>Mekânlar</h1>
-
-@if (Model.Count == 0)
-{
-    <p>Henüz kayıtlı mekân bulunmuyor.</p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Ad</th>
-                <th>Şehir</th>
-                <th>Kapasite</th>
-                <th>Adres</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var venue in Model)
-            {
-                <tr>
-                    <td>@venue.Name</td>
-                    <td>@venue.City</td>
-                    <td>@venue.Capacity</td>
-                    <td>@venue.Address</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+@{ ViewData["Title"] = "Mekânları keşfet"; }
+<section class="listing-page">
+    <div class="listing-heading"><div class="eyebrow"><span class="eyebrow-dot"></span> Güzel gününe yakışan yer</div><h1>Mekânları keşfet</h1><p>Hayalindeki etkinlik için sana uygun mekânlara göz at.</p></div>
+    @if (Model.Count == 0)
+    {
+        <div class="empty-state"><div class="empty-state-icon" aria-hidden="true">⌖</div><h2 class="h5 text-dark">Mekânlar yakında burada</h2><p class="mb-0">Henüz kayıtlı mekân bulunmuyor. Daha sonra tekrar göz at.</p></div>
+    }
+    else
+    {
+        <div class="table-shell"><div class="table-responsive"><table class="table align-middle">
+            <thead><tr><th>Mekân</th><th>Şehir</th><th>Kapasite</th><th>Adres</th></tr></thead>
+            <tbody>@foreach (var venue in Model) { <tr><td><strong>@venue.Name</strong></td><td>@venue.City</td><td>@venue.Capacity kişi</td><td>@venue.Address</td></tr> }</tbody>
+        </table></div></div>
+    }
+</section>

@@ -1,54 +1,34 @@
 @model OrganizationPlatform.Models.BusinessRegisterViewModel
-<form method="post">
-    <div>
-        <label asp-for="Name"></label>
-        <input asp-for="Name" />
-        <span asp-validation-for="Name"></span>
+@{ ViewData["Title"] = "İşletme kaydı"; }
+<section class="form-page">
+    <div class="form-shell">
+        <aside class="form-aside">
+            <div class="eyebrow"><span class="eyebrow-dot"></span> İşletmeler için</div>
+            <h1>Güzel günlerin bir parçası ol.</h1>
+            <p>İşletmeni Birlikte'ye ekle, hizmetlerini etkinlik planlayan kişilerle buluştur.</p>
+            <div class="form-aside-note">Profilini oluşturmak yalnızca birkaç dakika sürer.</div>
+        </aside>
+        <div class="form-content">
+            <h2>İşletme profilini oluştur</h2>
+            <p class="form-intro">İşletme bilgilerinle aramıza katıl.</p>
+            <form method="post">
+                <div asp-validation-summary="All" class="validation-summary-errors"></div>
+                <div class="field"><label asp-for="Name">İşletme adı</label><input asp-for="Name" class="form-control" autocomplete="organization" placeholder="İşletmenin adı" /><span asp-validation-for="Name"></span></div>
+                <div class="form-grid">
+                    <div class="field"><label asp-for="Email">E-posta adresi</label><input asp-for="Email" class="form-control" autocomplete="email" placeholder="ornek@mail.com" /><span asp-validation-for="Email"></span></div>
+                    <div class="field"><label asp-for="PhoneNumber">Telefon numarası</label><input asp-for="PhoneNumber" class="form-control" autocomplete="tel" placeholder="05xx xxx xx xx" /><span asp-validation-for="PhoneNumber"></span></div>
+                </div>
+                <div class="form-grid">
+                    <div class="field"><label asp-for="City">Şehir</label><input asp-for="City" class="form-control" autocomplete="address-level2" placeholder="İstanbul" /><span asp-validation-for="City"></span></div>
+                    <div class="field"><label asp-for="CategoryId">İşletme kategorisi</label><select asp-for="CategoryId" class="form-select"><option value="">Kategori seçin</option>@foreach (var category in Model.Categories) { <option value="@category.Id">@category.Name</option> }</select><span asp-validation-for="CategoryId"></span></div>
+                </div>
+                <div class="form-grid">
+                    <div class="field"><label asp-for="Password">Parola</label><input asp-for="Password" type="password" class="form-control" autocomplete="new-password" placeholder="Parola oluştur" /><span asp-validation-for="Password"></span></div>
+                    <div class="field"><label asp-for="PasswordConfirmation">Parola tekrarı</label><input asp-for="PasswordConfirmation" type="password" class="form-control" autocomplete="new-password" placeholder="Parolanı tekrar gir" /><span asp-validation-for="PasswordConfirmation"></span></div>
+                </div>
+                <button type="submit" class="btn btn-primary form-submit">İşletme hesabı oluştur <span aria-hidden="true">↗</span></button>
+            </form>
+            <p class="form-bottom">Zaten hesabın var mı? <a asp-controller="Account" asp-action="Login">Giriş yap</a></p>
+        </div>
     </div>
-
-    <div>
-        <label asp-for="Email"></label>
-        <input asp-for="Email" />
-        <span asp-validation-for="Email"></span>
-    </div>
-
-    <div>
-        <label asp-for="PhoneNumber"></label>
-        <input asp-for="PhoneNumber" />
-        <span asp-validation-for="PhoneNumber"></span>
-    </div>
-
-    <div>
-        <label asp-for="City"></label>
-        <input asp-for="City" />
-        <span asp-validation-for="City"></span>
-    </div>
-
-    <div>
-        <label asp-for="CategoryId">İşletme Kategorisi</label>
-        <select asp-for="CategoryId">
-            <option value="">Kategori seçin</option>
-            @foreach (var category in Model.Categories)
-            {
-                <option value="@category.Id">@category.Name</option>
-            }
-        </select>
-        <span asp-validation-for="CategoryId"></span>
-    </div>
-
-    <div>
-        <label asp-for="Password"></label>
-        <input asp-for="Password" type="password" />
-        <span asp-validation-for="Password"></span>
-    </div>
-
-    <div>
-        <label asp-for="PasswordConfirmation"></label>
-        <input asp-for="PasswordConfirmation" type="password" />
-        <span asp-validation-for="PasswordConfirmation"></span>
-    </div>
-
-    <div asp-validation-summary="All"></div>
-
-    <button type="submit">İşletme Kaydı Oluştur</button>
-</form>
+</section>

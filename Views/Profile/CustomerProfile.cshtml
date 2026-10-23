@@ -1,11 +1,30 @@
 @model OrganizationPlatform.Models.CustomerProfile
+@{ ViewData["Title"] = "Planlama alanım"; }
+<section class="dashboard-page customer-dashboard">
+    <div class="dashboard-welcome">
+        <div><div class="eyebrow"><span class="eyebrow-dot"></span> Kişisel alanın</div><h1>Merhaba, @Model.Name <span aria-hidden="true">✳</span></h1><p>Güzel günün için ilham al, mekânları keşfet ve planına ilk adımı at.</p></div>
+        <a class="btn btn-outline-primary" asp-controller="Profile" asp-action="EditCustomer">Hesap bilgilerini düzenle</a>
+    </div>
 
-<h2>Profilim</h2>
+    <div class="customer-overview">
+        <article class="plan-start-card">
+            <div class="plan-card-copy"><span class="dashboard-kicker">ETKİNLİK PLANIN</span><h2>Hayalindeki gün için<br />ilk adımı at.</h2><p>Etkinlik planın burada başlayacak. Sana uygun mekânlara göz atarak fikir toplamaya başla.</p><a class="btn btn-primary" asp-controller="Venues" asp-action="Index">Mekânları keşfet <span aria-hidden="true">↗</span></a></div>
+            <div class="plan-card-illustration" aria-hidden="true"><div class="plan-sun"></div><div class="plan-ring ring-one"></div><div class="plan-ring ring-two"></div><div class="plan-flower">✳</div><div class="plan-date"><small>GÜZEL GÜNLER</small><strong>yakında</strong></div></div>
+        </article>
+        <aside class="customer-side-card">
+            <div class="dashboard-card-head"><div><span class="dashboard-kicker">KEŞFET</span><h3>Mekân seçenekleri</h3></div><span class="dashboard-icon">⌖</span></div>
+            <strong class="venue-count">@ViewBag.VenueCount</strong>
+            <p>Bir sonraki etkinliğin için keşfedebileceğin kayıtlı mekân.</p>
+            <a class="dashboard-text-link" asp-controller="Venues" asp-action="Index">Tüm mekânları gör <span aria-hidden="true">→</span></a>
+            <div class="side-divider"></div>
+            <div class="account-mini"><span class="account-mini-icon">♡</span><div><strong>Her şey senin ritminde</strong><small>Planına dilediğin zaman devam et.</small></div></div>
+        </aside>
+    </div>
 
-<div>
-    <p>Ad: @Model.Name</p>
-    <p>Soyad: @Model.Surname</p>
-    <p>E-posta: @Model.ApplicationUser.Email</p>
-    <p>Telefon: @Model.ApplicationUser.PhoneNumber</p>
-</div>
-<a asp-controller="Profile" asp-action="EditCustomer">Profili Düzenle</a>
+    <div class="dashboard-section-title"><div><span class="dashboard-kicker">HESABIN</span><h2>Kişisel bilgilerin</h2></div><a asp-controller="Profile" asp-action="EditCustomer">Düzenle <span aria-hidden="true">↗</span></a></div>
+    <div class="customer-account-grid">
+        <article class="account-detail-card"><span class="detail-icon">♙</span><div><small>Ad soyad</small><strong>@Model.Name @Model.Surname</strong></div></article>
+        <article class="account-detail-card"><span class="detail-icon">✉</span><div><small>E-posta</small><strong>@Model.ApplicationUser.Email</strong></div></article>
+        <article class="account-detail-card"><span class="detail-icon">⌕</span><div><small>Telefon</small><strong>@(string.IsNullOrWhiteSpace(Model.ApplicationUser.PhoneNumber) ? "Henüz eklenmemiş" : Model.ApplicationUser.PhoneNumber)</strong></div></article>
+    </div>
+</section>

@@ -32,6 +32,7 @@ public class ProfileController : Controller
 
         if (user.AccountType == AccountType.Customer)
         {
+            ViewBag.VenueCount = await _context.Venues.CountAsync();
             var profile = await _context.CustomerProfiles
                 .Include(p => p.ApplicationUser)
                 .FirstOrDefaultAsync(p => p.ApplicationUserId == user.Id);
