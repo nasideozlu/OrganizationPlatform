@@ -1,0 +1,15 @@
+@model OrganizationPlatform.Models.BusinessProfile
+<h2>İşletme Profilim</h2>
+
+<div>
+    <p>İşletme Adı: @Model.Name</p>
+    <p>Açıklama: @Model.Description</p>
+    <p>Şehir: @Model.City</p>
+    <p>Kategori: @Model.Category.Name</p>
+    <p>E-posta: @Model.ApplicationUser.Email</p>
+    <p>Telefon: @Model.ApplicationUser.PhoneNumber</p>
+</div>
+
+<a asp-controller="Profile" asp-action="EditBusiness">
+    İşletme Profilini Düzenle
+</a>

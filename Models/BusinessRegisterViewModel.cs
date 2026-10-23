@@ -6,6 +6,7 @@ public class BusinessRegisterViewModel
 {
     [Required]
     public string Name {get; set;} = string.Empty;
+    public string? Description { get; set; }
     [Required]
     [EmailAddress]
     public string Email {get; set;} = string.Empty;

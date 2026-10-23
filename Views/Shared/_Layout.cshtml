@@ -32,6 +32,11 @@
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Profile" asp-action="Index">
+                                    Profilim
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <form asp-controller="Account" asp-action="Logout" method="post">
                                     <button type="submit" class="nav-link text-dark border-0 bg-transparent">
                                         Çıkış Yap
@@ -49,6 +54,11 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">
                                     Kayıt Ol
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Account" asp-action="BusinessRegister">
+                                    İşletme Kaydı
                                 </a>
                             </li>
                         }

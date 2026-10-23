@@ -1,0 +1,24 @@
+@model OrganizationPlatform.Models.CustomerProfile
+
+<h2>Profili Duzenle</h2>
+
+<form method="post" asp-asp-controller="Profile" asp-action="EditCustomer">
+
+    <div>
+        <label for="Name">Ad</label>
+        <input type="text" id="Name" name="Name" value="@Model.Name" required />
+    </div>
+
+    <div>
+        <label for="Surname">Soyad</label>
+        <input type="text" id="Surname" name="Surname" value="@Model.Surname" required />
+    </div>
+
+    <div>
+        <label for="PhoneNumber">Telefon</label>
+        <input type="tel" id="PhoneNumber" name="PhoneNumber" value="@Model.ApplicationUser.PhoneNumber" required />
+    </div>
+
+    <button type="submit">Kaydet</button>
+
+</form>

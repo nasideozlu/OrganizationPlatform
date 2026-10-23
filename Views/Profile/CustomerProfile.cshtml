@@ -1,0 +1,11 @@
+@model OrganizationPlatform.Models.CustomerProfile
+
+<h2>Profilim</h2>
+
+<div>
+    <p>Ad: @Model.Name</p>
+    <p>Soyad: @Model.Surname</p>
+    <p>E-posta: @Model.ApplicationUser.Email</p>
+    <p>Telefon: @Model.ApplicationUser.PhoneNumber</p>
+</div>
+<a asp-controller="Profile" asp-action="EditCustomer">Profili Düzenle</a>
