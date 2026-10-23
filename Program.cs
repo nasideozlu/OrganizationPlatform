@@ -11,13 +11,33 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection")));
-        
+
 builder.Services
     .AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider
+        .GetRequiredService<ApplicationDbContext>();
+
+    if (!await context.BusinessCategories.AnyAsync())
+    {
+        context.BusinessCategories.AddRange(
+            new BusinessCategory { Name = "Düğün Salonu" },
+            new BusinessCategory { Name = "Fotoğrafçı" },
+            new BusinessCategory { Name = "Organizasyon Şirketi" },
+            new BusinessCategory { Name = "Catering" },
+            new BusinessCategory { Name = "Çiçekçi" },
+            new BusinessCategory { Name = "Müzik ve Eğlence" }
+        );
+
+        await context.SaveChangesAsync();
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

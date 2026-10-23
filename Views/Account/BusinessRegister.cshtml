@@ -1,0 +1,54 @@
+@model OrganizationPlatform.Models.BusinessRegisterViewModel
+<form method="post">
+    <div>
+        <label asp-for="Name"></label>
+        <input asp-for="Name" />
+        <span asp-validation-for="Name"></span>
+    </div>
+
+    <div>
+        <label asp-for="Email"></label>
+        <input asp-for="Email" />
+        <span asp-validation-for="Email"></span>
+    </div>
+
+    <div>
+        <label asp-for="PhoneNumber"></label>
+        <input asp-for="PhoneNumber" />
+        <span asp-validation-for="PhoneNumber"></span>
+    </div>
+
+    <div>
+        <label asp-for="City"></label>
+        <input asp-for="City" />
+        <span asp-validation-for="City"></span>
+    </div>
+
+    <div>
+        <label asp-for="CategoryId">İşletme Kategorisi</label>
+        <select asp-for="CategoryId">
+            <option value="">Kategori seçin</option>
+            @foreach (var category in Model.Categories)
+            {
+                <option value="@category.Id">@category.Name</option>
+            }
+        </select>
+        <span asp-validation-for="CategoryId"></span>
+    </div>
+
+    <div>
+        <label asp-for="Password"></label>
+        <input asp-for="Password" type="password" />
+        <span asp-validation-for="Password"></span>
+    </div>
+
+    <div>
+        <label asp-for="PasswordConfirmation"></label>
+        <input asp-for="PasswordConfirmation" type="password" />
+        <span asp-validation-for="PasswordConfirmation"></span>
+    </div>
+
+    <div asp-validation-summary="All"></div>
+
+    <button type="submit">İşletme Kaydı Oluştur</button>
+</form>
