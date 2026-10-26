@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using OrganizationPlatform.Models;
 using OrganizationPlatform.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace OrganizationPlatform.Controllers;
 
@@ -27,8 +28,9 @@ public class AccountController : Controller
     {
         return View();
     }
-    public IActionResult Login()
+    public IActionResult Login(string audience = "customer")
     {
+        ViewBag.Audience = audience == "business" ? "business" : "customer";
         return View();
     }
 
@@ -46,8 +48,9 @@ public class AccountController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Login(LoginViewModel model)
+    public async Task<IActionResult> Login(LoginViewModel model, string audience = "customer")
     {
+        ViewBag.Audience = audience == "business" ? "business" : "customer";
         if (!ModelState.IsValid)
         {
             return View(model);

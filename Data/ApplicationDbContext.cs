@@ -12,25 +12,25 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
     }
 
-    public DbSet<Venue> Venues {get; set;}
-    public DbSet<PhysicalFeature> PhysicalFeatures {get; set;}
-    public DbSet<FeatureCategory> FeatureCategories {get; set;}
-    public DbSet<CustomerProfile> CustomerProfiles {get; set;}
-    public DbSet<BusinessCategory> BusinessCategories {get; set;}
-    public DbSet<BusinessProfile> BusinessProfiles {get; set;}
+    public DbSet<Venue> Venues { get; set; }
+    public DbSet<PhysicalFeature> PhysicalFeatures { get; set; }
+    public DbSet<FeatureCategory> FeatureCategories { get; set; }
+    public DbSet<CustomerProfile> CustomerProfiles { get; set; }
+    public DbSet<BusinessCategory> BusinessCategories { get; set; }
+    public DbSet<BusinessProfile> BusinessProfiles { get; set; }
 
-     protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<CustomerProfile>()
             .HasIndex(customer => customer.ApplicationUserId)
             .IsUnique();
-        
+
 
         modelBuilder.Entity<BusinessProfile>()
             .HasIndex(business => business.ApplicationUserId)
             .IsUnique();
-        
+
     }
 }

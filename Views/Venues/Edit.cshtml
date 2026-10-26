@@ -1,0 +1,93 @@
+@model OrganizationPlatform.Models.CreateVenueViewModel
+
+@{
+    ViewData["Title"] = "Mekânı Düzenle";
+}
+
+<h1>Mekânı Düzenle</h1>
+
+<form asp-controller="Venues" asp-action="Edit" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <input type="hidden" name="id" value="@Context.Request.Query["id"]" />
+
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Mekân Adı</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="City" class="form-label">Şehir</label>
+        <input asp-for="City" class="form-control" />
+        <span asp-validation-for="City" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Capacity" class="form-label">Kapasite</label>
+        <input asp-for="Capacity" type="number" min="1" class="form-control" />
+        <span asp-validation-for="Capacity" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Address" class="form-label">Adres</label>
+        <input asp-for="Address" class="form-control" />
+        <span asp-validation-for="Address" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label">Açıklama</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="MealIncludedPrice" class="form-label">
+            Yemekli Kişi Başı Fiyat (TL)
+        </label>
+        <input asp-for="MealIncludedPrice" type="number" step="0.01" min="0.01" class="form-control" />
+        <span asp-validation-for="MealIncludedPrice" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="MealExcludedPrice" class="form-label">
+            Yemeksiz Kişi Başı Fiyat (TL)
+        </label>
+        <input asp-for="MealExcludedPrice" type="number" step="0.01" min="0.01" class="form-control" />
+        <span asp-validation-for="MealExcludedPrice" class="text-danger"></span>
+    </div>
+
+    <h4>Fiziksel Özellikler</h4>
+
+    @{
+        var features = ViewBag.PhysicalFeatures
+            as List<OrganizationPlatform.Models.PhysicalFeature>;
+    }
+
+    @if (features != null)
+    {
+        @foreach (var category in features.GroupBy(f => f.Category.Name))
+        {
+            <h5>@category.Key</h5>
+
+            @foreach (var feature in category)
+            {
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="SelectedPhysicalFeatureIds" value="@feature.Id"
+                           id="feature_@feature.Id" checked="@Model.SelectedPhysicalFeatureIds.Contains(feature.Id)" />
+
+                    <label class="form-check-label" for="feature_@feature.Id">
+                        @feature.Name
+                    </label>
+                </div>
+            }
+        }
+    }
+
+    <button type="submit" class="btn btn-primary mt-3">Değişiklikleri Kaydet</button>
+    <a asp-action="MyVenues" class="btn btn-secondary mt-3">İptal</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

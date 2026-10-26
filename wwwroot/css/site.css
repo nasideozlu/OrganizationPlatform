@@ -121,6 +121,10 @@ textarea.form-control { min-height: 120px; }
 .validation-summary-valid { display: none; }
 .form-submit { width: 100%; margin-top: 7px; }
 .form-bottom { text-align: center; color: var(--muted); font-size: .88rem; margin: 20px 0 0; }
+.login-signup { display: grid; gap: 9px; margin-top: 22px; padding-top: 19px; border-top: 1px solid var(--line); text-align: center; }
+.login-signup p { margin: 0; color: var(--muted); font-size: .88rem; }
+.login-signup .btn { width: 100%; }
+.nav-actions .btn { white-space: nowrap; }
 .profile-page, .listing-page { max-width: 1120px; margin: 56px auto; padding: 0 22px; }
 .profile-heading, .listing-heading { margin-bottom: 28px; }
 .profile-heading h1, .listing-heading h1 { font-weight: 700; font-size: clamp(2rem,4vw,3rem); margin: 0 0 8px; }

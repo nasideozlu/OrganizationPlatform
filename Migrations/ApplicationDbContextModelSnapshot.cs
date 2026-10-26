@@ -352,6 +352,9 @@ namespace OrganizationPlatform.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("text");
 
+                    b.Property<int>("BusinessProfileId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("Capacity")
                         .HasColumnType("integer");
 
@@ -362,11 +365,19 @@ namespace OrganizationPlatform.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
+                    b.Property<decimal?>("MealExcludedPrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("MealIncludedPrice")
+                        .HasColumnType("numeric");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BusinessProfileId");
 
                     b.ToTable("Venues");
                 });
@@ -478,6 +489,17 @@ namespace OrganizationPlatform.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("OrganizationPlatform.Models.Venue", b =>
+                {
+                    b.HasOne("OrganizationPlatform.Models.BusinessProfile", "BusinessProfile")
+                        .WithMany("Venues")
+                        .HasForeignKey("BusinessProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BusinessProfile");
+                });
+
             modelBuilder.Entity("PhysicalFeatureVenue", b =>
                 {
                     b.HasOne("OrganizationPlatform.Models.PhysicalFeature", null)
@@ -496,6 +518,11 @@ namespace OrganizationPlatform.Migrations
             modelBuilder.Entity("OrganizationPlatform.Models.BusinessCategory", b =>
                 {
                     b.Navigation("BusinessProfiles");
+                });
+
+            modelBuilder.Entity("OrganizationPlatform.Models.BusinessProfile", b =>
+                {
+                    b.Navigation("Venues");
                 });
 
             modelBuilder.Entity("OrganizationPlatform.Models.FeatureCategory", b =>

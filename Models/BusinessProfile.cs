@@ -12,4 +12,6 @@ public class BusinessProfile
     public required BusinessCategory Category {get; set;}
     public required ApplicationUser ApplicationUser {get; set;}
 
+    public List<Venue> Venues { get; set; } = new List<Venue>();
+
 }
