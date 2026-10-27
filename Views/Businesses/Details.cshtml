@@ -1,0 +1,91 @@
+@model OrganizationPlatform.Models.BusinessProfile
+@{
+    ViewData["Title"] = Model.Name;
+    var cover = Model.Photos.OrderByDescending(photo => photo.UploadedAt).FirstOrDefault();
+}
+
+<section class="public-business-page">
+    <a asp-controller="Home" asp-action="Index" asp-fragment="kesfet" class="business-back-link">← Keşfe dön</a>
+
+    <header class="public-business-hero">
+        @if (cover != null)
+        {
+            <img class="public-business-cover" src="@cover.FilePath" alt="@Model.Name işletme fotoğrafı" />
+        }
+        else
+        {
+            <div class="public-business-cover public-business-cover-empty" aria-hidden="true">✳</div>
+        }
+        <div class="public-business-shade"></div>
+        <div class="public-business-title">
+            <span class="public-business-category">@Model.Category.Name</span>
+            <h1>@Model.Name</h1>
+            <p><span aria-hidden="true">⌖</span> @Model.City@(string.IsNullOrWhiteSpace(Model.District) ? "" : $", {Model.District}")</p>
+        </div>
+    </header>
+
+    <div class="public-business-layout">
+        <div class="public-business-main">
+            <section class="public-business-panel">
+                <span class="dashboard-kicker">İŞLETMENİN HİKÂYESİ</span>
+                <h2>@Model.Name</h2>
+                <p class="public-business-description">@(string.IsNullOrWhiteSpace(Model.Description) ? "Bu işletme henüz bir açıklama eklememiş." : Model.Description)</p>
+                <div class="public-business-facts">
+                    <div><span class="detail-icon">✳</span><span><small>Kategori</small><strong>@Model.Category.Name</strong></span></div>
+                    <div><span class="detail-icon">⌖</span><span><small>Hizmet bölgesi</small><strong>@Model.City@(string.IsNullOrWhiteSpace(Model.District) ? "" : $", {Model.District}")</strong></span></div>
+                </div>
+            </section>
+
+            @if (Model.Photos.Count > 0)
+            {
+                <section class="public-business-panel">
+                    <div class="detail-panel-heading"><div><span class="dashboard-kicker">İŞLETMEDEN</span><h2>Fotoğraf galerisi</h2></div><span class="business-venue-count">@Model.Photos.Count</span></div>
+                    <div class="public-business-gallery">
+                        @foreach (var photo in Model.Photos.OrderByDescending(photo => photo.UploadedAt))
+                        {
+                            <a href="@photo.FilePath" target="_blank" rel="noopener noreferrer"><img src="@photo.FilePath" alt="@Model.Name fotoğrafı" loading="lazy" /></a>
+                        }
+                    </div>
+                </section>
+            }
+
+            @if (Model.Venues.Count > 0)
+            {
+                <section class="public-business-panel">
+                    <div class="detail-panel-heading"><div><span class="dashboard-kicker">MEKÂNLAR</span><h2>Bu işletmenin mekânları</h2></div><span class="business-venue-count">@Model.Venues.Count</span></div>
+                    <div class="public-business-venue-grid">
+                        @foreach (var venue in Model.Venues)
+                        {
+                            var venuePhoto = venue.Photos.OrderByDescending(photo => photo.UploadedAt).FirstOrDefault();
+                            <a class="public-business-venue" asp-controller="Venues" asp-action="Details" asp-route-id="@venue.Id">
+                                @if (venuePhoto != null)
+                                {
+                                    <img src="@venuePhoto.FilePath" alt="@venue.Name mekân fotoğrafı" loading="lazy" />
+                                }
+                                else
+                                {
+                                    <span class="public-venue-placeholder" aria-hidden="true">⌖</span>
+                                }
+                                <span class="public-venue-info"><strong>@venue.Name</strong><small>@venue.City · @venue.District · @venue.Capacity kişi</small><b>Mekân detayları <span aria-hidden="true">↗</span></b></span>
+                            </a>
+                        }
+                    </div>
+                </section>
+            }
+        </div>
+
+        <aside class="public-business-contact">
+            <span class="dashboard-kicker">İLETİŞİM</span>
+            <h2>İşletmeyle iletişime geç</h2>
+            @if (!string.IsNullOrWhiteSpace(Model.ApplicationUser.Email))
+            {
+                <div class="public-contact-row"><span class="contact-icon">✉</span><span><small>E-posta</small><a href="mailto:@Model.ApplicationUser.Email">@Model.ApplicationUser.Email</a></span></div>
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.ApplicationUser.PhoneNumber))
+            {
+                <div class="public-contact-row"><span class="contact-icon">⌕</span><span><small>Telefon</small><a href="tel:@Model.ApplicationUser.PhoneNumber">@Model.ApplicationUser.PhoneNumber</a></span></div>
+            }
+            <div class="public-contact-note">İşletme hizmetleri ve uygunluk bilgisi için doğrudan iletişime geçebilirsin.</div>
+        </aside>
+    </div>
+</section>

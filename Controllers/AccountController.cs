@@ -4,6 +4,7 @@ using OrganizationPlatform.Models;
 using OrganizationPlatform.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using OrganizationPlatform.Services;
 
 namespace OrganizationPlatform.Controllers;
 
@@ -12,16 +13,18 @@ public class AccountController : Controller
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly ApplicationDbContext _context;
+    private readonly LocationService _locationService;
 
     public AccountController(
-        UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager,
-        ApplicationDbContext context)
-
+    UserManager<ApplicationUser> userManager,
+    SignInManager<ApplicationUser> signInManager,
+    ApplicationDbContext context,
+    LocationService locationService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _context = context;
+        _locationService = locationService;
     }
 
     public IActionResult Register()
@@ -37,12 +40,8 @@ public class AccountController : Controller
     [HttpGet]
     public async Task<IActionResult> BusinessRegister()
     {
-        var categories = await _context.BusinessCategories.ToListAsync();
-
-        var model = new BusinessRegisterViewModel
-        {
-            Categories = categories
-        };
+        var model = new BusinessRegisterViewModel();
+        await LoadBusinessRegistrationOptionsAsync(model);
 
         return View(model);
     }
@@ -134,7 +133,7 @@ public class AccountController : Controller
     {
         if (!ModelState.IsValid)
         {
-            model.Categories = await _context.BusinessCategories.ToListAsync();
+            await LoadBusinessRegistrationOptionsAsync(model);
             return View(model);
         }
 
@@ -144,7 +143,7 @@ public class AccountController : Controller
         if (!categoryExists)
         {
             ModelState.AddModelError("CategoryId", "Lütfen geçerli bir işletme kategorisi seçin.");
-            model.Categories = await _context.BusinessCategories.ToListAsync();
+            await LoadBusinessRegistrationOptionsAsync(model);
             return View(model);
         }
         var user = new ApplicationUser
@@ -164,7 +163,7 @@ public class AccountController : Controller
                 ModelState.AddModelError(string.Empty, error.Description);
             }
 
-            model.Categories = await _context.BusinessCategories.ToListAsync();
+            await LoadBusinessRegistrationOptionsAsync(model);
             return View(model);
         }
         var category = await _context.BusinessCategories
@@ -174,6 +173,7 @@ public class AccountController : Controller
         {
             Name = model.Name,
             City = model.City,
+            District = model.District,
             CategoryId = model.CategoryId,
             Category = category,
             ApplicationUserId = user.Id,
@@ -185,5 +185,18 @@ public class AccountController : Controller
         await _signInManager.SignInAsync(user, isPersistent: false);
 
         return RedirectToAction("Index", "Home");
+    }
+
+    private async Task LoadBusinessRegistrationOptionsAsync(BusinessRegisterViewModel model)
+    {
+        model.Categories = await _context.BusinessCategories.ToListAsync();
+
+        var provinces = await _locationService.GetProvincesAsync();
+        ViewBag.Provinces = provinces;
+
+        var selectedProvince = provinces.FirstOrDefault(province => province.Name == model.City);
+        ViewBag.Districts = selectedProvince is not null
+            ? await _locationService.GetDistrictsAsync(selectedProvince.Id)
+            : new List<LocationItem>();
     }
 }

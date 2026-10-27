@@ -25,13 +25,17 @@
                 <p>@(isBusiness ? "Birlikte'de yeni misin?" : "Henüz hesabın yok mu?")</p>
                 @if (isBusiness)
                 {
-                    <a class="btn btn-outline-primary" asp-controller="Account" asp-action="BusinessRegister">İşletmeni ekle</a>
+                    <a class="btn btn-outline-primary" asp-controller="Account" asp-action="BusinessRegister">İşletmeni Ekle</a>
                 }
                 else
                 {
-                    <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Register">Müşteri olarak kayıt ol</a>
+                    <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Register">Kayıt ol</a>
                 }
             </div>
         </div>
     </div>
 </section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

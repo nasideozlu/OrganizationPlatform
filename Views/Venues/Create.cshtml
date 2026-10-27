@@ -1,111 +1,129 @@
 @model OrganizationPlatform.Models.CreateVenueViewModel
-
 @{
     ViewData["Title"] = "Yeni mekân ekle";
-    var features = ViewBag.PhysicalFeatures
-        as List<OrganizationPlatform.Models.PhysicalFeature>
-        ?? new List<OrganizationPlatform.Models.PhysicalFeature>();
+    var features = ViewBag.PhysicalFeatures as List<OrganizationPlatform.Models.PhysicalFeature> ?? new();
+    var provinces = ViewBag.Provinces as List<OrganizationPlatform.Services.LocationItem> ?? new();
+    var districts = ViewBag.Districts as List<OrganizationPlatform.Services.LocationItem> ?? new();
+    var neighborhoods = ViewBag.Neighborhoods as List<OrganizationPlatform.Services.LocationItem> ?? new();
 }
 
-<section class="form-page">
+<section class="form-page venue-form-page">
     <div class="form-shell">
-        <div class="form-content">
-            <h1>Yeni mekân ekle</h1>
-            <p class="form-intro">
-                Mekân bilgilerini ve fiziksel özelliklerini doldur.
-            </p>
+        <aside class="form-aside venue-form-aside">
+            <div class="eyebrow"><span class="eyebrow-dot"></span> İşletme yönetimi</div>
+            <h1>Mekânını keşfe aç.</h1>
+            <p>İlanını ne kadar detaylı hazırlarsan etkinlik sahipleri aradıkları bilgiyi o kadar kolay bulur.</p>
+            <ul class="venue-form-checklist"><li>Konum ve kapasite bilgisi</li><li>Fiyat ve mekân detayları</li><li>Fotoğraf galerisi ve özellikler</li></ul>
+            <div class="form-aside-note">İlanını daha sonra Mekânlarım sayfasından düzenleyebilirsin.</div>
+        </aside>
+        <div class="form-content venue-form-content">
+            <h2>Yeni mekân ekle</h2>
+            <p class="form-intro">Mekânın hakkında temel bilgileri paylaş.</p>
+            <form asp-controller="Venues" asp-action="Create" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="All" class="validation-summary-errors"></div>
 
-            <form asp-controller="Venues" asp-action="Create" method="post">
-                <div asp-validation-summary="All" class="text-danger"></div>
-
-                <div class="field">
-                    <label asp-for="Name">Mekân adı</label>
-                    <input asp-for="Name" class="form-control" />
-                    <span asp-validation-for="Name" class="text-danger"></span>
+                <div class="venue-form-section">
+                    <div class="venue-form-section-heading"><span>01</span><div><h3>Mekân bilgileri</h3><p>Mekânını tanımlayan bilgileri ekle.</p></div></div>
+                    <div class="field"><label asp-for="Name">Mekân adı</label><input asp-for="Name" class="form-control" placeholder="Örn. Bahçe Teras" required /><span asp-validation-for="Name"></span></div>
+                    <div class="form-grid venue-location-grid">
+                        <div class="field"><label asp-for="City">İl</label><select asp-for="City" id="City" class="form-select" required><option value="">İl seçin</option>@foreach (var province in provinces) { <option value="@province.Name" data-id="@province.Id">@province.Name</option> }</select><span asp-validation-for="City"></span></div>
+                        <div class="field"><label asp-for="District">İlçe</label><select asp-for="District" id="District" class="form-select" required disabled="@(districts.Count == 0)"><option value="">@(districts.Count == 0 ? "Önce il seçin" : "İlçe seçin")</option>@foreach (var district in districts) { <option value="@district.Name" data-id="@district.Id">@district.Name</option> }</select><span asp-validation-for="District"></span></div>
+                        <div class="field"><label asp-for="Neighborhood">Mahalle</label><select asp-for="Neighborhood" id="Neighborhood" class="form-select" required disabled="@(neighborhoods.Count == 0)"><option value="">@(neighborhoods.Count == 0 ? "Önce ilçe seçin" : "Mahalle seçin")</option>@foreach (var neighborhood in neighborhoods) { <option value="@neighborhood.Name">@neighborhood.Name</option> }</select><span asp-validation-for="Neighborhood"></span></div>
+                    </div>
+                    <p id="locationLoadError" class="field-help text-danger" aria-live="polite"></p>
+                    <div class="field"><label asp-for="Address">Açık adres <span class="optional-label">(isteğe bağlı)</span></label><textarea asp-for="Address" class="form-control" rows="2" placeholder="Sokak, cadde ve bina bilgisi"></textarea><span asp-validation-for="Address"></span></div>
                 </div>
 
-                <div class="field">
-                    <label asp-for="City">Şehir</label>
-                    <input asp-for="City" class="form-control" />
-                    <span asp-validation-for="City" class="text-danger"></span>
+                <div class="venue-form-section">
+                    <div class="venue-form-section-heading"><span>02</span><div><h3>Detaylar ve fiyat</h3><p>Ziyaretçilere karar vermelerinde yardımcı ol.</p></div></div>
+                    <div class="form-grid">
+                        <div class="field"><label asp-for="Capacity">Kapasite <span class="optional-label">(kişi)</span></label><input asp-for="Capacity" type="number" min="1" class="form-control" placeholder="Örn. 250" required /><span asp-validation-for="Capacity"></span></div>
+                        <div class="field"><label asp-for="MealIncludedPrice">Yemekli kişi başı <span class="optional-label">(₺)</span></label><input asp-for="MealIncludedPrice" type="number" step="0.01" min="0.01" class="form-control" placeholder="Fiyatı gir" /><span asp-validation-for="MealIncludedPrice"></span></div>
+                        <div class="field"><label asp-for="MealExcludedPrice">Yemeksiz kişi başı <span class="optional-label">(₺)</span></label><input asp-for="MealExcludedPrice" type="number" step="0.01" min="0.01" class="form-control" placeholder="Fiyatı gir" /><span asp-validation-for="MealExcludedPrice"></span></div>
+                    </div>
+                    <div class="field"><label asp-for="Description">Mekân açıklaması</label><textarea asp-for="Description" class="form-control" rows="4" placeholder="Mekânını, sunduğun hizmetleri ve öne çıkan özellikleri anlat" required></textarea><span asp-validation-for="Description"></span></div>
                 </div>
 
-                <div class="field">
-                    <label asp-for="Capacity">Kapasite (kişi)</label>
-                    <input asp-for="Capacity" type="number" min="1" class="form-control" />
-                    <span asp-validation-for="Capacity" class="text-danger"></span>
-                </div>
-
-                <div class="field">
-                    <label asp-for="Address">Açık adres</label>
-                    <textarea asp-for="Address" class="form-control" rows="3"></textarea>
-                    <span asp-validation-for="Address" class="text-danger"></span>
-                </div>
-
-                <div class="field">
-                    <label asp-for="Description">Açıklama (isteğe bağlı)</label>
-                    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
-                    <span asp-validation-for="Description" class="text-danger"></span>
-                </div>
-                <div class="mb-3">
-                    <label asp-for="MealIncludedPrice" class="form-label">
-                        Yemekli Kişi Başı Fiyat (TL)
-                    </label>
-                    <input asp-for="MealIncludedPrice" class="form-control" type="number" step="0.01" min="0.01" />
-                    <span asp-validation-for="MealIncludedPrice" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="MealExcludedPrice" class="form-label">
-                        Yemeksiz Kişi Başı Fiyat (TL)
-                    </label>
-                    <input asp-for="MealExcludedPrice" class="form-control" type="number" step="0.01" min="0.01" />
-                    <span asp-validation-for="MealExcludedPrice" class="text-danger"></span>
-                </div>
-
-                <hr />
-
-                <h2 class="h4">Fiziksel özellikler</h2>
-                <p class="text-muted">
-                    Mekânında bulunan özellikleri seçebilirsin.
-                </p>
-
-                @if (features.Count == 0)
-                {
-                    <p>Henüz tanımlanmış fiziksel özellik bulunmuyor.</p>
-                }
-                else
-                {
-                    var categories = features
-                        .GroupBy(feature => feature.Category.Name)
-                        .OrderBy(group => group.Key);
-
-                    foreach (var category in categories)
+                <div class="venue-form-section">
+                    <div class="venue-form-section-heading"><span>03</span><div><h3>Fotoğraflar ve özellikler</h3><p>Görseller mekânını daha iyi tanıtır.</p></div></div>
+                    <div class="field"><label asp-for="Photos">Mekân fotoğrafları</label><input asp-for="Photos" id="VenuePhotos" type="file" class="form-control" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple /><span asp-validation-for="Photos"></span><small id="venuePhotoHelp" class="field-help">JPEG, PNG veya WebP · fotoğraf başına en fazla 5 MB.</small></div>
+                    @if (features.Count == 0)
                     {
-                        <h3 class="h6 mt-3">@category.Key</h3>
-
-                        foreach (var feature in category)
-                        {
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="SelectedPhysicalFeatureIds"
-                                       value="@feature.Id" id="feature-@feature.Id" />
-
-                                <label class="form-check-label" for="feature-@feature.Id">
-                                    @feature.Name
-                                </label>
-                            </div>
-                        }
+                        <p class="text-secondary">Henüz tanımlanmış mekân özelliği yok.</p>
                     }
-                }
+                    else
+                    {
+                        <div class="venue-feature-groups">
+                            @foreach (var category in features.GroupBy(feature => feature.Category.Name).OrderBy(group => group.Key))
+                            {
+                                <fieldset class="venue-feature-group"><legend>@category.Key</legend><div class="venue-feature-options">@foreach (var feature in category) { <label class="feature-option" for="feature-@feature.Id"><input class="form-check-input" type="checkbox" name="SelectedPhysicalFeatureIds" value="@feature.Id" id="feature-@feature.Id" /><span>@feature.Name</span></label> }</div></fieldset>
+                            }
+                        </div>
+                    }
+                </div>
 
-                <button type="submit" class="btn btn-primary mt-4">
-                    Mekânı kaydet
-                </button>
-
-                <a asp-controller="Venues" asp-action="MyVenues" class="btn btn-outline-secondary mt-4">
-                    Vazgeç
-                </a>
+                <div class="venue-form-actions"><a asp-controller="Venues" asp-action="MyVenues" class="btn btn-outline-primary">Vazgeç</a><button type="submit" class="btn btn-primary">Mekânı yayınla <span aria-hidden="true">↗</span></button></div>
             </form>
         </div>
     </div>
 </section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const citySelect = document.getElementById('City');
+        const districtSelect = document.getElementById('District');
+        const neighborhoodSelect = document.getElementById('Neighborhood');
+        const locationError = document.getElementById('locationLoadError');
+
+        citySelect?.addEventListener('change', async () => {
+            districtSelect.innerHTML = '<option value="">İlçe seçin</option>';
+            neighborhoodSelect.innerHTML = '<option value="">Önce ilçe seçin</option>';
+            districtSelect.disabled = true;
+            neighborhoodSelect.disabled = true;
+            locationError.textContent = '';
+            const provinceId = citySelect.options[citySelect.selectedIndex]?.dataset.id;
+            if (!provinceId) return;
+
+            try {
+                const response = await fetch(`/Venues/GetDistricts?provinceId=${encodeURIComponent(provinceId)}`);
+                if (!response.ok) throw new Error();
+                const districts = await response.json();
+                districts.forEach(district => {
+                    const option = new Option(district.name, district.name);
+                    option.dataset.id = district.id;
+                    districtSelect.add(option);
+                });
+                districtSelect.disabled = false;
+            } catch {
+                locationError.textContent = 'İlçeler yüklenemedi. Lütfen tekrar deneyin.';
+            }
+        });
+
+        districtSelect?.addEventListener('change', async () => {
+            neighborhoodSelect.innerHTML = '<option value="">Mahalle seçin</option>';
+            neighborhoodSelect.disabled = true;
+            locationError.textContent = '';
+            const districtId = districtSelect.options[districtSelect.selectedIndex]?.dataset.id;
+            if (!districtId) return;
+
+            try {
+                const response = await fetch(`/Venues/GetNeighborhoods?districtId=${encodeURIComponent(districtId)}`);
+                if (!response.ok) throw new Error();
+                const neighborhoods = await response.json();
+                neighborhoods.forEach(neighborhood => neighborhoodSelect.add(new Option(neighborhood.name, neighborhood.name)));
+                neighborhoodSelect.disabled = false;
+            } catch {
+                locationError.textContent = 'Mahalleler yüklenemedi. Lütfen tekrar deneyin.';
+            }
+        });
+
+        document.getElementById('VenuePhotos')?.addEventListener('change', event => {
+            const count = event.target.files.length;
+            document.getElementById('venuePhotoHelp').textContent = count
+                ? `${count} fotoğraf seçildi · JPEG, PNG veya WebP · fotoğraf başına en fazla 5 MB.`
+                : 'JPEG, PNG veya WebP · fotoğraf başına en fazla 5 MB.';
+        });
+    </script>
+}

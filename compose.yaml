@@ -21,6 +21,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+    volumes:
+      - venue_photos:/app/wwwroot/uploads
     environment:
       Jwt__SigningKey: ${Jwt__SigningKey}
       ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=organization;Username=appuser;Password=${DB_PASSWORD}"
@@ -30,3 +32,4 @@ services:
 
 volumes:
   postgres_data:
+  venue_photos:

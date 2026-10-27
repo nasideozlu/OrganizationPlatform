@@ -9,7 +9,7 @@
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/OrganizationPlatform.styles.css" asp-append-version="true" />
+    @*<link rel="stylesheet" href="~/OrganizationPlatform.styles.css" asp-append-version="true" />*@
 </head>
 
 <body>
@@ -27,20 +27,17 @@
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
                         </li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="Venues" asp-action="Index">Mekânlar</a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" href="/#kesfet">Keşfet</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Venues" asp-action="Index">Mekânlar</a></li>
+
+
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Profile" asp-action="Index">Profilim</a>
                             </li>
-
-                            @if (User.HasClaim("AccountType", "Business"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Venues" asp-action="MyVenues">Mekânlarım</a>
-                                </li>
-                            }
+                        
+                            @await Component.InvokeAsync("BusinessNavigation")
                         }
                     </ul>
                     <div class="nav-actions">
@@ -52,29 +49,31 @@
                         }
                         else
                         {
-                            <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Login" asp-route-audience="customer">Giriş Yap / Kayıt Ol</a>
-                            <a class="btn btn-primary" asp-controller="Account" asp-action="Login" asp-route-audience="business">İşletmeler İçin</a>
-                            }
-                        </div>
+                            <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Login"
+                               asp-route-audience="customer">Giriş Yap / Kayıt Ol</a>
+                            <a class="btn btn-primary" asp-controller="Account" asp-action="Login"
+                               asp-route-audience="business">İşletmeler İçin</a>
+                        }
                     </div>
                 </div>
-            </nav>
-        </header>
-        <main role="main" class="page-main">
-            @RenderBody()
-        </main>
-        <footer class="site-footer">
-            <div class="container footer-inner">
-                <a class="footer-brand" asp-controller="Home" asp-action="Index">birlikte<span
-                    style="color:var(--green)">.</span></a>
-                    <span>Güzel günler, güzel planlarla başlar. © 2026 Birlikte</span>
-                    <a asp-controller="Home" asp-action="Privacy">Gizlilik</a>
-                </div>
-            </footer>
-            <script src="~/lib/jquery/dist/jquery.min.js"></script>
-            <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-            <script src="~/js/site.js" asp-append-version="true"></script>
-            @await RenderSectionAsync("Scripts", required: false)
-        </body>
+            </div>
+        </nav>
+    </header>
+    <main role="main" class="page-main">
+        @RenderBody()
+    </main>
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <a class="footer-brand" asp-controller="Home" asp-action="Index">birlikte<span
+                style="color:var(--green)">.</span></a>
+                <span>Güzel günler, güzel planlarla başlar. © 2026 Birlikte</span>
+                <a asp-controller="Home" asp-action="Privacy">Gizlilik</a>
+            </div>
+        </footer>
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+        @await RenderSectionAsync("Scripts", required: false)
+    </body>
 
-    </html>
+</html>

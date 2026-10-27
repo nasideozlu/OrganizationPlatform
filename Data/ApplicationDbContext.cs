@@ -18,6 +18,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<CustomerProfile> CustomerProfiles { get; set; }
     public DbSet<BusinessCategory> BusinessCategories { get; set; }
     public DbSet<BusinessProfile> BusinessProfiles { get; set; }
+    public DbSet<BusinessPhoto> BusinessPhotos { get; set; }
+    = null!;
+
+    public DbSet<VenuePhoto> VenuePhotos { get; set; }
+        = null!;
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

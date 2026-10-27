@@ -11,6 +11,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<OrganizationPlatform.Services.PhotoStorageService>();
+builder.Services.AddHttpClient<OrganizationPlatform.Services.LocationService>(
+    client =>
+    {
+        client.BaseAddress = new Uri("https://api.turkiyeapi.dev/v2/");
+    });
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -161,13 +167,17 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+
 app.UseHttpsRedirection();
 app.UseRouting();
+
+app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
+
 
 app.MapControllerRoute(
     name: "default",

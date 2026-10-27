@@ -6,6 +6,7 @@ public class BusinessProfile
     public required string Name {get; set;}
     public string? Description {get; set;}
     public required string City {get; set;}
+    public required string District { get; set; }
     public int CategoryId {get; set;}
     public required string ApplicationUserId {get; set;}
 
@@ -13,5 +14,5 @@ public class BusinessProfile
     public required ApplicationUser ApplicationUser {get; set;}
 
     public List<Venue> Venues { get; set; } = new List<Venue>();
-
+    public List<BusinessPhoto> Photos { get; set; } = new();
 }

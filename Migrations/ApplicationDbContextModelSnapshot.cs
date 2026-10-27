@@ -238,6 +238,31 @@ namespace OrganizationPlatform.Migrations
                     b.ToTable("BusinessCategories");
                 });
 
+            modelBuilder.Entity("OrganizationPlatform.Models.BusinessPhoto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BusinessProfileId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessProfileId");
+
+                    b.ToTable("BusinessPhotos");
+                });
+
             modelBuilder.Entity("OrganizationPlatform.Models.BusinessProfile", b =>
                 {
                     b.Property<int>("Id")
@@ -258,6 +283,10 @@ namespace OrganizationPlatform.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("District")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
@@ -365,6 +394,10 @@ namespace OrganizationPlatform.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
+                    b.Property<string>("District")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<decimal?>("MealExcludedPrice")
                         .HasColumnType("numeric");
 
@@ -375,11 +408,40 @@ namespace OrganizationPlatform.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Neighborhood")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BusinessProfileId");
 
                     b.ToTable("Venues");
+                });
+
+            modelBuilder.Entity("OrganizationPlatform.Models.VenuePhoto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("VenueId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VenueId");
+
+                    b.ToTable("VenuePhotos");
                 });
 
             modelBuilder.Entity("PhysicalFeatureVenue", b =>
@@ -448,6 +510,17 @@ namespace OrganizationPlatform.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("OrganizationPlatform.Models.BusinessPhoto", b =>
+                {
+                    b.HasOne("OrganizationPlatform.Models.BusinessProfile", "BusinessProfile")
+                        .WithMany("Photos")
+                        .HasForeignKey("BusinessProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BusinessProfile");
+                });
+
             modelBuilder.Entity("OrganizationPlatform.Models.BusinessProfile", b =>
                 {
                     b.HasOne("OrganizationPlatform.Models.ApplicationUser", "ApplicationUser")
@@ -500,6 +573,17 @@ namespace OrganizationPlatform.Migrations
                     b.Navigation("BusinessProfile");
                 });
 
+            modelBuilder.Entity("OrganizationPlatform.Models.VenuePhoto", b =>
+                {
+                    b.HasOne("OrganizationPlatform.Models.Venue", "Venue")
+                        .WithMany("Photos")
+                        .HasForeignKey("VenueId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Venue");
+                });
+
             modelBuilder.Entity("PhysicalFeatureVenue", b =>
                 {
                     b.HasOne("OrganizationPlatform.Models.PhysicalFeature", null)
@@ -522,12 +606,19 @@ namespace OrganizationPlatform.Migrations
 
             modelBuilder.Entity("OrganizationPlatform.Models.BusinessProfile", b =>
                 {
+                    b.Navigation("Photos");
+
                     b.Navigation("Venues");
                 });
 
             modelBuilder.Entity("OrganizationPlatform.Models.FeatureCategory", b =>
                 {
                     b.Navigation("PhysicalFeatures");
+                });
+
+            modelBuilder.Entity("OrganizationPlatform.Models.Venue", b =>
+                {
+                    b.Navigation("Photos");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,5 +1,6 @@
 
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace OrganizationPlatform.Models;
 
@@ -12,9 +13,10 @@ public class BusinessProfileEditViewModel
 
     [Required]
     public string City { get; set; } = string.Empty;
-
     [Required]
-    public int CategoryId { get; set; }
+    public string District { get; set; } = string.Empty;
 
-    public List<BusinessCategory> Categories { get; set; } = new();
+    public List<IFormFile> Photos { get; set; } = new();
+    public List<BusinessPhoto> ExistingPhotos { get; set; } = new();
+
 }

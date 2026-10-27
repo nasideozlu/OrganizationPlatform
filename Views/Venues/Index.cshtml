@@ -1,16 +1,85 @@
 @model List<OrganizationPlatform.Models.Venue>
 @{ ViewData["Title"] = "Mekânları keşfet"; }
-<section class="listing-page">
-    <div class="listing-heading"><div class="eyebrow"><span class="eyebrow-dot"></span> Güzel gününe yakışan yer</div><h1>Mekânları keşfet</h1><p>Hayalindeki etkinlik için sana uygun mekânlara göz at.</p></div>
+<section class="listing-page venue-listing-page">
+    <div class="listing-heading">
+        <div class="eyebrow"><span class="eyebrow-dot"></span> Güzel gününe yakışan yer</div>
+        <h1>Mekânları keşfet</h1>
+        <p>Konum, kapasite ve fotoğrafları inceleyerek etkinliğine uygun mekânı bul.</p>
+    </div>
+
     @if (Model.Count == 0)
     {
         <div class="empty-state"><div class="empty-state-icon" aria-hidden="true">⌖</div><h2 class="h5 text-dark">Mekânlar yakında burada</h2><p class="mb-0">Henüz kayıtlı mekân bulunmuyor. Daha sonra tekrar göz at.</p></div>
     }
     else
     {
-        <div class="table-shell"><div class="table-responsive"><table class="table align-middle">
-            <thead><tr><th>Mekân</th><th>Şehir</th><th>Kapasite</th><th>Adres</th></tr></thead>
-            <tbody>@foreach (var venue in Model) { <tr><td><strong>@venue.Name</strong></td><td>@venue.City</td><td>@venue.Capacity kişi</td><td>@venue.Address</td></tr> }</tbody>
-        </table></div></div>
+        <div class="catalog-toolbar">
+            <label for="venueSearch">Mekân ara</label>
+            <div class="catalog-search-wrap"><span aria-hidden="true">⌕</span><input id="venueSearch" type="search" class="form-control" placeholder="Mekân, şehir veya ilçe yaz" autocomplete="off" /></div>
+            <span id="venueResultCount" class="catalog-result-count">@Model.Count mekân</span>
+        </div>
+        <div class="venue-catalog-grid" id="venueCatalog">
+            @foreach (var venue in Model)
+            {
+                var cover = venue.Photos.OrderByDescending(photo => photo.UploadedAt).FirstOrDefault();
+                var searchText = $"{venue.Name} {venue.City} {venue.District} {venue.Neighborhood}";
+                <a class="venue-list-card" data-search="@searchText" asp-controller="Venues" asp-action="Details" asp-route-id="@venue.Id">
+                    <div class="venue-list-cover">
+                        @if (cover != null)
+                        {
+                            <img src="@cover.FilePath" alt="@venue.Name mekân fotoğrafı" loading="lazy" />
+                        }
+                        else
+                        {
+                            <span class="catalog-placeholder" aria-hidden="true">⌖</span>
+                        }
+                        <span class="venue-capacity-badge">@venue.Capacity kişi</span>
+                    </div>
+                    <div class="venue-list-body">
+                        <span class="catalog-location">@venue.City · @venue.District</span>
+                        <h2>@venue.Name</h2>
+                        <p>@(string.IsNullOrWhiteSpace(venue.Address) ? venue.Neighborhood : venue.Address)</p>
+                        <div class="venue-card-footer">
+                            <div class="venue-price-label">
+                                @if (venue.MealIncludedPrice.HasValue)
+                                {
+                                    <><small>Yemekli kişi başı</small><strong>@venue.MealIncludedPrice.Value.ToString("N0") ₺</strong></>
+                                }
+                                else if (venue.MealExcludedPrice.HasValue)
+                                {
+                                    <><small>Yemeksiz kişi başı</small><strong>@venue.MealExcludedPrice.Value.ToString("N0") ₺</strong></>
+                                }
+                                else
+                                {
+                                    <small>Fiyat için detayları incele</small>
+                                }
+                            </div>
+                            <span class="catalog-card-action">Detaylar <span aria-hidden="true">↗</span></span>
+                        </div>
+                    </div>
+                </a>
+            }
+        </div>
+        <div id="venueSearchEmpty" class="empty-state d-none"><h2 class="h5 text-dark">Eşleşen mekân bulunamadı</h2><p class="mb-0">Başka bir mekân adı, şehir veya ilçe deneyebilirsin.</p></div>
     }
 </section>
+
+@section Scripts {
+    <script>
+        const venueSearch = document.getElementById('venueSearch');
+        venueSearch?.addEventListener('input', () => {
+            const query = venueSearch.value.trim().toLocaleLowerCase('tr-TR');
+            const cards = [...document.querySelectorAll('#venueCatalog .venue-list-card')];
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const matches = card.dataset.search.toLocaleLowerCase('tr-TR').includes(query);
+                card.classList.toggle('d-none', !matches);
+                if (matches) visibleCount++;
+            });
+
+            document.getElementById('venueSearchEmpty')?.classList.toggle('d-none', visibleCount > 0);
+            document.getElementById('venueResultCount').textContent = `${visibleCount} mekân`;
+        });
+    </script>
+}

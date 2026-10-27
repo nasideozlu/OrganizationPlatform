@@ -1,0 +1,93 @@
+@model OrganizationPlatform.Models.Venue
+@{
+    ViewData["Title"] = Model.Name;
+    var cover = Model.Photos.OrderByDescending(photo => photo.UploadedAt).FirstOrDefault();
+}
+<section class="venue-detail-page">
+    <a asp-controller="Venues" asp-action="Index" class="business-back-link">← Tüm mekânlara dön</a>
+
+    <div class="venue-detail-hero">
+        @if (cover != null)
+        {
+            <img class="venue-detail-cover" src="@cover.FilePath" alt="@Model.Name mekân fotoğrafı" />
+        }
+        else
+        {
+            <div class="venue-detail-cover venue-detail-cover-empty" aria-hidden="true">⌖</div>
+        }
+        <div class="venue-detail-shade"></div>
+        <div class="venue-detail-title">
+            <span class="business-detail-category">@Model.BusinessProfile.Category.Name</span>
+            <h1>@Model.Name</h1>
+            <p><span aria-hidden="true">⌖</span> @Model.City, @Model.District, @Model.Neighborhood</p>
+        </div>
+    </div>
+
+    <div class="venue-detail-content">
+        <div class="venue-detail-main">
+            <section class="venue-detail-panel">
+                <span class="dashboard-kicker">MEKÂNI TANI</span>
+                <h2>Mekân hakkında</h2>
+                <p class="business-about-copy">@(string.IsNullOrWhiteSpace(Model.Description) ? "Bu mekân için henüz açıklama eklenmemiş." : Model.Description)</p>
+                <div class="venue-facts-grid">
+                    <div class="venue-fact"><span class="detail-icon">♙</span><div><small>Kapasite</small><strong>@Model.Capacity kişi</strong></div></div>
+                    <div class="venue-fact"><span class="detail-icon">⌖</span><div><small>Konum</small><strong>@Model.District, @Model.City</strong></div></div>
+                    @if (!string.IsNullOrWhiteSpace(Model.Address))
+                    {
+                        <div class="venue-fact venue-fact-wide"><span class="detail-icon">⌂</span><div><small>Açık adres</small><strong>@Model.Address</strong></div></div>
+                    }
+                </div>
+            </section>
+
+            <section class="venue-detail-panel">
+                <div class="detail-panel-heading"><div><span class="dashboard-kicker">MEKÂN FOTOĞRAFLARI</span><h2>Fotoğraf galerisi</h2></div><span class="business-venue-count">@Model.Photos.Count</span></div>
+                @if (Model.Photos.Any())
+                {
+                    <div class="venue-photo-grid">
+                        @foreach (var photo in Model.Photos.OrderByDescending(photo => photo.UploadedAt))
+                        {
+                            <a href="@photo.FilePath" target="_blank" rel="noopener noreferrer"><img src="@photo.FilePath" alt="@Model.Name mekân fotoğrafı" loading="lazy" /></a>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-secondary mb-0">Bu mekân için henüz fotoğraf eklenmemiş.</p>
+                }
+            </section>
+
+            <section class="venue-detail-panel">
+                <span class="dashboard-kicker">ÖZELLİKLER</span><h2>Fiziksel özellikler</h2>
+                @if (Model.PhysicalFeatures.Any())
+                {
+                    <div class="venue-feature-chips">@foreach (var feature in Model.PhysicalFeatures) { <span>@feature.Name</span> }</div>
+                }
+                else
+                {
+                    <p class="text-secondary mb-0">Henüz fiziksel özellik bilgisi eklenmemiş.</p>
+                }
+            </section>
+        </div>
+
+        <aside class="venue-detail-sidebar">
+            <div class="venue-price-card">
+                <span class="dashboard-kicker">FİYAT BİLGİSİ</span><h2>Kişi başı fiyat</h2>
+                @if (Model.MealIncludedPrice.HasValue)
+                {
+                    <div class="venue-price-row"><span>Yemekli</span><strong>@Model.MealIncludedPrice.Value.ToString("N0") ₺</strong></div>
+                }
+                @if (Model.MealExcludedPrice.HasValue)
+                {
+                    <div class="venue-price-row"><span>Yemeksiz</span><strong>@Model.MealExcludedPrice.Value.ToString("N0") ₺</strong></div>
+                }
+                @if (!Model.MealIncludedPrice.HasValue && !Model.MealExcludedPrice.HasValue)
+                {
+                    <p class="text-secondary mb-0">Henüz fiyat bilgisi paylaşılmamış.</p>
+                }
+            </div>
+            <a class="venue-provider-card" asp-controller="Businesses" asp-action="Details" asp-route-id="@Model.BusinessProfileId">
+                <span class="dashboard-kicker">İŞLETME</span><strong>@Model.BusinessProfile.Name</strong><span>@Model.BusinessProfile.Category.Name · @Model.BusinessProfile.City</span><b>İşletme profilini gör <span aria-hidden="true">↗</span></b>
+            </a>
+        </aside>
+    </div>
+</section>
