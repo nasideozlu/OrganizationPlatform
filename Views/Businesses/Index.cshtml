@@ -1,0 +1,105 @@
+@model OrganizationPlatform.Models.BusinessFilterViewModel
+@{
+    ViewData["Title"] = "İşletmeleri Keşfet";
+}
+
+<section class="listing-page business-listing-page">
+    <div class="listing-heading">
+        <div class="eyebrow"><span class="eyebrow-dot"></span> Vera işletme rehberi</div>
+        <h1>Etkinliğin için doğru ekibi bul.</h1>
+        <p>Kategoriye ve konuma göre işletmeleri keşfet, profillerini incele ve sana uygun olanlarla iletişime geç.</p>
+    </div>
+
+    <div class="business-discovery-layout">
+        <aside class="business-filter-panel">
+            <div class="filter-panel-heading">
+                <h2>Filtreler</h2>
+                <a asp-controller="Businesses" asp-action="Index">Temizle</a>
+            </div>
+            <form asp-controller="Businesses" asp-action="Index" method="get">
+                <div class="filter-group">
+                    <label for="SearchTerm">İşletme ara</label>
+                    <input type="search" id="SearchTerm" name="SearchTerm" value="@Model.SearchTerm"
+                           class="form-control" placeholder="İsim veya hizmet ara" />
+                </div>
+                <div class="filter-group">
+                    <label for="CategoryId">İşletme türü</label>
+                    <select id="CategoryId" name="CategoryId" class="form-select">
+                        <option value="">Tüm kategoriler</option>
+                        @foreach (var category in Model.Categories)
+                        {
+                            <option value="@category.Id" selected="@(Model.CategoryId == category.Id)">@category.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="ProvinceId">İl</label>
+                    <select id="ProvinceId" name="ProvinceId" class="form-select" onchange="this.form.submit()">
+                        <option value="">Tüm iller</option>
+                        @foreach (var province in Model.Provinces)
+                        {
+                            <option value="@province.Id" selected="@(Model.ProvinceId == province.Id)">@province.Name</option>
+                        }
+                    </select>
+                    <div class="form-text">İl seçtiğinde ilçeler güncellenir.</div>
+                </div>
+                <div class="filter-group">
+                    <label for="District">İlçe</label>
+                    <select id="District" name="District" class="form-select">
+                        <option value="">Tüm ilçeler</option>
+                        @foreach (var district in Model.Districts)
+                        {
+                            <option value="@district.Name" selected="@(Model.District == district.Name)">@district.Name</option>
+                        }
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Sonuçları göster</button>
+            </form>
+        </aside>
+
+        <main class="business-results">
+            <div class="venue-results-heading">
+                <h2>İşletmeler</h2>
+                <span>@Model.Businesses.Count sonuç</span>
+            </div>
+            @if (Model.Businesses.Count == 0)
+            {
+                <div class="empty-state">
+                    <h3>İşletme bulunamadı</h3>
+                    <p class="mb-0">Aramanı veya filtrelerini değiştirip tekrar deneyebilirsin.</p>
+                </div>
+            }
+            else
+            {
+                <div class="catalog-grid">
+                    @foreach (var business in Model.Businesses)
+                    {
+                        var cover = business.Photos.OrderByDescending(photo => photo.UploadedAt).FirstOrDefault();
+                        <a asp-controller="Businesses" asp-action="Details" asp-route-id="@business.Id" class="catalog-card">
+                            <div class="catalog-cover">
+                                @if (cover != null)
+                                {
+                                    <img src="@cover.FilePath" alt="@business.Name işletme fotoğrafı" loading="lazy" />
+                                }
+                                else
+                                {
+                                    <span class="catalog-placeholder" aria-hidden="true">✳</span>
+                                }
+                                <span class="catalog-cover-label">@business.Category.Name</span>
+                            </div>
+                            <div class="catalog-card-body">
+                                <span class="catalog-location">@business.City · @business.District</span>
+                                <h3>@business.Name</h3>
+                                @if (!string.IsNullOrWhiteSpace(business.Description))
+                                {
+                                    <p class="catalog-description">@(business.Description.Length > 110 ? business.Description[..110] + "..." : business.Description)</p>
+                                }
+                                <span class="catalog-card-action">İşletmeyi incele <span aria-hidden="true">↗</span></span>
+                            </div>
+                        </a>
+                    }
+                </div>
+            }
+        </main>
+    </div>
+</section>

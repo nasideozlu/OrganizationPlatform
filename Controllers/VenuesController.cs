@@ -29,16 +29,174 @@ public class VenuesController : Controller
     }
 
 
-    public async Task<IActionResult> Index()
+
+    [HttpGet]
+    public async Task<IActionResult> Index(VenueFilterViewModel filter)
     {
-        var venues = await _context.Venues
+        var query = _context.Venues
+            .AsNoTracking()
+            .AsQueryable();
+
+
+        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
+        {
+            var searchTerm = filter.SearchTerm.Trim();
+
+            query = query.Where(venue =>
+                EF.Functions.ILike(venue.Name, $"%{searchTerm}%") ||
+                EF.Functions.ILike(venue.City, $"%{searchTerm}%") ||
+                EF.Functions.ILike(venue.District, $"%{searchTerm}%") ||
+                EF.Functions.ILike(venue.Neighborhood, $"%{searchTerm}%"));
+        }
+
+
+        // 1. İl filtresi
+        if (!string.IsNullOrWhiteSpace(filter.City))
+        {
+            query = query.Where(venue => venue.City == filter.City);
+        }
+
+        // 2. İlçe filtresi
+        if (!string.IsNullOrWhiteSpace(filter.District))
+        {
+            query = query.Where(venue => venue.District == filter.District);
+        }
+
+        // 3. Minimum kapasite filtresi
+        if (filter.MinCapacity.HasValue)
+        {
+            query = query.Where(venue =>
+                venue.Capacity >= filter.MinCapacity.Value);
+        }
+
+        // 4. Fiyat filtresi
+        if (filter.MinPrice.HasValue || filter.MaxPrice.HasValue)
+        {
+            if (filter.PriceType == "included")
+            {
+                query = query.Where(venue =>
+                    venue.MealIncludedPrice.HasValue &&
+                    (!filter.MinPrice.HasValue ||
+                     venue.MealIncludedPrice.Value >= filter.MinPrice.Value) &&
+                    (!filter.MaxPrice.HasValue ||
+                     venue.MealIncludedPrice.Value <= filter.MaxPrice.Value));
+            }
+            else if (filter.PriceType == "excluded")
+            {
+                query = query.Where(venue =>
+                    venue.MealExcludedPrice.HasValue &&
+                    (!filter.MinPrice.HasValue ||
+                     venue.MealExcludedPrice.Value >= filter.MinPrice.Value) &&
+                    (!filter.MaxPrice.HasValue ||
+                     venue.MealExcludedPrice.Value <= filter.MaxPrice.Value));
+            }
+            else
+            {
+                query = query.Where(venue =>
+                    (venue.MealIncludedPrice.HasValue &&
+                     (!filter.MinPrice.HasValue ||
+                      venue.MealIncludedPrice.Value >= filter.MinPrice.Value) &&
+                     (!filter.MaxPrice.HasValue ||
+                      venue.MealIncludedPrice.Value <= filter.MaxPrice.Value))
+                    ||
+                    (venue.MealExcludedPrice.HasValue &&
+                     (!filter.MinPrice.HasValue ||
+                      venue.MealExcludedPrice.Value >= filter.MinPrice.Value) &&
+                     (!filter.MaxPrice.HasValue ||
+                      venue.MealExcludedPrice.Value <= filter.MaxPrice.Value)));
+            }
+        }
+
+        // 5. Seçilen fiziksel özelliklerin tamamı mekânda bulunmalı
+        var selectedFeatureIds = filter.SelectedFeatureIds
+            .Distinct()
+            .ToList();
+
+        foreach (var featureId in selectedFeatureIds)
+        {
+            query = query.Where(venue =>
+                venue.PhysicalFeatures.Any(feature =>
+                    feature.Id == featureId));
+        }
+
+        // 6. Sonuçları ve fotoğrafları getir
+
+        var sortBy = filter.SortBy;
+
+        query = sortBy switch
+        {
+            "price_asc" => query
+                .OrderBy(venue =>
+                    (filter.PriceType == "included"
+                        ? venue.MealIncludedPrice
+                        : filter.PriceType == "excluded"
+                            ? venue.MealExcludedPrice
+                            : venue.MealIncludedPrice ?? venue.MealExcludedPrice)
+                    ?? decimal.MaxValue)
+                .ThenBy(venue => venue.Name),
+
+            "price_desc" => query
+                .OrderByDescending(venue =>
+                    (filter.PriceType == "included"
+                        ? venue.MealIncludedPrice
+                        : filter.PriceType == "excluded"
+                            ? venue.MealExcludedPrice
+                            : venue.MealIncludedPrice ?? venue.MealExcludedPrice)
+                    ?? decimal.MinValue)
+                .ThenBy(venue => venue.Name),
+
+            "capacity_asc" => query
+                .OrderBy(venue => venue.Capacity)
+                .ThenBy(venue => venue.Name),
+
+            "capacity_desc" => query
+                .OrderByDescending(venue => venue.Capacity)
+                .ThenBy(venue => venue.Name),
+
+            _ => query
+                .OrderBy(venue => venue.City)
+                .ThenBy(venue => venue.Name)
+        };
+
+        filter.Venues = await query
             .Include(venue => venue.Photos)
-            .OrderBy(venue => venue.City)
-            .ThenBy(venue => venue.Name)
+            .Include(venue => venue.PhysicalFeatures)
             .ToListAsync();
 
-        return View(venues);
+
+        // 7. Filtre seçeneklerini hazırla
+        filter.Cities = await _context.Venues
+            .AsNoTracking()
+            .Select(venue => venue.City)
+            .Distinct()
+            .OrderBy(city => city)
+            .ToListAsync();
+
+        var districtQuery = _context.Venues
+            .AsNoTracking()
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(filter.City))
+        {
+            districtQuery = districtQuery.Where(venue =>
+                venue.City == filter.City);
+        }
+
+        filter.Districts = await districtQuery
+            .Select(venue => venue.District)
+            .Distinct()
+            .OrderBy(district => district)
+            .ToListAsync();
+
+        filter.FeatureCategories = await _context.FeatureCategories
+            .AsNoTracking()
+            .Include(category => category.PhysicalFeatures)
+            .OrderBy(category => category.Name)
+            .ToListAsync();
+
+        return View(filter);
     }
+
 
     public async Task<IActionResult> Details(int id)
     {

@@ -9,7 +9,7 @@
             <div class="eyebrow"><span class="eyebrow-dot"></span> @(isBusiness ? "İşletme hesabı" : "Müşteri hesabı")</div>
             <h1>@(isBusiness ? "İşletmen için güzel bir başlangıç." : "Güzel günün kaldığı yerden.")</h1>
             <p>@(isBusiness ? "İşletme profilini yönetmek ve bilgilerini güncel tutmak için hesabına giriş yap." : "Etkinlik planına, mekânlara ve biriktirdiğin tüm detaylara kaldığın yerden devam et.")</p>
-            <div class="form-aside-note">@(isBusiness ? "Birlikte, işletmeni güzel günlerle buluşturur." : "En güzel anlar, birlikte planlananlardır.")</div>
+            <div class="form-aside-note">@(isBusiness ? "Vera, işletmeni güzel günlerle buluşturur." : "En güzel anlar, birlikte planlananlardır.")</div>
         </aside>
         <div class="form-content">
             <h2>@(isBusiness ? "İşletme hesabına giriş yap" : "Hesabına giriş yap")</h2>
@@ -22,7 +22,7 @@
                 <button type="submit" class="btn btn-primary form-submit">Giriş yap <span aria-hidden="true">↗</span></button>
             </form>
             <div class="login-signup">
-                <p>@(isBusiness ? "Birlikte'de yeni misin?" : "Henüz hesabın yok mu?")</p>
+                <p>@(isBusiness ? "Vera'da yeni misin?" : "Henüz hesabın yok mu?")</p>
                 @if (isBusiness)
                 {
                     <a class="btn btn-outline-primary" asp-controller="Account" asp-action="BusinessRegister">İşletmeni Ekle</a>

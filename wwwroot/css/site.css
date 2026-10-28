@@ -256,7 +256,7 @@ textarea.form-control { min-height: 120px; }
 .catalog-card-body { display: flex; flex: 1; flex-direction: column; padding: 17px 18px 16px; }
 .catalog-location { color: var(--muted); font-size: .75rem; }
 .catalog-card-body h4 { margin: 6px 0; color: var(--ink); font-size: 1.08rem; font-weight: 700; }
-.catalog-description { display: -webkit-box; overflow: hidden; min-height: 39px; margin: 0 0 12px; color: var(--muted); font-size: .82rem; line-height: 1.5; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.catalog-description { display: -webkit-box; overflow: hidden; min-height: 39px; margin: 0 0 12px; color: var(--muted); font-size: .82rem; line-height: 1.5; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
 .catalog-card-action { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 12px; border-top: 1px solid var(--line); color: var(--green); font-size: .81rem; font-weight: 700; }
 .venue-listing-page { max-width: 1220px; }
 .catalog-toolbar { display: flex; align-items: center; gap: 13px; margin: 0 0 21px; }
@@ -473,3 +473,261 @@ textarea.form-control { min-height: 120px; }
   .business-profile-contact { line-height: 1.8; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+
+
+/* Mekân keşif sayfası */
+.venue-discovery-layout {
+    display: grid;
+    grid-template-columns: 270px minmax(0, 1fr);
+    gap: 28px;
+    align-items: start;
+    margin-top: 28px;
+}
+
+.venue-filter-panel {
+    padding: 22px;
+    background: #fff;
+    border: 1px solid #eee7e5;
+    border-radius: 16px;
+    position: sticky;
+    top: 24px;
+}
+
+.filter-panel-heading,
+.venue-results-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.filter-panel-heading h2,
+.venue-results-heading h2 {
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+.filter-panel-heading a {
+    font-size: .85rem;
+}
+
+.filter-group {
+    border: 0;
+    padding: 0;
+    margin: 0 0 22px;
+    min-width: 0;
+}
+
+.filter-group > label,
+.filter-group > h3,
+.filter-group legend {
+    display: block;
+    font-size: .92rem;
+    font-weight: 650;
+    margin-bottom: 10px;
+}
+
+.filter-group legend {
+    float: none;
+    width: auto;
+}
+
+.filter-price-inputs {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.filter-price-inputs input,
+.filter-group .form-select,
+.filter-group > .form-control {
+    min-width: 0;
+    font-size: .9rem;
+}
+
+.feature-filter-option {
+    display: flex !important;
+    align-items: center;
+    gap: 9px;
+    margin: 9px 0;
+    font-weight: 400 !important;
+    cursor: pointer;
+}
+
+.feature-filter-option input {
+    accent-color: #b84f68;
+    width: 16px;
+    height: 16px;
+    flex: 0 0 auto;
+}
+
+.filter-submit {
+    width: 100%;
+    border-radius: 10px;
+}
+
+.venue-results-heading {
+    align-items: flex-start;
+}
+
+.venue-results-heading p {
+    margin: 6px 0 0;
+    color: #777;
+    font-size: .9rem;
+}
+
+.venue-results .venue-catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.venue-list-card {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.venue-list-cover img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+}
+
+.venue-list-body {
+    padding: 17px;
+}
+
+.venue-list-body h2 {
+    font-size: 1.1rem;
+    margin: 8px 0;
+}
+
+@media (max-width: 900px) {
+    .venue-discovery-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .venue-filter-panel {
+        position: static;
+    }
+}
+
+@media (max-width: 600px) {
+    .venue-results .venue-catalog-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .venue-list-cover img {
+        height: 230px;
+    }
+}
+
+
+.venue-sort-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.venue-sort-form label {
+    font-size: .9rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.venue-sort-form select {
+    min-width: 205px;
+    font-size: .9rem;
+    border-radius: 9px;
+}
+
+@media (max-width: 600px) {
+    .venue-results-heading {
+        flex-direction: column;
+    }
+
+    .venue-sort-form {
+        width: 100%;
+    }
+
+    .venue-sort-form select {
+        flex: 1;
+        min-width: 0;
+    }
+}
+
+.venue-search-form {
+    margin: 0 0 22px;
+}
+
+.venue-search-form > label {
+    display: block;
+    font-weight: 600;
+    font-size: .92rem;
+    margin-bottom: 8px;
+}
+
+/* İşletme keşfi */
+.business-listing-page { max-width: 1220px; }
+.business-discovery-layout {
+  display: grid;
+  grid-template-columns: 270px minmax(0, 1fr);
+  align-items: start;
+  gap: 28px;
+}
+.business-filter-panel {
+  position: sticky;
+  top: 100px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(27,55,44,.04);
+}
+.business-filter-panel .form-text { color: var(--muted); font-size: .78rem; }
+.business-filter-panel .form-control,
+.business-filter-panel .form-select { min-height: 45px; }
+.business-results { min-width: 0; }
+.business-results .catalog-grid { grid-template-columns: repeat(auto-fill,minmax(230px,1fr)); }
+.business-results .catalog-card { min-height: 100%; }
+.business-results .catalog-card h3 { margin: 6px 0; color: var(--ink); font: 700 1.08rem 'Manrope',sans-serif; }
+.business-results .catalog-description {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 5px 0 12px;
+  color: var(--muted);
+  font-size: .84rem;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3; 
+  line-clamp: 3;
+}
+.business-results .catalog-cover { height: 205px; }
+.business-results .catalog-cover img { width: 100%; height: 100%; object-fit: cover; }
+.business-results .catalog-card:focus-visible { outline: 3px solid rgba(30,107,88,.5); outline-offset: 3px; }
+@media (max-width: 900px) {
+  .business-discovery-layout { grid-template-columns: 1fr; }
+  .business-filter-panel { position: static; }
+}
+@media (max-width: 520px) {
+  .business-results .catalog-grid { grid-template-columns: 1fr; }
+  .business-results .catalog-cover { height: 220px; }
+}
+
+.venue-search-input {
+    display: flex;
+    gap: 10px;
+}
+
+.venue-search-input input {
+    min-width: 0;
+    flex: 1;
+    border-radius: 10px;
+}
+
+.venue-search-input button {
+    min-width: 80px;
+    border-radius: 10px;
+}

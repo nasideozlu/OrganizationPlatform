@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#fbfaf7" />
-    <title>@ViewData["Title"] · Birlikte</title>
+    <title>@ViewData["Title"] · Vera</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -17,7 +17,7 @@
         <nav class="navbar navbar-light navbar-expand-md site-nav">
             <div class="container">
                 <a class="navbar-brand" asp-controller="Home" asp-action="Index">
-                    <span class="brand-mark" aria-hidden="true">b.</span> birlikte
+                    <span class="brand-mark" aria-hidden="true">V</span> Vera
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
                         aria-controls="mainNav" aria-expanded="false" aria-label="Menüyü aç">
@@ -29,7 +29,7 @@
                         </li>
                         <li class="nav-item"><a class="nav-link" href="/#kesfet">Keşfet</a></li>
                         <li class="nav-item"><a class="nav-link" asp-controller="Venues" asp-action="Index">Mekânlar</a></li>
-
+                        <li class="nav-item"><a class="nav-link" asp-controller="Businesses" asp-action="Index">İşletmeler</a></li>
 
                         @if (User.Identity?.IsAuthenticated == true)
                         {
@@ -64,16 +64,16 @@
     </main>
     <footer class="site-footer">
         <div class="container footer-inner">
-            <a class="footer-brand" asp-controller="Home" asp-action="Index">birlikte<span
+            <a class="footer-brand" asp-controller="Home" asp-action="Index">Vera<span
                 style="color:var(--green)">.</span></a>
-                <span>Güzel günler, güzel planlarla başlar. © 2026 Birlikte</span>
-                <a asp-controller="Home" asp-action="Privacy">Gizlilik</a>
-            </div>
-        </footer>
-        <script src="~/lib/jquery/dist/jquery.min.js"></script>
-        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="~/js/site.js" asp-append-version="true"></script>
-        @await RenderSectionAsync("Scripts", required: false)
-    </body>
+            <span>Güzel günler, güzel planlarla başlar. © 2026 Vera</span>
+            <a asp-controller="Home" asp-action="Privacy">Gizlilik</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
 
 </html>
