@@ -1,10 +1,189 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@model OrganizationPlatform.Models.HomeViewModel
+@{
+    ViewData["Title"] = "Etkinliğini planla";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Hayalindeki Etkinligi Planla </h1>
-    <p>Etkinlikleri planla, sana uygun mekanlari ve fotografcilari kesfet. 
-        Davetlilerinle ozel davetiyeler ve fotograf galerileri paylas.
-    </p>
-</div>
+<div class="home-shell">
+    <section class="hero">
+        <div class="hero-copy">
+            <div class="eyebrow"><span class="eyebrow-dot"></span> Güzel günler burada başlar</div>
+            <h1>Hayalindeki günü <em>birlikte</em> planla.</h1>
+            <p>Mekânları ve etkinlik işletmelerini tek yerde keşfet. Seçenekleri incele, sana en uygun ekiple iletişime
+                geç.</p>
+                <div class="hero-actions">
+                    <a class="btn btn-primary" href="#kesfet">Seçenekleri keşfet <span aria-hidden="true">↘</span></a>
+                    <a class="btn btn-quiet" asp-controller="Venues" asp-action="Index">Mekânları gör</a>
+                </div>
+                <div class="hero-note"><span class="hero-note-icon" aria-hidden="true">✳</span><span>İşletme fotoğraflarını,
+                    hizmet alanlarını ve mekân detaylarını incele.</span></div>
+                </div>
+                <div class="hero-visual" aria-label="Platformda keşfedebileceğin seçeneklerin özeti">
+                    <div class="planner-card discovery-preview">
+                        <div class="planner-top">
+                            <div><small>VERA İLE KEŞFET</small><strong>Etkinliğin için seçenekler</strong></div>
+                            <span class="planner-icon" aria-hidden="true">✳</span>
+                        </div>
+                        <div class="planner-event">
+                            <span class="preview-icon">⌖</span>
+                            <div class="event-info"><strong>Mekânlar</strong><small>Fotoğraflar, kapasite ve konum
+                                bilgileri</small></div>
+                                <span class="preview-count">@Model.Venues.Count</span>
+                            </div>
+                            <div class="planner-event">
+                                <span class="preview-icon preview-icon-warm">♡</span>
+                                <div class="event-info"><strong>Etkinlik işletmeleri</strong><small>Hizmet veren profilleri ve
+                                    iletişim</small></div>
+                                    <span class="preview-count">@Model.Businesses.Count</span>
+                                </div>
+                                <a class="preview-link" href="#kesfet">Keşfe başla <span aria-hidden="true">→</span></a>
+                            </div>
+                            <div class="planner-float"><span aria-hidden="true">⌖</span> Sana uygun seçenekleri bul</div>
+                        </div>
+                    </section>
+
+                    <div class="trust-row"><strong>Etkinlik planlamanın başlangıç noktası</strong><span>·</span><span>Mekânlar ve hizmet
+                        verenler bir arada</span></div>
+
+                        <section class="business-discovery" id="kesfet" aria-labelledby="business-discovery-title">
+                            <div class="section-heading">
+                                <div class="eyebrow"><span class="eyebrow-dot"></span> Vera ile keşfet</div>
+                                <h2 id="business-discovery-title">Etkinliğin için doğru ekibi bul.</h2>
+                                <p>Fotoğraflara, hizmet alanlarına ve mekân bilgilerine göz at; kararını verirken ihtiyacın olan detayları
+                                    bul.</p>
+                                </div>
+
+                                <div class="discovery-group">
+                                    <div class="discovery-group-heading">
+                                        <div><span class="dashboard-kicker">MEKÂNLAR</span>
+                                            <h3>Davetine uygun bir yer keşfet</h3>
+                                        </div>
+                                        <a asp-controller="Venues" asp-action="Index">Tüm mekânlar <span aria-hidden="true">↗</span></a>
+                                    </div>
+                                    @if (Model.Venues.Count == 0)
+                                    {
+                                        <div class="empty-state">
+                                            <div class="empty-state-icon" aria-hidden="true">⌖</div>
+                                            <h3 class="h5 text-dark">Mekânlar yakında burada</h3>
+                                            <p class="mb-0">Henüz listelenecek mekân bulunmuyor.</p>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="catalog-grid">
+                                            @foreach (var venue in Model.Venues)
+                                            {
+                                                var cover = venue.Photos.OrderByDescending(photo => photo.UploadedAt).FirstOrDefault();
+                                                <a class="catalog-card" asp-controller="Venues" asp-action="Details" asp-route-id="@venue.Id">
+                                                    <div class="catalog-cover">
+                                                        @if (cover != null)
+                                                        {
+                                                            <img src="@cover.FilePath" alt="@venue.Name mekân fotoğrafı" loading="lazy" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="catalog-placeholder" aria-hidden="true">⌖</span>
+                                                        }
+                                                        <span class="catalog-cover-label">@venue.Capacity kişiye kadar</span>
+                                                    </div>
+                                                    <div class="catalog-card-body">
+                                                        <span class="catalog-location">@venue.City · @venue.District</span>
+                                                        <h4>@venue.Name</h4>
+                                                        <span class="catalog-card-action">Mekânı incele <span aria-hidden="true">↗</span></span>
+                                                    </div>
+                                                </a>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+
+                                <div class="discovery-group">
+                                    <div class="discovery-group-heading">
+                                        <div><span class="dashboard-kicker">HİZMET VERENLER</span>
+                                            <h3>İşletmeleri yakından tanı</h3>
+                                        </div>
+                                    </div>
+                                    @if (Model.Businesses.Count == 0)
+                                    {
+                                        <div class="empty-state">
+                                            <div class="empty-state-icon" aria-hidden="true">✳</div>
+                                            <h3 class="h5 text-dark">İşletmeler yakında burada</h3>
+                                            <p class="mb-0">Henüz listelenecek işletme bulunmuyor.</p>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var categoryGroup in Model.Businesses.GroupBy(business => business.Category.Name))
+                                        {
+                                            <div class="business-category-group">
+                                                <h4 class="catalog-category-title">
+                                                    <a asp-controller="Businesses" asp-action="Index"
+                                                       asp-route-CategoryId="@categoryGroup.First().CategoryId">
+                                                        @categoryGroup.Key
+                                                    </a>
+                                                </h4>
+                                                <div class="catalog-grid">
+                                                    @foreach (var business in categoryGroup)
+                                                    {
+                                                        var cover = business.Photos.OrderByDescending(photo => photo.UploadedAt).FirstOrDefault();
+                                                        <a class="catalog-card" asp-controller="Businesses" asp-action="Details"
+                                                           asp-route-id="@business.Id">
+                                                            <div class="catalog-cover">
+                                                                @if (cover != null)
+                                                                {
+                                                                    <img src="@cover.FilePath" alt="@business.Name işletme fotoğrafı" loading="lazy" />
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="catalog-placeholder" aria-hidden="true">✳</span>
+                                                                }
+                                                                <span class="catalog-cover-label">@business.Category.Name</span>
+                                                            </div>
+                                                            <div class="catalog-card-body">
+                                                                <span class="catalog-location">@business.City</span>
+                                                                <h4>@business.Name</h4>
+                                                                <p class="catalog-description">@(string.IsNullOrWhiteSpace(business.Description) ? "İşletme detaylarını görmek için incele." : business.Description)</p>
+                                                                <span class="catalog-card-action">İşletmeyi incele <span aria-hidden="true">↗</span></span>
+                                                            </div>
+                                                        </a>
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </section>
+
+                            <section aria-labelledby="features-title">
+                                <div class="section-heading">
+                                    <div class="eyebrow"><span class="eyebrow-dot"></span> İhtiyacın olan bilgiler</div>
+                                    <h2>Seçenekleri güvenle değerlendir.</h2>
+                                    <p>Kararını verirken önemli olan detayları her işletmenin ve mekânın kendi sayfasında incele.</p>
+                                </div>
+                                <div class="feature-grid">
+                                    <article class="feature-card">
+                                        <div class="feature-icon" aria-hidden="true">⌖</div>
+                                        <h3>Konum ve kapasite</h3>
+                                        <p>Mekânların şehir, ilçe ve davetli kapasitesi bilgilerini gör.</p>
+                                    </article>
+                                    <article class="feature-card">
+                                        <div class="feature-icon" aria-hidden="true">▧</div>
+                                        <h3>Fotoğraf galerileri</h3>
+                                        <p>İşletmelerin ve mekânların eklediği fotoğraflara göz at.</p>
+                                    </article>
+                                    <article class="feature-card">
+                                        <div class="feature-icon" aria-hidden="true">✉</div>
+                                        <h3>İşletmeyle iletişim</h3>
+                                        <p>İşletme detay sayfasından iletişim bilgilerine ulaş.</p>
+                                    </article>
+                                </div>
+                            </section>
+
+                            <section class="cta-strip">
+                                <div>
+                                    <h2>İşletmeni daha fazla kişiye tanıt.</h2>
+                                    <p>İşletme profilini oluştur, fotoğraflarını ve hizmet bilgilerini paylaş.</p>
+                                </div>
+                                <a class="btn btn-primary" asp-controller="Account" asp-action="Login" asp-route-audience="business">İşletme
+                                    hesabı oluştur <span aria-hidden="true">↗</span></a>
+                                </section>
+                            </div>

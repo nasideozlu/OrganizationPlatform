@@ -1,0 +1,35 @@
+@model OrganizationPlatform.Models.RegisterViewModel
+@{ ViewData["Title"] = "Ücretsiz kayıt ol"; }
+<section class="form-page">
+    <div class="form-shell">
+        <aside class="form-aside">
+            <div class="eyebrow"><span class="eyebrow-dot"></span> İlk adım çok kolay</div>
+            <h1>Hayalini kur. Gerisini birlikte planla.</h1>
+            <p>Ücretsiz hesabınla sana özel etkinlik planını oluştur ve güzel günün için hazırlıklara başla.</p>
+            <div class="form-aside-note">Mekânlar, fikirler ve tüm planın tek bir yerde.</div>
+        </aside>
+        <div class="form-content">
+            <h2>Hesabını oluştur</h2>
+            <p class="form-intro">Planlamaya başlamak için birkaç bilgi yeterli.</p>
+            <form method="post">
+                <div asp-validation-summary="All" class="validation-summary-errors"></div>
+                <div class="form-grid">
+                    <div class="field"><label asp-for="Name">Ad</label><input asp-for="Name" class="form-control" autocomplete="given-name" placeholder="Adın" /><span asp-validation-for="Name"></span></div>
+                    <div class="field"><label asp-for="Surname">Soyad</label><input asp-for="Surname" class="form-control" autocomplete="family-name" placeholder="Soyadın" /><span asp-validation-for="Surname"></span></div>
+                </div>
+                <div class="field"><label asp-for="Email">E-posta adresi</label><input asp-for="Email" class="form-control" autocomplete="email" placeholder="ornek@mail.com" /><span asp-validation-for="Email"></span></div>
+                <div class="field"><label asp-for="PhoneNumber">Telefon numarası</label><input asp-for="PhoneNumber" class="form-control" autocomplete="tel" placeholder="05xx xxx xx xx" /><span asp-validation-for="PhoneNumber"></span></div>
+                <div class="form-grid">
+                    <div class="field"><label asp-for="Password">Parola</label><input asp-for="Password" type="password" class="form-control" autocomplete="new-password" placeholder="Parola oluştur" /><span asp-validation-for="Password"></span></div>
+                    <div class="field"><label asp-for="PasswordConfirmation">Parola tekrarı</label><input asp-for="PasswordConfirmation" type="password" class="form-control" autocomplete="new-password" placeholder="Parolanı tekrar gir" /><span asp-validation-for="PasswordConfirmation"></span></div>
+                </div>
+                <button type="submit" class="btn btn-primary form-submit">Ücretsiz hesap oluştur <span aria-hidden="true">↗</span></button>
+            </form>
+            <p class="form-bottom">Zaten hesabın var mı? <a asp-action="Login" asp-route-audience="customer">Giriş yap</a></p>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

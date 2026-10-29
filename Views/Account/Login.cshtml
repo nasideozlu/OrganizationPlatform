@@ -1,0 +1,41 @@
+@model OrganizationPlatform.Models.LoginViewModel
+@{
+    var isBusiness = (string?)ViewBag.Audience == "business";
+    ViewData["Title"] = isBusiness ? "İşletme girişi" : "Müşteri girişi";
+}
+<section class="form-page">
+    <div class="form-shell">
+        <aside class="form-aside">
+            <div class="eyebrow"><span class="eyebrow-dot"></span> @(isBusiness ? "İşletme hesabı" : "Müşteri hesabı")</div>
+            <h1>@(isBusiness ? "İşletmen için güzel bir başlangıç." : "Güzel günün kaldığı yerden.")</h1>
+            <p>@(isBusiness ? "İşletme profilini yönetmek ve bilgilerini güncel tutmak için hesabına giriş yap." : "Etkinlik planına, mekânlara ve biriktirdiğin tüm detaylara kaldığın yerden devam et.")</p>
+            <div class="form-aside-note">@(isBusiness ? "Vera, işletmeni güzel günlerle buluşturur." : "En güzel anlar, birlikte planlananlardır.")</div>
+        </aside>
+        <div class="form-content">
+            <h2>@(isBusiness ? "İşletme hesabına giriş yap" : "Hesabına giriş yap")</h2>
+            <p class="form-intro">@(isBusiness ? "İşletme hesabı bilgilerini gir." : "Planlarını görmek için bilgilerini gir.")</p>
+            <form method="post" asp-controller="Account" asp-action="Login">
+                <input type="hidden" name="audience" value="@(isBusiness ? "business" : "customer")" />
+                <div asp-validation-summary="All" class="validation-summary-errors"></div>
+                <div class="field"><label asp-for="Email">E-posta adresi</label><input asp-for="Email" class="form-control" autocomplete="email" placeholder="ornek@mail.com" /><span asp-validation-for="Email"></span></div>
+                <div class="field"><label asp-for="Password">Parola</label><input asp-for="Password" type="password" class="form-control" autocomplete="current-password" placeholder="Parolanı gir" /><span asp-validation-for="Password"></span></div>
+                <button type="submit" class="btn btn-primary form-submit">Giriş yap <span aria-hidden="true">↗</span></button>
+            </form>
+            <div class="login-signup">
+                <p>@(isBusiness ? "Vera'da yeni misin?" : "Henüz hesabın yok mu?")</p>
+                @if (isBusiness)
+                {
+                    <a class="btn btn-outline-primary" asp-controller="Account" asp-action="BusinessRegister">İşletmeni Ekle</a>
+                }
+                else
+                {
+                    <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Register">Kayıt ol</a>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,91 @@
+@model OrganizationPlatform.Models.CreateVenueViewModel
+@{
+    ViewData["Title"] = "Mekânı düzenle";
+    var features = ViewBag.PhysicalFeatures as List<OrganizationPlatform.Models.PhysicalFeature> ?? new();
+    var venueId = Context.Request.RouteValues["id"];
+}
+
+<section class="form-page venue-form-page">
+    <div class="form-shell">
+        <aside class="form-aside venue-form-aside">
+            <div class="eyebrow"><span class="eyebrow-dot"></span> İlanını güncelle</div>
+            <h1>Mekân bilgilerini taze tut.</h1>
+            <p>Fiyat, özellik ve görsellerinde değişiklik olduğunda ilanını güncelleyebilirsin.</p>
+            <a class="btn btn-quiet venue-preview-button" asp-controller="Venues" asp-action="Details" asp-route-id="@venueId">İlanı görüntüle <span aria-hidden="true">↗</span></a>
+        </aside>
+        <div class="form-content venue-form-content">
+            <h2>Mekânı düzenle</h2>
+            <p class="form-intro">Bilgilerini güncelle ve değişiklikleri kaydet.</p>
+            <form asp-controller="Venues" asp-action="Edit" asp-route-id="@venueId" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@venueId" />
+                <div asp-validation-summary="All" class="validation-summary-errors"></div>
+
+                <div class="venue-form-section">
+                    <div class="venue-form-section-heading"><span>01</span><div><h3>Mekân bilgileri</h3><p>Temel bilgilerini ve adresini güncelle.</p></div></div>
+                    <div class="field"><label asp-for="Name">Mekân adı</label><input asp-for="Name" class="form-control" required /><span asp-validation-for="Name"></span></div>
+                    <div class="form-grid venue-location-grid">
+                        <div class="field"><label asp-for="City">İl</label><input asp-for="City" class="form-control" required /><span asp-validation-for="City"></span></div>
+                        <div class="field"><label asp-for="District">İlçe</label><input asp-for="District" class="form-control" required /><span asp-validation-for="District"></span></div>
+                        <div class="field"><label asp-for="Neighborhood">Mahalle</label><input asp-for="Neighborhood" class="form-control" required /><span asp-validation-for="Neighborhood"></span></div>
+                    </div>
+                    <div class="field"><label asp-for="Address">Açık adres <span class="optional-label">(isteğe bağlı)</span></label><textarea asp-for="Address" class="form-control" rows="2"></textarea><span asp-validation-for="Address"></span></div>
+                </div>
+
+                <div class="venue-form-section">
+                    <div class="venue-form-section-heading"><span>02</span><div><h3>Detaylar ve fiyat</h3><p>İlanında görünen bilgileri değiştir.</p></div></div>
+                    <div class="form-grid">
+                        <div class="field"><label asp-for="Capacity">Kapasite <span class="optional-label">(kişi)</span></label><input asp-for="Capacity" type="number" min="1" class="form-control" required /><span asp-validation-for="Capacity"></span></div>
+                        <div class="field"><label asp-for="MealIncludedPrice">Yemekli kişi başı <span class="optional-label">(₺)</span></label><input asp-for="MealIncludedPrice" type="number" step="0.01" min="0.01" class="form-control" /><span asp-validation-for="MealIncludedPrice"></span></div>
+                        <div class="field"><label asp-for="MealExcludedPrice">Yemeksiz kişi başı <span class="optional-label">(₺)</span></label><input asp-for="MealExcludedPrice" type="number" step="0.01" min="0.01" class="form-control" /><span asp-validation-for="MealExcludedPrice"></span></div>
+                    </div>
+                    <div class="field"><label asp-for="Description">Mekân açıklaması</label><textarea asp-for="Description" class="form-control" rows="4" required></textarea><span asp-validation-for="Description"></span></div>
+                </div>
+
+                <div class="venue-form-section">
+                    <div class="venue-form-section-heading"><span>03</span><div><h3>Fotoğraflar ve özellikler</h3><p>Yeni fotoğraflar ekle veya özelliklerini güncelle.</p></div></div>
+                    <div class="field"><label asp-for="Photos">Yeni fotoğraflar</label><input asp-for="Photos" id="VenuePhotos" type="file" class="form-control" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple /><span asp-validation-for="Photos"></span><small id="venuePhotoHelp" class="field-help">JPEG, PNG veya WebP · fotoğraf başına en fazla 5 MB.</small></div>
+                    @if (features.Count > 0)
+                    {
+                        <div class="venue-feature-groups">
+                            @foreach (var category in features.GroupBy(feature => feature.Category.Name).OrderBy(group => group.Key))
+                            {
+                                <fieldset class="venue-feature-group"><legend>@category.Key</legend><div class="venue-feature-options">@foreach (var feature in category) { <label class="feature-option" for="feature-@feature.Id"><input class="form-check-input" type="checkbox" name="SelectedPhysicalFeatureIds" value="@feature.Id" id="feature-@feature.Id" checked="@Model.SelectedPhysicalFeatureIds.Contains(feature.Id)" /><span>@feature.Name</span></label> }</div></fieldset>
+                            }
+                        </div>
+                    }
+                </div>
+                <div class="venue-form-actions"><a asp-controller="Venues" asp-action="MyVenues" class="btn btn-outline-primary">İptal</a><button type="submit" class="btn btn-primary">Değişiklikleri kaydet</button></div>
+            </form>
+
+            <section class="existing-photos-section">
+                <div class="detail-panel-heading"><div><span class="dashboard-kicker">FOTOĞRAF GALERİSİ</span><h3>Mevcut fotoğraflar</h3></div><span class="business-venue-count">@Model.ExistingPhotos.Count</span></div>
+                @if (Model.ExistingPhotos.Count > 0)
+                {
+                    <div class="existing-photo-grid">
+                        @foreach (var photo in Model.ExistingPhotos)
+                        {
+                            <article class="existing-photo-card"><a href="@photo.FilePath" target="_blank" rel="noopener noreferrer"><img src="@photo.FilePath" alt="Mekân fotoğrafı" loading="lazy" /></a><form asp-controller="Venues" asp-action="DeleteVenuePhoto" asp-route-id="@photo.Id" method="post" onsubmit="return confirm('Bu fotoğrafı silmek istediğine emin misin?');">@Html.AntiForgeryToken()<button type="submit" class="btn btn-outline-danger btn-sm">Fotoğrafı sil</button></form></article>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-secondary mb-0">Henüz fotoğraf eklenmemiş.</p>
+                }
+            </section>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('VenuePhotos')?.addEventListener('change', event => {
+            const count = event.target.files.length;
+            document.getElementById('venuePhotoHelp').textContent = count
+                ? `${count} fotoğraf seçildi · JPEG, PNG veya WebP · fotoğraf başına en fazla 5 MB.`
+                : 'JPEG, PNG veya WebP · fotoğraf başına en fazla 5 MB.';
+        });
+    </script>
+}

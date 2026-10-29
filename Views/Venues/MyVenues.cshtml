@@ -1,0 +1,50 @@
+@model List<OrganizationPlatform.Models.Venue>
+@{ ViewData["Title"] = "Mekânlarım"; }
+<section class="listing-page venue-listing-page">
+    <div class="listing-heading manage-heading">
+        <div><div class="eyebrow"><span class="eyebrow-dot"></span> İşletme yönetimi</div><h1>Mekânlarım</h1><p>İlanlarını güncelle, önizle veya yeni bir mekân ekle.</p></div>
+        <a asp-controller="Venues" asp-action="Create" class="btn btn-primary">+ Yeni mekân ekle</a>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="empty-state venue-empty-state"><div class="empty-state-icon" aria-hidden="true">⌖</div><h2 class="h5 text-dark">Henüz mekân eklemedin</h2><p>İlk mekân ilanını oluşturarak müşterilerinle paylaş.</p><a asp-controller="Venues" asp-action="Create" class="btn btn-primary">İlk mekânını ekle <span aria-hidden="true">↗</span></a></div>
+    }
+    else
+    {
+        <div class="venue-manage-grid">
+            @foreach (var venue in Model)
+            {
+                var cover = venue.Photos.OrderByDescending(photo => photo.UploadedAt).FirstOrDefault();
+                <article class="venue-manage-card">
+                    <a asp-controller="Venues" asp-action="Details" asp-route-id="@venue.Id" class="venue-manage-cover-link" aria-label="@venue.Name ilanını önizle">
+                        <div class="venue-list-cover">
+                            @if (cover != null)
+                            {
+                                <img src="@cover.FilePath" alt="@venue.Name mekân fotoğrafı" loading="lazy" />
+                            }
+                            else
+                            {
+                                <span class="catalog-placeholder" aria-hidden="true">⌖</span>
+                            }
+                            <span class="venue-capacity-badge">@venue.Capacity kişi</span>
+                        </div>
+                    </a>
+                    <div class="venue-manage-body">
+                        <span class="catalog-location">@venue.City · @venue.District</span>
+                        <h2>@venue.Name</h2>
+                        <p>@(string.IsNullOrWhiteSpace(venue.Address) ? venue.Neighborhood : venue.Address)</p>
+                        <div class="venue-manage-meta"><span>▧ @venue.Photos.Count fotoğraf</span><span>⌖ @venue.Neighborhood</span></div>
+                        <div class="venue-manage-actions">
+                            <a asp-controller="Venues" asp-action="Details" asp-route-id="@venue.Id" class="btn btn-outline-primary btn-sm">Önizle</a>
+                            <a asp-controller="Venues" asp-action="Edit" asp-route-id="@venue.Id" class="btn btn-primary btn-sm">Düzenle</a>
+                            <form asp-controller="Venues" asp-action="Delete" asp-route-id="@venue.Id" method="post" onsubmit="return confirm('Bu mekânı silmek istediğine emin misin?');">
+                                <button type="submit" class="btn btn-outline-danger btn-sm" aria-label="@venue.Name mekânını sil">Sil</button>
+                            </form>
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>

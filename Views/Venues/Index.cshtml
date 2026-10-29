@@ -1,37 +1,296 @@
-
-@model List<OrganizationPlatform.Models.Venue>
+@model OrganizationPlatform.Models.VenueFilterViewModel
 
 @{
-    ViewData["Title"] = "Mekânlar";
+    ViewData["Title"] = "Düğün Mekânları";
 }
 
-<h1>Mekânlar</h1>
+<section class="listing-page venue-listing-page">
+    <div class="listing-heading">
+        <div class="eyebrow">
+            <span class="eyebrow-dot"></span>
+            Hayalindeki mekânı bul
+        </div>
+        <h1>Düğün Mekânları ve Fiyatları</h1>
+        <p>Konum, fiyat, kapasite ve özelliklere göre sana uygun mekânları keşfet.</p>
+    </div>
 
-@if (Model.Count == 0)
-{
-    <p>Henüz kayıtlı mekân bulunmuyor.</p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Ad</th>
-                <th>Şehir</th>
-                <th>Kapasite</th>
-                <th>Adres</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var venue in Model)
+    <div class="venue-discovery-layout">
+        <aside class="venue-filter-panel">
+            <div class="filter-panel-heading">
+                <h2>Filtreler</h2>
+                <a asp-controller="Venues" asp-action="Index">Temizle</a>
+            </div>
+
+            <form method="get" asp-controller="Venues" asp-action="Index">
+                <div class="filter-group">
+                    <label for="City">İl</label>
+                    <select id="City" name="City" class="form-select"
+                            onchange="this.form.submit()">
+                        <option value="">Tüm iller</option>
+                        @foreach (var city in Model.Cities)
+                        {
+                            <option value="@city"
+                                    selected="@(Model.City == city)">
+                                @city
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="District">İlçe</label>
+                    <select id="District" name="District" class="form-select">
+                        <option value="">Tüm ilçeler</option>
+                        @foreach (var district in Model.Districts)
+                        {
+                            <option value="@district"
+                                    selected="@(Model.District == district)">
+                                @district
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <h3>Fiyat aralığı</h3>
+                    <div class="filter-price-inputs">
+                        <input type="number" name="MinPrice"
+                               value="@Model.MinPrice" min="0"
+                               class="form-control" placeholder="En az" />
+                        <input type="number" name="MaxPrice"
+                               value="@Model.MaxPrice" min="0"
+                               class="form-control" placeholder="En fazla" />
+                    </div>
+
+                    <label for="PriceType">Fiyat türü</label>
+                    <select id="PriceType" name="PriceType" class="form-select">
+                        <option value="">Yemekli veya yemeksiz</option>
+                        <option value="included"
+                                selected="@(Model.PriceType == "included")">
+                            Yemekli
+                        </option>
+                        <option value="excluded"
+                                selected="@(Model.PriceType == "excluded")">
+                            Yemeksiz
+                        </option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="MinCapacity">Minimum davetli sayısı</label>
+                    <input id="MinCapacity" type="number" name="MinCapacity"
+                           value="@Model.MinCapacity" min="1"
+                           class="form-control" placeholder="Örn. 200" />
+                </div>
+
+                @foreach (var category in Model.FeatureCategories)
+                {
+                    <fieldset class="filter-group feature-filter-group">
+                        <legend>@category.Name</legend>
+
+                        @foreach (var feature in category.PhysicalFeatures
+                            .OrderBy(feature => feature.Name))
+                        {
+                            <label class="feature-filter-option">
+                                <input type="checkbox"
+                                       name="SelectedFeatureIds"
+                                       value="@feature.Id"
+                                       checked="@Model.SelectedFeatureIds.Contains(feature.Id)" />
+                                <span>@feature.Name</span>
+                            </label>
+                        }
+                    </fieldset>
+                }
+
+                <button type="submit" class="btn btn-primary filter-submit">
+                    Mekânları listele
+                </button>
+            </form>
+        </aside>
+
+        <div class="venue-results">
+            
+<div class="venue-results-heading">
+
+<form method="get"
+      asp-controller="Venues"
+      asp-action="Index"
+      class="venue-search-form">
+
+    <input type="hidden" name="City" value="@Model.City" />
+    <input type="hidden" name="District" value="@Model.District" />
+    <input type="hidden" name="MinPrice" value="@Model.MinPrice" />
+    <input type="hidden" name="MaxPrice" value="@Model.MaxPrice" />
+    <input type="hidden" name="MinCapacity" value="@Model.MinCapacity" />
+    <input type="hidden" name="PriceType" value="@Model.PriceType" />
+    <input type="hidden" name="SortBy" value="@Model.SortBy" />
+
+    @foreach (var featureId in Model.SelectedFeatureIds)
+    {
+        <input type="hidden" name="SelectedFeatureIds"
+               value="@featureId" />
+    }
+
+    <label for="SearchTerm">Mekân ara</label>
+
+    <div class="venue-search-input">
+        <input id="SearchTerm"
+               name="SearchTerm"
+               type="search"
+               value="@Model.SearchTerm"
+               class="form-control"
+               placeholder="Mekân adı, il, ilçe veya mahalle"
+               autocomplete="off" />
+
+        <button type="submit" class="btn btn-primary">
+            Ara
+        </button>
+    </div>
+</form>
+
+    <div>
+        <h2>Mekânları keşfet</h2>
+        <p>@Model.Venues.Count mekân listeleniyor</p>
+    </div>
+
+    <form method="get"
+          asp-controller="Venues"
+          asp-action="Index"
+          class="venue-sort-form">
+
+        <input type="hidden" name="City" value="@Model.City" />
+        <input type="hidden" name="District" value="@Model.District" />
+        <input type="hidden" name="MinPrice" value="@Model.MinPrice" />
+        <input type="hidden" name="MaxPrice" value="@Model.MaxPrice" />
+        <input type="hidden" name="MinCapacity" value="@Model.MinCapacity" />
+        <input type="hidden" name="PriceType" value="@Model.PriceType" />
+
+        @foreach (var featureId in Model.SelectedFeatureIds)
+        {
+            <input type="hidden" name="SelectedFeatureIds"
+                   value="@featureId" />
+        }
+
+        <label for="SortBy">Sırala:</label>
+
+        <select id="SortBy"
+                name="SortBy"
+                class="form-select"
+                onchange="this.form.submit()">
+
+            <option value="" selected="@(string.IsNullOrEmpty(Model.SortBy))">
+                Önerilen
+            </option>
+
+            <option value="price_asc"
+                    selected="@(Model.SortBy == "price_asc")">
+                Fiyat: düşükten yükseğe
+            </option>
+
+            <option value="price_desc"
+                    selected="@(Model.SortBy == "price_desc")">
+                Fiyat: yüksekten düşüğe
+            </option>
+
+            <option value="capacity_asc"
+                    selected="@(Model.SortBy == "capacity_asc")">
+                Kapasite: düşükten yükseğe
+            </option>
+
+            <option value="capacity_desc"
+                    selected="@(Model.SortBy == "capacity_desc")">
+                Kapasite: yüksekten düşüğe
+            </option>
+        </select>
+    </form>
+</div>
+
+
+            @if (Model.Venues.Count == 0)
             {
-                <tr>
-                    <td>@venue.Name</td>
-                    <td>@venue.City</td>
-                    <td>@venue.Capacity</td>
-                    <td>@venue.Address</td>
-                </tr>
+                <div class="empty-state">
+                    <div class="empty-state-icon" aria-hidden="true">⌖</div>
+                    <h2 class="h5 text-dark">Eşleşen mekân bulunamadı</h2>
+                    <p class="mb-0">
+                        Filtrelerini değiştirmeyi veya temizlemeyi deneyebilirsin.
+                    </p>
+                </div>
             }
-        </tbody>
-    </table>
-}
+            else
+            {
+                <div class="venue-catalog-grid">
+                    @foreach (var venue in Model.Venues)
+                    {
+                        var cover = venue.Photos
+                            .OrderByDescending(photo => photo.UploadedAt)
+                            .FirstOrDefault();
+
+                        <a class="venue-list-card"
+                           asp-controller="Venues"
+                           asp-action="Details"
+                           asp-route-id="@venue.Id">
+                            <div class="venue-list-cover">
+                                @if (cover != null)
+                                {
+                                    <img src="@cover.FilePath"
+                                         alt="@venue.Name mekân fotoğrafı"
+                                         loading="lazy" />
+                                }
+                                else
+                                {
+                                    <span class="catalog-placeholder"
+                                          aria-hidden="true">⌖</span>
+                                }
+
+                                <span class="venue-capacity-badge">
+                                    @venue.Capacity kişi
+                                </span>
+                            </div>
+
+                            <div class="venue-list-body">
+                                <span class="catalog-location">
+                                    @venue.City · @venue.District
+                                </span>
+
+                                <h2>@venue.Name</h2>
+
+                                <p>
+                                    @(string.IsNullOrWhiteSpace(venue.Address)
+                                        ? venue.Neighborhood
+                                        : venue.Address)
+                                </p>
+
+                                <div class="venue-card-footer">
+                                    <div class="venue-price-label">
+                                        @if (venue.MealIncludedPrice.HasValue)
+                                        {
+                                            <small>Yemekli kişi başı</small>
+                                            <strong>
+                                                @venue.MealIncludedPrice.Value.ToString("N0") ₺
+                                            </strong>
+                                        }
+                                        else if (venue.MealExcludedPrice.HasValue)
+                                        {
+                                            <small>Yemeksiz kişi başı</small>
+                                            <strong>
+                                                @venue.MealExcludedPrice.Value.ToString("N0") ₺
+                                            </strong>
+                                        }
+                                        else
+                                        {
+                                            <small>Fiyat için detayları incele</small>
+                                        }
+                                    </div>
+
+                                    <span class="catalog-card-action">
+                                        Detaylar ↗
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</section>

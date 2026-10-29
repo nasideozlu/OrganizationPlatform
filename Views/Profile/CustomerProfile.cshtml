@@ -1,0 +1,30 @@
+@model OrganizationPlatform.Models.CustomerProfile
+@{ ViewData["Title"] = "Hesabım"; }
+
+<section class="dashboard-page customer-dashboard">
+    <div class="dashboard-welcome">
+        <div><div class="eyebrow"><span class="eyebrow-dot"></span> Müşteri hesabı</div><h1>Merhaba, @Model.Name <span aria-hidden="true">✳</span></h1><p>Etkinliğin için mekânları ve hizmet veren işletmeleri keşfet.</p></div>
+        <div class="dashboard-actions"><a class="btn btn-outline-primary" asp-controller="Profile" asp-action="EditCustomer">Hesap bilgilerini düzenle</a></div>
+    </div>
+
+    <div class="customer-overview">
+        <article class="plan-start-card">
+            <div class="plan-card-copy"><span class="dashboard-kicker">KEŞFE BAŞLA</span><h2>Etkinliğine uygun<br />seçenekleri bul.</h2><p>Mekânların fotoğraflarına, kapasite ve konum bilgilerine bak. İşletme profillerini de yakından incele.</p><a class="btn btn-primary" href="/#kesfet">İşletmeleri keşfet <span aria-hidden="true">↗</span></a></div>
+            <div class="plan-card-illustration" aria-hidden="true"><div class="plan-sun"></div><div class="plan-ring ring-one"></div><div class="plan-ring ring-two"></div><div class="plan-flower">✳</div><div class="plan-date"><small>KEŞFET</small><strong>seçenekler</strong></div></div>
+        </article>
+        <aside class="customer-side-card">
+            <div class="dashboard-card-head"><div><span class="dashboard-kicker">KATALOĞA GÖZ AT</span><h3>Keşfedilecekler</h3></div><span class="dashboard-icon">⌖</span></div>
+            <a class="customer-discover-item" asp-controller="Venues" asp-action="Index"><span class="discover-item-icon">⌂</span><span><strong>@ViewBag.VenueCount mekân</strong><small>Fotoğraf, kapasite ve fiyatları incele</small></span><b aria-hidden="true">→</b></a>
+            <a class="customer-discover-item" href="/#kesfet"><span class="discover-item-icon discover-item-icon-warm">✳</span><span><strong>@ViewBag.BusinessCount işletme</strong><small>Hizmet veren profillerini keşfet</small></span><b aria-hidden="true">→</b></a>
+            <div class="side-divider"></div>
+            <div class="account-mini"><span class="account-mini-icon">♡</span><div><strong>Karar senin</strong><small>Detayları incele, sana uygun olanı seç.</small></div></div>
+        </aside>
+    </div>
+
+    <div class="dashboard-section-title"><div><span class="dashboard-kicker">HESABIN</span><h2>Kişisel bilgilerin</h2></div><a asp-controller="Profile" asp-action="EditCustomer">Düzenle <span aria-hidden="true">↗</span></a></div>
+    <div class="customer-account-grid">
+        <article class="account-detail-card"><span class="detail-icon">♙</span><div><small>Ad soyad</small><strong>@Model.Name @Model.Surname</strong></div></article>
+        <article class="account-detail-card"><span class="detail-icon">✉</span><div><small>E-posta</small><strong>@Model.ApplicationUser.Email</strong></div></article>
+        <article class="account-detail-card"><span class="detail-icon">⌕</span><div><small>Telefon</small><strong>@(string.IsNullOrWhiteSpace(Model.ApplicationUser.PhoneNumber) ? "Henüz eklenmemiş" : Model.ApplicationUser.PhoneNumber)</strong></div></article>
+    </div>
+</section>

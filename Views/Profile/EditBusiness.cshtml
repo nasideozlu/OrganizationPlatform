@@ -1,0 +1,89 @@
+@model OrganizationPlatform.Models.BusinessProfileEditViewModel
+@{
+    ViewData["Title"] = "İşletme profilini düzenle";
+    var provinces = ViewBag.Provinces as List<OrganizationPlatform.Services.LocationItem> ?? new();
+    var districts = ViewBag.Districts as List<OrganizationPlatform.Services.LocationItem> ?? new();
+}
+
+<section class="form-page">
+    <div class="form-shell">
+        <aside class="form-aside">
+            <div class="eyebrow"><span class="eyebrow-dot"></span> İşletme ayarları</div>
+            <h1>İşletmeni en iyi şekilde anlat.</h1>
+            <p>İşletme bilgilerini ve fotoğraflarını güncel tut. Bu detaylar müşterilerin seni keşfetmesine yardımcı olur.</p>
+            <div class="form-aside-note">Fotoğrafların işletme profilinde ve keşif kartlarında gösterilir.</div>
+        </aside>
+        <div class="form-content">
+            <h2>İşletme bilgileri</h2>
+            <p class="form-intro">Profilinde görünecek detayları düzenle.</p>
+            <form method="post" asp-controller="Profile" asp-action="EditBusiness" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="All" class="validation-summary-errors"></div>
+                <div class="field"><label asp-for="Name">İşletme adı</label><input asp-for="Name" class="form-control" autocomplete="organization" required /><span asp-validation-for="Name"></span></div>
+                <div class="field"><label asp-for="Description">İşletme hakkında <span class="optional-label">(isteğe bağlı)</span></label><textarea asp-for="Description" class="form-control" rows="4" placeholder="Hizmetlerini ve işletmeni tanıt"></textarea><span asp-validation-for="Description"></span></div>
+                <div class="form-grid">
+                    <div class="field"><label asp-for="City">İl</label><select asp-for="City" id="City" class="form-select" required><option value="">İl seçin</option>@foreach (var province in provinces) { <option value="@province.Name" data-id="@province.Id">@province.Name</option> }</select><span asp-validation-for="City"></span></div>
+                    <div class="field"><label asp-for="District">İlçe</label><select asp-for="District" id="District" class="form-select" required><option value="">İlçe seçin</option>@foreach (var district in districts) { <option value="@district.Name" data-id="@district.Id">@district.Name</option> }</select><span asp-validation-for="District"></span></div>
+                </div>
+                <p id="businessLocationError" class="field-help text-danger" aria-live="polite"></p>
+                <div class="field"><label asp-for="Photos">İşletme fotoğrafları</label><input asp-for="Photos" id="BusinessPhotos" type="file" class="form-control" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple /><span asp-validation-for="Photos"></span><small id="businessPhotoHelp" class="field-help">JPEG, PNG veya WebP · fotoğraf başına en fazla 5 MB.</small></div>
+                <button type="submit" class="btn btn-primary form-submit">Değişiklikleri kaydet</button>
+                <p class="form-bottom"><a asp-controller="Profile" asp-action="Index">Profilime dön</a></p>
+            </form>
+
+            <section class="existing-photos-section">
+                <div class="detail-panel-heading"><div><span class="dashboard-kicker">İŞLETME GALERİSİ</span><h3>Mevcut fotoğraflar</h3></div><span class="business-venue-count">@Model.ExistingPhotos.Count</span></div>
+                @if (Model.ExistingPhotos.Count > 0)
+                {
+                    <div class="existing-photo-grid">
+                        @foreach (var photo in Model.ExistingPhotos.OrderByDescending(photo => photo.UploadedAt))
+                        {
+                            <article class="existing-photo-card"><a href="@photo.FilePath" target="_blank" rel="noopener noreferrer"><img src="@photo.FilePath" alt="İşletme fotoğrafı" loading="lazy" /></a><form asp-controller="Profile" asp-action="DeleteBusinessPhoto" method="post" onsubmit="return confirm('Bu fotoğrafı silmek istediğine emin misin?');">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@photo.Id" /><button type="submit" class="btn btn-outline-danger btn-sm">Fotoğrafı sil</button></form></article>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-secondary mb-0">Henüz fotoğraf yüklenmemiş.</p>
+                }
+            </section>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const businessCitySelect = document.getElementById('City');
+        const businessDistrictSelect = document.getElementById('District');
+        const businessLocationError = document.getElementById('businessLocationError');
+
+        businessCitySelect?.addEventListener('change', async () => {
+            businessDistrictSelect.innerHTML = '<option value="">İlçe seçin</option>';
+            businessDistrictSelect.disabled = true;
+            businessLocationError.textContent = '';
+            const provinceId = businessCitySelect.options[businessCitySelect.selectedIndex]?.dataset.id;
+            if (!provinceId) return;
+
+            try {
+                const response = await fetch(`/Venues/GetDistricts?provinceId=${encodeURIComponent(provinceId)}`);
+                if (!response.ok) throw new Error();
+                (await response.json()).forEach(district => {
+                    const option = new Option(district.name, district.name);
+                    option.dataset.id = district.id;
+                    businessDistrictSelect.add(option);
+                });
+                businessDistrictSelect.disabled = false;
+            } catch {
+                businessLocationError.textContent = 'İlçeler yüklenemedi. Lütfen tekrar deneyin.';
+            }
+        });
+
+        document.getElementById('BusinessPhotos')?.addEventListener('change', event => {
+            const count = event.target.files.length;
+            document.getElementById('businessPhotoHelp').textContent = count
+                ? `${count} fotoğraf seçildi · JPEG, PNG veya WebP · fotoğraf başına en fazla 5 MB.`
+                : 'JPEG, PNG veya WebP · fotoğraf başına en fazla 5 MB.';
+        });
+    </script>
+}

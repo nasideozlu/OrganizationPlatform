@@ -1,45 +1,73 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="tr">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - OrganizationPlatform</title>
+    <meta name="theme-color" content="#fbfaf7" />
+    <title>@ViewData["Title"] · Vera</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/OrganizationPlatform.styles.css" asp-append-version="true" />
+    @*<link rel="stylesheet" href="~/OrganizationPlatform.styles.css" asp-append-version="true" />*@
 </head>
+
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">OrganizationPlatform</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+    <header class="site-header">
+        <nav class="navbar navbar-light navbar-expand-md site-nav">
+            <div class="container">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                    <span class="brand-mark" aria-hidden="true">V</span> Vera
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                        aria-controls="mainNav" aria-expanded="false" aria-label="Menüyü aç">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                <div class="collapse navbar-collapse" id="mainNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" href="/#kesfet">Keşfet</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Venues" asp-action="Index">Mekânlar</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Businesses" asp-action="Index">İşletmeler</a></li>
+
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Profile" asp-action="Index">Profilim</a>
+                            </li>
+                        
+                            @await Component.InvokeAsync("BusinessNavigation")
+                        }
                     </ul>
+                    <div class="nav-actions">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <form asp-controller="Account" asp-action="Logout" method="post">
+                                <button type="submit" class="btn btn-outline-primary">Çıkış yap</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Login"
+                               asp-route-audience="customer">Giriş Yap / Kayıt Ol</a>
+                            <a class="btn btn-primary" asp-controller="Account" asp-action="Login"
+                               asp-route-audience="business">İşletmeler İçin</a>
+                        }
+                    </div>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - OrganizationPlatform - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <main role="main" class="page-main">
+        @RenderBody()
+    </main>
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <a class="footer-brand" asp-controller="Home" asp-action="Index">Vera<span
+                style="color:var(--green)">.</span></a>
+            <span>Güzel günler, güzel planlarla başlar. © 2026 Vera</span>
+            <a asp-controller="Home" asp-action="Privacy">Gizlilik</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -47,4 +75,5 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+
 </html>

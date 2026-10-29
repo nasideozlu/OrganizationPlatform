@@ -1,0 +1,78 @@
+@model OrganizationPlatform.Models.BusinessProfile
+@{
+    ViewData["Title"] = "İşletme yönetimi";
+    var hasDescription = !string.IsNullOrWhiteSpace(Model.Description);
+    var hasPhone = !string.IsNullOrWhiteSpace(Model.ApplicationUser.PhoneNumber);
+    var hasDistrict = !string.IsNullOrWhiteSpace(Model.District);
+    var coverPhoto = Model.Photos.OrderByDescending(photo => photo.UploadedAt).FirstOrDefault();
+    var hasPhoto = coverPhoto != null;
+    var completedItems = 4 + (hasDescription ? 1 : 0) + (hasPhone ? 1 : 0) + (hasDistrict ? 1 : 0) + (hasPhoto ? 1 : 0);
+    var completion = completedItems * 100 / 8;
+    var managesVenues = Model.Category.Name == "Düğün Salonu";
+}
+
+<section class="dashboard-page business-dashboard">
+    <div class="dashboard-welcome business-welcome">
+        <div><div class="eyebrow"><span class="eyebrow-dot"></span> İşletme paneli</div><h1>Hoş geldin, @Model.Name</h1><p>İşletme profilini güncel tut ve müşterilerinle paylaş.</p></div>
+        <div class="dashboard-actions">
+            @if (managesVenues)
+            {
+                <a class="btn btn-outline-primary" asp-controller="Venues" asp-action="MyVenues">Mekânlarım <span aria-hidden="true">↗</span></a>
+            }
+            <a class="btn btn-primary" asp-controller="Profile" asp-action="EditBusiness">Profili düzenle <span aria-hidden="true">↗</span></a>
+        </div>
+    </div>
+
+    <div class="business-summary-grid">
+        <article class="business-profile-summary">
+            <div class="business-profile-top">
+                @if (coverPhoto != null)
+                {
+                    <img class="business-avatar-photo" src="@coverPhoto.FilePath" alt="@Model.Name işletme fotoğrafı" />
+                }
+                else
+                {
+                    <div class="business-avatar" aria-hidden="true">✳</div>
+                }
+                <div><span class="business-category">@Model.Category.Name</span><h2>@Model.Name</h2><p><span aria-hidden="true">⌖</span> @Model.City@(hasDistrict ? $", {Model.District}" : "")</p></div>
+            </div>
+            <div class="business-profile-description">@(hasDescription ? Model.Description : "İşletmeni tanıtan kısa bir açıklama ekleyerek profilini tamamla.")</div>
+            <div class="business-profile-contact"><span>✉</span> @Model.ApplicationUser.Email <span class="contact-separator">·</span><span>⌕</span> @(hasPhone ? Model.ApplicationUser.PhoneNumber : "Telefon eklenmemiş")</div>
+        </article>
+
+        <aside class="profile-health-card">
+            <div class="dashboard-card-head"><div><span class="dashboard-kicker">PROFİL DURUMU</span><h3>Profilini tamamla</h3></div><span class="dashboard-icon">◉</span></div>
+            <div class="health-progress"><span style="width:@completion%"></span></div>
+            <div class="health-score"><strong>@completion%</strong><span>@completedItems / 8 bilgi tamam</span></div>
+            <ul class="health-checklist">
+                <li class="is-complete"><span>✓</span> İşletme adı</li>
+                <li class="is-complete"><span>✓</span> Kategori</li>
+                <li class="is-complete"><span>✓</span> İl</li>
+                <li class="@(hasDistrict ? "is-complete" : "")"><span>@(hasDistrict ? "✓" : "+")</span> İlçe</li>
+                <li class="@(hasDescription ? "is-complete" : "")"><span>@(hasDescription ? "✓" : "+")</span> Açıklama</li>
+                <li class="@(hasPhoto ? "is-complete" : "")"><span>@(hasPhoto ? "✓" : "+")</span> Fotoğraf</li>
+                <li class="is-complete"><span>✓</span> E-posta</li>
+                <li class="@(hasPhone ? "is-complete" : "")"><span>@(hasPhone ? "✓" : "+")</span> Telefon</li>
+            </ul>
+            @if (completion < 100)
+            {
+                <a class="dashboard-text-link" asp-controller="Profile" asp-action="EditBusiness">Eksik bilgileri tamamla <span aria-hidden="true">→</span></a>
+            }
+            else
+            {
+                <span class="profile-ready-label">Profilin hazır ✓</span>
+            }
+        </aside>
+    </div>
+
+    <div class="dashboard-section-title business-section-title"><div><span class="dashboard-kicker">HESAP YÖNETİMİ</span><h2>İşletme bilgilerin</h2></div></div>
+    <div class="business-details-grid">
+        <article class="business-detail-card"><span class="detail-icon">⌖</span><div><small>Hizmet bölgesi</small><strong>@Model.City@(hasDistrict ? $", {Model.District}" : "")</strong></div><a asp-action="EditBusiness" aria-label="Hizmet bölgesini düzenle">↗</a></article>
+        <article class="business-detail-card"><span class="detail-icon">✳</span><div><small>İşletme kategorisi</small><strong>@Model.Category.Name</strong></div></article>
+        <article class="business-detail-card"><span class="detail-icon">✉</span><div><small>İletişim e-postası</small><strong>@Model.ApplicationUser.Email</strong></div></article>
+        @if (managesVenues)
+        {
+            <a class="business-detail-card business-venue-dashboard-card" asp-controller="Venues" asp-action="MyVenues"><span class="detail-icon">⌂</span><div><small>Mekân ilanları</small><strong>@ViewBag.VenueCount mekânı yönet</strong></div><span class="dashboard-card-arrow">↗</span></a>
+        }
+    </div>
+</section>
