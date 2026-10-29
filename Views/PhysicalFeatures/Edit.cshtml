@@ -1,0 +1,66 @@
+
+@model OrganizationPlatform.Models.PhysicalFeature
+@using OrganizationPlatform.Models
+
+@{
+    ViewData["Title"] = "Mekân Özelliğini Düzenle";
+    var categories = ViewBag.FeatureCategories as List<FeatureCategory>
+        ?? new List<FeatureCategory>();
+}
+
+<div class="container mt-4">
+    <h1>Mekân Özelliğini Düzenle</h1>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <form asp-action="Edit"
+          asp-route-id="@Model.Id"
+          method="post"
+          class="mt-4">
+
+        @Html.AntiForgeryToken()
+
+        <div class="mb-3">
+            <label for="name" class="form-label">Özellik Adı</label>
+            <input id="name"
+                   name="name"
+                   value="@Model.Name"
+                   class="form-control"
+                   maxlength="100"
+                   required />
+        </div>
+
+        <div class="mb-3">
+            <label for="categoryId" class="form-label">Özellik Grubu</label>
+            <select id="categoryId"
+                    name="categoryId"
+                    class="form-select"
+                    required>
+                @foreach (var category in categories)
+                {
+                    if (category.Id == Model.CategoryId)
+                    {
+                        <option value="@category.Id" selected>
+                            @category.Name
+                        </option>
+                    }
+                    else
+                    {
+                        <option value="@category.Id">
+                            @category.Name
+                        </option>
+                    }
+                }
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Değişiklikleri Kaydet
+        </button>
+
+        <a asp-action="Index" class="btn btn-secondary">İptal</a>
+    </form>
+</div>

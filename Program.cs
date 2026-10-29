@@ -28,6 +28,11 @@ builder.Services
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
+    options.User.RequireUniqueEmail = false;
+});
+
+builder.Services.Configure<IdentityOptions>(options =>
+{
     options.ClaimsIdentity.RoleClaimType = System.Security.Claims.ClaimTypes.Role;
 });
 
@@ -58,6 +63,7 @@ builder.Services
         };
     });
 
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -65,99 +71,13 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider
         .GetRequiredService<ApplicationDbContext>();
 
-    if (!await context.BusinessCategories.AnyAsync())
-    {
-        context.BusinessCategories.AddRange(
-            new BusinessCategory { Name = "Düğün Salonu" },
-            new BusinessCategory { Name = "Fotoğrafçı" },
-            new BusinessCategory { Name = "Organizasyon Şirketi" },
-            new BusinessCategory { Name = "Catering" },
-            new BusinessCategory { Name = "Çiçekçi" },
-            new BusinessCategory { Name = "Müzik ve Eğlence" }
-        );
+    var roleManager = scope.ServiceProvider
+    .GetRequiredService<RoleManager<IdentityRole>>();
 
-        await context.SaveChangesAsync();
-    }
-
-    // Fiziksel özellik kategorilerini oluştur.
-    var featureCategories = new[]
-    {
-        "Manzara",
-        "Fiziksel Özellikler",
-        "Olanaklar",
-        "Erişilebilirlik"
-    };
-
-    foreach (var categoryName in featureCategories)
-    {
-        if (!await context.FeatureCategories
-            .AnyAsync(category => category.Name == categoryName))
-        {
-            context.FeatureCategories.Add(
-                new FeatureCategory { Name = categoryName });
-        }
-    }
-
-    await context.SaveChangesAsync();
-
-    // Kategorileri ve özellikleri tanımla.
-    var physicalFeatures = new Dictionary<string, string[]>
-    {
-        ["Manzara"] = new[]
-        {
-            "Deniz manzarası",
-            "Doğa manzarası",
-            "Şehir manzarası",
-            "Göl manzarası"
-        },
-        ["Fiziksel Özellikler"] = new[]
-        {
-            "Açık alan",
-            "Kapalı alan",
-            "Bahçe",
-            "Teras",
-            "Havuz",
-            "Sahne"
-        },
-        ["Olanaklar"] = new[]
-        {
-            "Otopark",
-            "Vale hizmeti",
-            "Klima",
-            "Ses sistemi",
-            "Jeneratör",
-            "Gelin odası"
-        },
-        ["Erişilebilirlik"] = new[]
-        {
-            "Engelli erişimi"
-        }
-    };
-
-    foreach (var item in physicalFeatures)
-    {
-        var category = await context.FeatureCategories
-            .FirstAsync(category => category.Name == item.Key);
-
-        foreach (var featureName in item.Value)
-        {
-            if (!await context.PhysicalFeatures.AnyAsync(feature =>
-                feature.Name == featureName &&
-                feature.CategoryId == category.Id))
-            {
-                context.PhysicalFeatures.Add(new PhysicalFeature
-                {
-                    Name = featureName,
-                    CategoryId = category.Id,
-                    Category = category
-                });
-            }
-        }
-    }
-
-    await context.SaveChangesAsync();
+    await DatabaseSeeder.SeedAsync(context, roleManager);
 
 }
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

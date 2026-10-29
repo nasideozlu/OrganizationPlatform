@@ -595,7 +595,7 @@ public class VenuesController : Controller
             return false;
         }
 
-        return businessProfile.Category.Name == "Düğün Salonu";
+        return businessProfile.Category.Name == "Düğün Mekanı";
     }
 
 

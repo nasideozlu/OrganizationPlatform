@@ -46,16 +46,24 @@ public class AccountController : Controller
         return View(model);
     }
 
+
     [HttpPost]
     public async Task<IActionResult> Login(LoginViewModel model, string audience = "customer")
     {
+        var accountType = audience == "business"
+            ? AccountType.Business
+            : AccountType.Customer;
+
         ViewBag.Audience = audience == "business" ? "business" : "customer";
+
         if (!ModelState.IsValid)
         {
             return View(model);
         }
 
-        var user = await _userManager.FindByEmailAsync(model.Email);
+        var user = await _context.Users.FirstOrDefaultAsync(u =>
+            u.Email == model.Email &&
+            u.AccountType == accountType);
 
         if (user == null)
         {
@@ -78,6 +86,7 @@ public class AccountController : Controller
         return View(model);
     }
 
+
     [HttpPost]
     public async Task<IActionResult> Register(RegisterViewModel model)
     {
@@ -86,9 +95,24 @@ public class AccountController : Controller
             return View(model);
         }
 
+        var normalizedEmail = _userManager.NormalizeEmail(model.Email);
+
+        var customerExists = await _context.Users.AnyAsync(u =>
+            u.NormalizedEmail == normalizedEmail &&
+            u.AccountType == AccountType.Customer);
+
+        if (customerExists)
+        {
+            ModelState.AddModelError(
+                nameof(model.Email),
+                "Bu e-posta adresiyle bir müşteri hesabı zaten mevcut.");
+
+            return View(model);
+        }
+
         var user = new ApplicationUser
         {
-            UserName = model.Email,
+            UserName = $"customer-{model.Email}",
             Email = model.Email,
             PhoneNumber = model.PhoneNumber,
             AccountType = AccountType.Customer
@@ -145,10 +169,27 @@ public class AccountController : Controller
             ModelState.AddModelError("CategoryId", "Lütfen geçerli bir işletme kategorisi seçin.");
             await LoadBusinessRegistrationOptionsAsync(model);
             return View(model);
+
+        }
+
+        var normalizedEmail = _userManager.NormalizeEmail(model.Email);
+
+        var businessExists = await _context.Users.AnyAsync(u =>
+            u.NormalizedEmail == normalizedEmail &&
+            u.AccountType == AccountType.Business);
+
+        if (businessExists)
+        {
+            ModelState.AddModelError(
+                nameof(model.Email),
+                "Bu e-posta adresiyle bir işletme hesabı zaten mevcut.");
+
+            await LoadBusinessRegistrationOptionsAsync(model);
+            return View(model);
         }
         var user = new ApplicationUser
         {
-            UserName = model.Email,
+            UserName = $"business-{model.Email}",
             Email = model.Email,
             PhoneNumber = model.PhoneNumber,
             AccountType = AccountType.Business
