@@ -1,0 +1,233 @@
+@model List<OrganizationPlatform.Models.BusinessCampaign>
+@using OrganizationPlatform.Models
+
+@{
+    ViewData["Title"] = "Kampanya Yönetimi";
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2>Kampanya Yönetimi</h2>
+
+            <p class="text-muted mb-0">
+                İşletmen için oluşturduğun kampanyaları yönet.
+            </p>
+        </div>
+
+        <a asp-action="Create" class="btn btn-primary">
+            Yeni Kampanya Oluştur
+        </a>
+
+    </div>
+
+
+    @if (Model.Count == 0)
+    {
+        <div class="alert alert-info">
+            Henüz kampanya oluşturmadınız.
+        </div>
+    }
+    else
+    {
+        <div class="row g-3">
+
+            @foreach (var campaign in Model)
+            {
+                var today = DateTime.Today;
+
+                var campaignStatus = !campaign.IsActive
+                    ? "Pasif"
+                    : today < campaign.StartDate
+                        ? "Başlamadı"
+                        : today > campaign.EndDate
+                            ? "Süresi Doldu"
+                            : "Yayında";
+                <div class="col-md-6 col-lg-4">
+
+                    <div class="card h-100 shadow-sm">
+
+                        <div class="card-body">
+
+                            <div class="d-flex justify-content-between align-items-start">
+
+                                <div>
+                                    <h5 class="card-title">
+                                        @campaign.Name
+                                    </h5>
+
+                                    @if (campaign.CampaignType ==
+                                         BusinessCampaignType.General)
+                                    {
+                                        <span class="badge bg-primary">
+                                            İşletme Geneli
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-info">
+                                            Paket Kampanyası
+                                        </span>
+                                    }
+
+                                </div>
+
+
+                                @if (campaignStatus == "Pasif")
+                                {
+                                    <span class="badge bg-secondary">Pasif</span>
+                                }
+                                else if (campaignStatus == "Başlamadı")
+                                {
+                                    <span class="badge bg-info">Başlamadı</span>
+                                }
+                                else if (campaignStatus == "Yayında")
+                                {
+                                    <span class="badge bg-success">Yayında</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Süresi Doldu</span>
+                                }
+
+                            </div>
+
+
+                            @if (!string.IsNullOrWhiteSpace(
+                                campaign.Description))
+                            {
+                                <p class="text-muted mt-3">
+                                    @campaign.Description
+                                </p>
+                            }
+
+
+                            @if (campaign.CampaignType ==
+                                 BusinessCampaignType.Package &&
+                                 campaign.BusinessPackage != null)
+                            {
+                                <div class="mb-3">
+
+                                    <small class="text-muted">
+                                        Kampanyalı Paket
+                                    </small>
+
+                                    <div>
+                                        <strong>
+                                            @campaign.BusinessPackage.Name
+                                        </strong>
+                                    </div>
+
+                                    @{
+                                        var normalPrice = campaign.BusinessPackage.Amount;
+
+                                        var discountedPrice = campaign.DiscountType == DiscountType.Percentage
+                                            ? normalPrice - (normalPrice * campaign.DiscountValue / 100)
+                                            : normalPrice - campaign.DiscountValue;
+
+                                        discountedPrice = Math.Max(0, discountedPrice);
+                                    }
+
+                                    <div class="mt-2">
+                                        <small class="text-muted">Normal Fiyat:</small>
+                                        <span class="text-decoration-line-through">
+                                            @normalPrice.ToString("N2") TL
+                                        </span>
+                                    </div>
+
+                                    <div>
+                                        <small class="text-muted">Kampanyalı Fiyat:</small>
+                                        <strong class="text-success">
+                                            @discountedPrice.ToString("N2") TL
+                                        </strong>
+                                    </div>
+
+                                </div>
+                            }
+
+
+                            <div class="mb-3">
+
+                                <small class="text-muted">
+                                    İndirim
+                                </small>
+
+                                <div class="fs-5 text-primary">
+
+                                    @if (campaign.DiscountType ==
+                                         DiscountType.Percentage)
+                                    {
+                                        @($"%{campaign.DiscountValue:N0}")
+                                    }
+                                    else
+                                    {
+                                        @($"{campaign.DiscountValue:N2} TL")
+                                    }
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="mb-3">
+
+                                <small class="text-muted">
+                                    Kampanya Tarihleri
+                                </small>
+
+                                <div>
+                                    @campaign.StartDate.ToString("dd.MM.yyyy")
+                                    -
+                                    @campaign.EndDate.ToString("dd.MM.yyyy")
+                                </div>
+
+                            </div>
+
+
+                            <div class="d-flex gap-2 mt-3">
+
+                                <a asp-action="Edit" asp-route-id="@campaign.Id" class="btn btn-outline-primary btn-sm">
+
+                                    Düzenle
+
+                                </a>
+
+
+                                <form asp-action="ToggleStatus" asp-route-id="@campaign.Id" method="post">
+
+                                    @Html.AntiForgeryToken()
+
+                                    @if (campaign.IsActive)
+                                    {
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">
+
+                                            Pasife Al
+
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="submit" class="btn btn-outline-success btn-sm">
+
+                                            Aktifleştir
+
+                                        </button>
+                                    }
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    }
+
+</div>

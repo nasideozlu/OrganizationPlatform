@@ -1,0 +1,111 @@
+
+@{
+    ViewData["Title"] = "Yeni Paket Oluştur";
+}
+
+<section class="management-form-page">
+    <div class="eyebrow"><span class="eyebrow-dot"></span> İŞLETMEM · HİZMET PAKETLERİ</div>
+    <h1>Yeni paket oluştur</h1>
+    <p class="management-form-intro">Paketini adım adım tanımla; sunduğun hizmetleri müşterilerin için bir araya getir.</p>
+
+    <form asp-action="Create" method="post" class="management-form">
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger mb-3"></div>
+
+        <div class="mb-3">
+            <label for="name" class="form-label">Paket adı</label>
+            <input id="name"
+                   name="name"
+                   class="form-control"
+                   required
+                   maxlength="150" />
+            <span class="text-danger">
+                @Html.ValidationMessage("name")
+            </span>
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="form-label">Açıklama</label>
+            <textarea id="description"
+                      name="description"
+                      class="form-control"
+                      rows="3"
+                      maxlength="1000"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="amount" class="form-label">Paket fiyatı (TL)</label>
+            <input id="amount"
+                   name="amount"
+                   type="number"
+                   class="form-control"
+                   min="0"
+                   step="0.01"
+                   required />
+            <span class="text-danger">
+                @Html.ValidationMessage("amount")
+            </span>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Paket içerikleri</label>
+
+            <div id="packageItems">
+                <div class="input-group mb-2">
+                    <input name="items"
+                           class="form-control"
+                           placeholder="Örn. 2 fotoğrafçı"
+                           required />
+                    <button type="button"
+                            class="btn btn-outline-danger"
+                            onclick="removeItem(this)">
+                        Sil
+                    </button>
+                </div>
+            </div>
+
+            <button type="button"
+                    class="btn btn-outline-primary btn-sm"
+                    onclick="addItem()">
+                + İçerik Ekle
+            </button>
+        </div>
+
+        <div class="management-form-actions"><button type="submit" class="btn btn-primary">Paketi kaydet</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Vazgeç</a></div>
+    </form>
+</section>
+
+@section Scripts {
+    <script>
+        function addItem() {
+            const container = document.getElementById("packageItems");
+
+            const div = document.createElement("div");
+            div.className = "input-group mb-2";
+
+            div.innerHTML = `
+                <input name="items"
+                       class="form-control"
+                       placeholder="Paket içeriği" />
+                <button type="button"
+                        class="btn btn-outline-danger"
+                        onclick="removeItem(this)">
+                    Sil
+                </button>
+            `;
+
+            container.appendChild(div);
+        }
+
+        function removeItem(button) {
+            const container = document.getElementById("packageItems");
+
+            if (container.children.length > 1) {
+                button.closest(".input-group").remove();
+            }
+        }
+    </script>
+}

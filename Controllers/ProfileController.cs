@@ -42,7 +42,7 @@ public class ProfileController : Controller
         {
             ViewBag.VenueCount = await _context.Venues.CountAsync();
             ViewBag.BusinessCount = await _context.BusinessProfiles
-                .CountAsync(business => business.Category.Name != "Düğün Salonu");
+                .CountAsync(business => business.Category.Name != "Düğün Mekanı");
             var profile = await _context.CustomerProfiles
                 .Include(p => p.ApplicationUser)
                 .FirstOrDefaultAsync(p => p.ApplicationUserId == user.Id);
@@ -70,6 +70,10 @@ public class ProfileController : Controller
 
             ViewBag.VenueCount = await _context.Venues
                 .CountAsync(venue => venue.BusinessProfileId == profile.Id);
+            ViewBag.PricingCount = await _context.BusinessPricings
+                .CountAsync(pricing => pricing.BusinessProfileId == profile.Id);
+            ViewBag.PackageCount = await _context.BusinessPackages
+                .CountAsync(package => package.BusinessProfileId == profile.Id);
 
             return View("BusinessProfile", profile);
         }

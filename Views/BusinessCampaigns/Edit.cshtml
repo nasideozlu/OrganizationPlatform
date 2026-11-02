@@ -1,0 +1,204 @@
+
+@model OrganizationPlatform.Models.BusinessCampaign
+@using OrganizationPlatform.Models
+
+@{
+    ViewData["Title"] = "Kampanyayı Düzenle";
+
+    var packages = ViewBag.Packages as List<BusinessPackage>
+        ?? new List<BusinessPackage>();
+}
+
+<div class="container mt-4">
+
+    <div class="mb-4">
+        <h2>Kampanyayı Düzenle</h2>
+        <p class="text-muted">
+            Kampanya bilgilerini güncelleyebilirsin.
+        </p>
+    </div>
+
+    <form asp-action="Edit"
+          asp-route-id="@Model.Id"
+          method="post">
+
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+
+        <div asp-validation-summary="All"
+             class="text-danger mb-3">
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label">
+                Kampanya Adı
+            </label>
+
+            <input asp-for="Name" class="form-control" />
+
+            <span asp-validation-for="Name"
+                  class="text-danger">
+            </span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label">
+                Açıklama
+            </label>
+
+            <textarea asp-for="Description"
+                      class="form-control"
+                      rows="3"></textarea>
+
+            <span asp-validation-for="Description"
+                  class="text-danger">
+            </span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="CampaignType" class="form-label">
+                Kampanya Türü
+            </label>
+
+            <select asp-for="CampaignType"
+                    id="campaignType"
+                    class="form-select">
+                <option value="@BusinessCampaignType.General">
+                    İşletme Geneli Kampanya
+                </option>
+
+                <option value="@BusinessCampaignType.Package">
+                    Paket Kampanyası
+                </option>
+            </select>
+        </div>
+
+        <div class="mb-3" id="packageSelection">
+            <label asp-for="BusinessPackageId"
+                   class="form-label">
+                Paket
+            </label>
+
+            <select asp-for="BusinessPackageId"
+                    class="form-select">
+                <option value="">Paket seçiniz</option>
+
+                @foreach (var package in packages)
+                {
+                    <option value="@package.Id">
+                        @package.Name
+                    </option>
+                }
+            </select>
+
+            <span asp-validation-for="BusinessPackageId"
+                  class="text-danger">
+            </span>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="DiscountType"
+                       class="form-label">
+                    İndirim Türü
+                </label>
+
+                <select asp-for="DiscountType"
+                        class="form-select">
+                    <option value="@DiscountType.Percentage">
+                        Yüzde
+                    </option>
+
+                    <option value="@DiscountType.FixedAmount">
+                        Sabit Tutar
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label asp-for="DiscountValue"
+                       class="form-label">
+                    İndirim Değeri
+                </label>
+
+                <input asp-for="DiscountValue"
+                       class="form-control"
+                       min="0.01"
+                       step="0.01" />
+
+                <span asp-validation-for="DiscountValue"
+                      class="text-danger">
+                </span>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="StartDate"
+                       class="form-label">
+                    Başlangıç Tarihi
+                </label>
+
+                <input asp-for="StartDate"
+                       type="date"
+                       class="form-control" />
+
+                <span asp-validation-for="StartDate"
+                      class="text-danger">
+                </span>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label asp-for="EndDate"
+                       class="form-label">
+                    Bitiş Tarihi
+                </label>
+
+                <input asp-for="EndDate"
+                       type="date"
+                       class="form-control" />
+
+                <span asp-validation-for="EndDate"
+                      class="text-danger">
+                </span>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Değişiklikleri Kaydet
+        </button>
+
+        <a asp-action="Index"
+           class="btn btn-outline-secondary">
+            İptal
+        </a>
+
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const campaignType =
+            document.getElementById("campaignType");
+
+        const packageSelection =
+            document.getElementById("packageSelection");
+
+        function togglePackageSelection() {
+            const isPackageCampaign =
+                campaignType.value === "@((int)BusinessCampaignType.Package)";
+
+            packageSelection.style.display =
+                isPackageCampaign ? "block" : "none";
+        }
+
+        campaignType.addEventListener(
+            "change",
+            togglePackageSelection
+        );
+
+        togglePackageSelection();
+    </script>
+}

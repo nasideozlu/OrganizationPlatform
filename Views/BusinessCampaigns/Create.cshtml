@@ -1,0 +1,168 @@
+
+@using OrganizationPlatform.Models
+
+@{
+    ViewData["Title"] = "Yeni Kampanya Oluştur";
+
+    var packages = ViewBag.Packages as List<BusinessPackage>
+        ?? new List<BusinessPackage>();
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Yeni Kampanya Oluştur</h2>
+            <p class="text-muted mb-0">
+                İşletmen veya belirli bir paketin için kampanya tanımla.
+            </p>
+        </div>
+
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            Geri Dön
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form asp-action="Create" method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="All"
+                     class="text-danger mb-3">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Kampanya Adı</label>
+                    <input type="text"
+                           name="name"
+                           class="form-control"
+                           required />
+                    <span class="text-danger">
+                        @Html.ValidationMessage("name")
+                    </span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Açıklama</label>
+                    <textarea name="description"
+                              class="form-control"
+                              rows="3"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Kampanya Türü</label>
+                    <select name="campaignType"
+                            id="campaignType"
+                            class="form-select">
+                        <option value="General">İşletme Geneli Kampanya</option>
+                        <option value="Package">Belirli Bir Pakete Özel</option>
+                    </select>
+                </div>
+
+                <div class="mb-3" id="packageSelection" style="display: none;">
+                    <label class="form-label">Paket Seç</label>
+
+                    <select name="businessPackageId"
+                            id="businessPackageId"
+                            class="form-select">
+                        <option value="">Paket seçiniz</option>
+
+                        @foreach (var package in packages)
+                        {
+                            <option value="@package.Id">
+                                @package.Name
+                            </option>
+                        }
+                    </select>
+
+                    <span class="text-danger">
+                        @Html.ValidationMessage("businessPackageId")
+                    </span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Başlangıç Tarihi</label>
+                        <input type="date"
+                               name="startDate"
+                               class="form-control"
+                               required />
+                        <span class="text-danger">
+                            @Html.ValidationMessage("startDate")
+                        </span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Bitiş Tarihi</label>
+                        <input type="date"
+                               name="endDate"
+                               class="form-control"
+                               required />
+                        <span class="text-danger">
+                            @Html.ValidationMessage("endDate")
+                        </span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">İndirim Türü</label>
+
+                        <select name="discountType" class="form-select">
+                            <option value="Percentage">Yüzde (%)</option>
+                            <option value="FixedAmount">Sabit Tutar (TL)</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">İndirim Değeri</label>
+
+                        <input type="number"
+                               name="discountValue"
+                               class="form-control"
+                               min="0.01"
+                               step="0.01"
+                               required />
+
+                        <span class="text-danger">
+                            @Html.ValidationMessage("discountValue")
+                        </span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Kampanyayı Oluştur
+                </button>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const campaignTypeSelect =
+            document.getElementById("campaignType");
+
+        const packageSelection =
+            document.getElementById("packageSelection");
+
+        function togglePackageSelection() {
+            packageSelection.style.display =
+                campaignTypeSelect.value === "Package"
+                    ? "block"
+                    : "none";
+        }
+
+        campaignTypeSelect.addEventListener(
+            "change",
+            togglePackageSelection
+        );
+
+        togglePackageSelection();
+    </script>
+}
+

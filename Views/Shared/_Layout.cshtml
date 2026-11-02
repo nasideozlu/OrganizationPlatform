@@ -14,7 +14,7 @@
 
 <body>
     <header class="site-header">
-        <nav class="navbar navbar-light navbar-expand-md site-nav">
+        <nav class="navbar navbar-light navbar-expand-lg site-nav">
             <div class="container">
                 <a class="navbar-brand" asp-controller="Home" asp-action="Index">
                     <span class="brand-mark" aria-hidden="true">V</span> Vera
@@ -25,19 +25,16 @@
                 </button>
                 <div class="collapse navbar-collapse" id="mainNav">
                     <ul class="navbar-nav ms-auto">
-                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/#kesfet">Keşfet</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="Venues" asp-action="Index">Mekânlar</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="Businesses" asp-action="Index">İşletmeler</a></li>
-
                         @if (User.Identity?.IsAuthenticated == true)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Profile" asp-action="Index">Profilim</a>
-                            </li>
-                        
-                            @await Component.InvokeAsync("BusinessNavigation")
+                            @await Component.InvokeAsync("AccountNavigation")
+                        }
+                        else
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Ana sayfa</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/#kesfet">Keşfet</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Venues" asp-action="Index">Mekânlar</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Businesses" asp-action="Index">İşletmeler</a></li>
                         }
                     </ul>
                     <div class="nav-actions">

@@ -1,0 +1,101 @@
+@model List<OrganizationPlatform.Models.BusinessFavorite>
+
+@{
+    ViewData["Title"] = "Favorilerim";
+}
+
+<div class="container mt-4">
+
+    <div class="mb-4">
+        <h2>Favorilerim</h2>
+        <p class="text-muted">
+            Favorilerine eklediğin işletmeleri burada görebilirsin.
+        </p>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="alert alert-info">
+            Henüz favorilerine işletme eklemedin.
+            <a asp-controller="Businesses" asp-action="Index">
+                İşletmeleri keşfet
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+
+            @foreach (var favorite in Model)
+            {
+                var business = favorite.BusinessProfile;
+
+                var cover = business.Photos
+                    .OrderByDescending(photo => photo.UploadedAt)
+                    .FirstOrDefault();
+
+                <div class="col-md-6 col-lg-4">
+
+                    <div class="card h-100 shadow-sm">
+
+                        @if (cover != null)
+                        {
+                            <img src="@cover.FilePath" class="card-img-top" alt="@business.Name"
+                                 style="height: 200px; object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <span class="text-muted">Fotoğraf bulunamadı</span>
+                            </div>
+                        }
+
+                        <div class="card-body">
+
+                            <h5 class="card-title">
+                                @business.Name
+                            </h5>
+
+                            <p class="text-muted mb-2">
+                                @business.Category.Name
+                            </p>
+
+                            <p class="mb-3">
+                                @business.City
+                                @(string.IsNullOrWhiteSpace(business.District)
+                                    ? ""
+                                    : $", {business.District}")
+                            </p>
+
+                            <div class="d-flex gap-2">
+
+                                <a asp-controller="Businesses" asp-action="Details" asp-route-id="@business.Id"
+                                   class="btn btn-primary btn-sm">
+                                    İşletmeyi Gör
+                                </a>
+
+                                <form asp-controller="BusinessFavorites" asp-action="ToggleFavorite" method="post">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden" name="businessProfileId" value="@business.Id" />
+
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                                        ♥ Favorilerden Çıkar
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    }
+
+</div>

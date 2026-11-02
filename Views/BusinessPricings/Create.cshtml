@@ -1,0 +1,53 @@
+
+@{
+    ViewData["Title"] = "Yeni Fiyat Ekle";
+}
+
+<section class="management-form-page">
+    <div class="eyebrow"><span class="eyebrow-dot"></span> İŞLETMEM · FİYAT LİSTESİ</div>
+    <h1>Hizmet fiyatı ekle</h1>
+    <p class="management-form-intro">Hizmetini ve fiyatlandırma biçimini müşterilerin kolayca anlayacağı şekilde tanımla.</p>
+
+    <form asp-action="Create" method="post" class="management-form">
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="mb-3">
+            <label for="serviceName" class="form-label">Hizmet adı</label>
+            <input id="serviceName" name="serviceName"
+                   class="form-control" required maxlength="150" />
+            <span class="text-danger">
+                @Html.ValidationMessage("serviceName")
+            </span>
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="form-label">Açıklama</label>
+            <textarea id="description" name="description"
+                      class="form-control" rows="3" maxlength="1000"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="amount" class="form-label">Fiyat (TL)</label>
+            <input id="amount" name="amount" type="number"
+                   class="form-control" min="0" step="0.01" required />
+            <span class="text-danger">
+                @Html.ValidationMessage("amount")
+            </span>
+        </div>
+
+        <div class="mb-3">
+            <label for="pricingType" class="form-label">Fiyat türü</label>
+            <select id="pricingType" name="pricingType" class="form-select" required>
+                <option value="1">Sabit fiyat</option>
+                <option value="2">Başlangıç fiyatı</option>
+                <option value="3">Kişi başı</option>
+                <option value="4">Saatlik</option>
+            </select>
+        </div>
+
+        <div class="management-form-actions"><button type="submit" class="btn btn-primary">Fiyatı kaydet</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Vazgeç</a></div>
+    </form>
+</section>

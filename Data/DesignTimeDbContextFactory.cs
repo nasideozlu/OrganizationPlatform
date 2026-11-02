@@ -18,7 +18,8 @@ public class DesignTimeDbContextFactory
             .Build();
 
         var connectionString =
-            configuration.GetConnectionString("DefaultConnection");
+     configuration.GetConnectionString("DefaultConnection")
+     ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
 
         if (string.IsNullOrWhiteSpace(connectionString))
         {

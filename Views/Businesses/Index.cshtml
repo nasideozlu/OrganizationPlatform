@@ -28,7 +28,8 @@
                         <option value="">Tüm kategoriler</option>
                         @foreach (var category in Model.Categories)
                         {
-                            <option value="@category.Id" selected="@(Model.CategoryId == category.Id)">@category.Name</option>
+                            <option value="@category.Id" selected="@(Model.CategoryId == category.Id)">@category.Name
+                            </option>
                         }
                     </select>
                 </div>
@@ -38,7 +39,8 @@
                         <option value="">Tüm iller</option>
                         @foreach (var province in Model.Provinces)
                         {
-                            <option value="@province.Id" selected="@(Model.ProvinceId == province.Id)">@province.Name</option>
+                            <option value="@province.Id" selected="@(Model.ProvinceId == province.Id)">@province.Name
+                            </option>
                         }
                     </select>
                     <div class="form-text">İl seçtiğinde ilçeler güncellenir.</div>
@@ -49,7 +51,8 @@
                         <option value="">Tüm ilçeler</option>
                         @foreach (var district in Model.Districts)
                         {
-                            <option value="@district.Name" selected="@(Model.District == district.Name)">@district.Name</option>
+                            <option value="@district.Name" selected="@(Model.District == district.Name)">@district.Name
+                            </option>
                         }
                     </select>
                 </div>
@@ -74,9 +77,30 @@
                 <div class="catalog-grid">
                     @foreach (var business in Model.Businesses)
                     {
+                        var favoriteBusinessIds = ViewBag.FavoriteBusinessIds as HashSet<int>
+                         ?? new HashSet<int>();
+
+                        var isFavorite = favoriteBusinessIds.Contains(business.Id);
                         var cover = business.Photos.OrderByDescending(photo => photo.UploadedAt).FirstOrDefault();
-                        <a asp-controller="Businesses" asp-action="Details" asp-route-id="@business.Id" class="catalog-card">
+                        <div class="catalog-card">
                             <div class="catalog-cover">
+                                @if (ViewBag.CanFavorite == true)
+                                {
+                                    <form asp-controller="BusinessFavorites" asp-action="ToggleFavorite" method="post"
+                                          class="favorite-button-form">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden" name="businessProfileId" value="@business.Id" />
+
+                                        <button type="submit" class="favorite-button"
+                                                title="@(isFavorite ? "Favorilerden çıkar" : "Favorilere ekle")">
+
+                                            @(isFavorite ? "♥" : "♡")
+
+                                        </button>
+                                    </form>
+                                }
                                 @if (cover != null)
                                 {
                                     <img src="@cover.FilePath" alt="@business.Name işletme fotoğrafı" loading="lazy" />
@@ -87,19 +111,24 @@
                                 }
                                 <span class="catalog-cover-label">@business.Category.Name</span>
                             </div>
-                            <div class="catalog-card-body">
-                                <span class="catalog-location">@business.City · @business.District</span>
-                                <h3>@business.Name</h3>
-                                @if (!string.IsNullOrWhiteSpace(business.Description))
-                                {
-                                    <p class="catalog-description">@(business.Description.Length > 110 ? business.Description[..110] + "..." : business.Description)</p>
-                                }
-                                <span class="catalog-card-action">İşletmeyi incele <span aria-hidden="true">↗</span></span>
+                            <a asp-controller="Businesses" asp-action="Details" asp-route-id="@business.Id"
+                               class="catalog-card-link">
+                                <div class="catalog-card-body">
+                                    <span class="catalog-location">@business.City · @business.District</span>
+                                    <h3>@business.Name</h3>
+                                    @if (!string.IsNullOrWhiteSpace(business.Description))
+                                    {
+                                        <p class="catalog-description">@(business.Description.Length > 110 ?
+                                                                                                                        business.Description[..110]
+                                                                                                                                                            + "..." : business.Description)</p>
+                                        }
+                                        <span class="catalog-card-action">İşletmeyi incele <span aria-hidden="true">↗</span></span>
+                                    </div>
+                                </a>
                             </div>
-                        </a>
-                    }
-                </div>
-            }
-        </main>
-    </div>
-</section>
+                        }
+                    </div>
+                }
+            </main>
+        </div>
+    </section>
