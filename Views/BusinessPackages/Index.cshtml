@@ -35,6 +35,13 @@
                             <li><span aria-hidden="true">✓</span> @item.Name</li>
                         }
                     </ul>
+                    @if (package.Venues.Any())
+                    {
+                        <div class="package-venue-list">
+                            <h3>Bağlı mekânlar</h3>
+                            <div>@foreach (var venue in package.Venues.OrderBy(venue => venue.Name)) { <span>⌖ @venue.Name</span> }</div>
+                        </div>
+                    }
                     <div class="management-card-actions">
                         <a asp-action="Edit" asp-route-id="@package.Id" class="btn btn-sm btn-outline-primary">Düzenle</a>
                         <form asp-action="ToggleStatus" asp-route-id="@package.Id" method="post">

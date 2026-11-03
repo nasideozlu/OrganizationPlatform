@@ -25,13 +25,14 @@ public class BusinessCampaign
     // Kampanyanın sahibi olan işletme
     public int BusinessProfileId { get; set; }
 
-   [ValidateNever]
-public BusinessProfile BusinessProfile { get; set; } = null!;
+    [ValidateNever]
+    public BusinessProfile BusinessProfile { get; set; } = null!;
 
     // Paket bazlı kampanya ise dolu olacak.
     // İşletme geneli kampanya ise null olacak.
     public int? BusinessPackageId { get; set; }
 
     [ValidateNever]
-public BusinessPackage? BusinessPackage { get; set; }
+    public BusinessPackage? BusinessPackage { get; set; }
+    public List<Venue> Venues { get; set; } = new();
 }

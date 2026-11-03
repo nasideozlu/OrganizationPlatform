@@ -18,4 +18,6 @@ public class Venue
 
     public List<PhysicalFeature> PhysicalFeatures { get; set; } = new List<PhysicalFeature>();
     public List<VenuePhoto> Photos { get; set; } = new();
+    public List<BusinessPackage> BusinessPackages { get; set; } = new();
+    public List<BusinessCampaign> BusinessCampaigns { get; set; } = new();
 }

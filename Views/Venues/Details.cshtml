@@ -7,6 +7,15 @@
     <a asp-controller="Venues" asp-action="Index" class="business-back-link">← Tüm mekânlara dön</a>
 
     <div class="venue-detail-hero">
+        @if (ViewBag.CanFavorite == true)
+        {
+            <form asp-controller="BusinessFavorites" asp-action="ToggleVenueFavorite" method="post" class="venue-detail-favorite-form">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="venueId" value="@Model.Id" />
+                <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                <button type="submit" aria-label="@(ViewBag.IsFavorite == true ? "Favorilerden çıkar" : "Favorilere ekle")" title="@(ViewBag.IsFavorite == true ? "Favorilerden çıkar" : "Favorilere ekle")">@(ViewBag.IsFavorite == true ? "♥" : "♡")</button>
+            </form>
+        }
         @if (cover != null)
         {
             <img class="venue-detail-cover" src="@cover.FilePath" alt="@Model.Name mekân fotoğrafı" />

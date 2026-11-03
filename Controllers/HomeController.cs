@@ -13,12 +13,13 @@ public class HomeController : Controller
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
 
-    public HomeController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+    public HomeController(
+        ApplicationDbContext context,
+        UserManager<ApplicationUser> userManager)
     {
         _context = context;
         _userManager = userManager;
     }
-
 
     public async Task<IActionResult> Index()
     {
@@ -28,12 +29,14 @@ public class HomeController : Controller
                 return RedirectToAction("Index", "Admin");
 
             var user = await _userManager.GetUserAsync(User);
+
             if (user?.AccountType == AccountType.Business)
                 return RedirectToAction("Index", "Profile");
 
             if (user?.AccountType == AccountType.Customer)
             {
                 ViewBag.IsCustomerHome = true;
+
                 ViewBag.CustomerName = await _context.CustomerProfiles
                     .Where(profile => profile.ApplicationUserId == user.Id)
                     .Select(profile => profile.Name)
@@ -60,20 +63,32 @@ public class HomeController : Controller
             .ToListAsync();
 
         var favoriteBusinessIds = new HashSet<int>();
+        var favoriteVenueIds = new HashSet<int>();
+
         ViewBag.CanFavorite = false;
+
         if (User.Identity?.IsAuthenticated == true)
         {
             var user = await _userManager.GetUserAsync(User);
+
             if (user?.AccountType == AccountType.Customer)
             {
                 ViewBag.CanFavorite = true;
+
                 favoriteBusinessIds = await _context.BusinessFavorites
                     .Where(favorite => favorite.ApplicationUserId == user.Id)
                     .Select(favorite => favorite.BusinessProfileId)
                     .ToHashSetAsync();
+
+                favoriteVenueIds = await _context.FavoriteVenues
+                    .Where(favorite => favorite.ApplicationUserId == user.Id)
+                    .Select(favorite => favorite.VenueId)
+                    .ToHashSetAsync();
             }
         }
+
         ViewBag.FavoriteBusinessIds = favoriteBusinessIds;
+        ViewBag.FavoriteVenueIds = favoriteVenueIds;
 
         var model = new HomeViewModel
         {
@@ -84,13 +99,15 @@ public class HomeController : Controller
         return View(model);
     }
 
-
     public IActionResult Privacy()
     {
         return View();
     }
 
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    [ResponseCache(
+        Duration = 0,
+        Location = ResponseCacheLocation.None,
+        NoStore = true)]
     public IActionResult Error()
     {
         return View(new ErrorViewModel

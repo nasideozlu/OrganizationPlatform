@@ -29,4 +29,7 @@ public class BusinessProfile
     public List<BusinessPackage> Packages { get; set; } = new();
 
     public List<BusinessCampaign> Campaigns { get; set; } = new();
+    public List<BusinessProfileFilterOption> FilterOptions { get; set; } = new();
+
+    public List<BusinessProfileFilterValue> FilterValues { get; set; } = new();
 }

@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Düğün Mekânları";
+    var canFavorite = ViewBag.CanFavorite == true;
 }
 
 <section class="listing-page venue-listing-page">
@@ -23,33 +24,44 @@
 
             <form method="get" asp-controller="Venues" asp-action="Index">
                 <div class="filter-group">
-                    <label for="City">İl</label>
-                    <select id="City" name="City" class="form-select"
-                            onchange="this.form.submit()">
-                        <option value="">Tüm iller</option>
-                        @foreach (var city in Model.Cities)
-                        {
-                            <option value="@city"
-                                    selected="@(Model.City == city)">
-                                @city
-                            </option>
-                        }
-                    </select>
-                </div>
+    <label for="provinceSearch">İl</label>
 
-                <div class="filter-group">
-                    <label for="District">İlçe</label>
-                    <select id="District" name="District" class="form-select">
-                        <option value="">Tüm ilçeler</option>
-                        @foreach (var district in Model.Districts)
-                        {
-                            <option value="@district"
-                                    selected="@(Model.District == district)">
-                                @district
-                            </option>
-                        }
-                    </select>
-                </div>
+    <div class="autocomplete-wrapper">
+        <input type="text"
+               id="provinceSearch"
+               class="form-control"
+               placeholder="İl adı yaz..."
+               autocomplete="off"
+               value="@Model.Provinces.FirstOrDefault(p => p.Id == Model.ProvinceId)?.Name" />
+
+        <div id="provinceSuggestions"
+             class="autocomplete-suggestions"
+             role="listbox"></div>
+    </div>
+
+    <input type="hidden"
+           name="ProvinceId"
+           id="provinceId"
+           value="@Model.ProvinceId" />
+</div>
+
+               <div class="filter-group">
+    <label for="District">İlçe</label>
+
+    <div class="autocomplete-wrapper">
+        <input type="text"
+               id="District"
+               name="District"
+               class="form-control"
+               placeholder="İlçe adı yaz..."
+               autocomplete="off"
+               value="@Model.District" />
+
+        <div id="districtSuggestions"
+             class="autocomplete-suggestions"
+             role="listbox"></div>
+    </div>
+</div>
 
                 <div class="filter-group">
                     <h3>Fiyat aralığı</h3>
@@ -118,6 +130,7 @@
       class="venue-search-form">
 
     <input type="hidden" name="City" value="@Model.City" />
+    <input type="hidden" name="ProvinceId" value="@Model.ProvinceId" />
     <input type="hidden" name="District" value="@Model.District" />
     <input type="hidden" name="MinPrice" value="@Model.MinPrice" />
     <input type="hidden" name="MaxPrice" value="@Model.MaxPrice" />
@@ -159,6 +172,7 @@
           class="venue-sort-form">
 
         <input type="hidden" name="City" value="@Model.City" />
+        <input type="hidden" name="ProvinceId" value="@Model.ProvinceId" />
         <input type="hidden" name="District" value="@Model.District" />
         <input type="hidden" name="MinPrice" value="@Model.MinPrice" />
         <input type="hidden" name="MaxPrice" value="@Model.MaxPrice" />
@@ -225,29 +239,38 @@
                             .OrderByDescending(photo => photo.UploadedAt)
                             .FirstOrDefault();
 
-                        <a class="venue-list-card"
-                           asp-controller="Venues"
-                           asp-action="Details"
-                           asp-route-id="@venue.Id">
-                            <div class="venue-list-cover">
-                                @if (cover != null)
-                                {
-                                    <img src="@cover.FilePath"
-                                         alt="@venue.Name mekân fotoğrafı"
-                                         loading="lazy" />
-                                }
-                                else
-                                {
-                                    <span class="catalog-placeholder"
-                                          aria-hidden="true">⌖</span>
-                                }
+                        <article class="venue-list-card">
+                            @if (canFavorite)
+                            {
+                                var isFavorite = Model.FavoriteVenueIds.Contains(venue.Id);
+                                <form asp-controller="BusinessFavorites"
+                                      asp-action="ToggleVenueFavorite"
+                                      method="post"
+                                      class="favorite-button-form">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="venueId" value="@venue.Id" />
+                                    <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                                    <button type="submit" class="favorite-button"
+                                            aria-label="@(isFavorite ? "Favorilerden çıkar" : "Favorilere ekle")"
+                                            title="@(isFavorite ? "Favorilerden çıkar" : "Favorilere ekle")">
+                                        @(isFavorite ? "♥" : "♡")
+                                    </button>
+                                </form>
+                            }
+                            <a class="venue-list-card-link" asp-controller="Venues" asp-action="Details" asp-route-id="@venue.Id">
+                                <div class="venue-list-cover">
+                                    @if (cover != null)
+                                    {
+                                        <img src="@cover.FilePath" alt="@venue.Name mekân fotoğrafı" loading="lazy" />
+                                    }
+                                    else
+                                    {
+                                        <span class="catalog-placeholder" aria-hidden="true">⌖</span>
+                                    }
+                                    <span class="venue-capacity-badge">@venue.Capacity kişi</span>
+                                </div>
 
-                                <span class="venue-capacity-badge">
-                                    @venue.Capacity kişi
-                                </span>
-                            </div>
-
-                            <div class="venue-list-body">
+                                <div class="venue-list-body">
                                 <span class="catalog-location">
                                     @venue.City · @venue.District
                                 </span>
@@ -282,15 +305,157 @@
                                         }
                                     </div>
 
-                                    <span class="catalog-card-action">
-                                        Detaylar ↗
-                                    </span>
+                                    <span class="catalog-card-action">Detaylar ↗</span>
                                 </div>
                             </div>
-                        </a>
+                            </a>
+                        </article>
                     }
                 </div>
             }
         </div>
     </div>
 </section>
+
+@section Scripts {
+    <script>
+        function normalizeTurkishText(text) {
+            return text
+                .toLocaleLowerCase("tr-TR")
+                .replace(/ı/g, "i")
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/ç/g, "c")
+                .replace(/ğ/g, "g")
+                .replace(/ö/g, "o")
+                .replace(/ş/g, "s")
+                .replace(/ü/g, "u");
+        }
+
+        const provinces = [
+            @foreach (var province in Model.Provinces)
+            {
+                <text>
+                    {
+                        id: @province.Id,
+                        name: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(province.Name))
+                    },
+                </text>
+            }
+        ];
+
+        const districts = [
+            @foreach (var district in Model.DistrictOptions)
+            {
+                <text>
+                    @Html.Raw(System.Text.Json.JsonSerializer.Serialize(district.Name)),
+                </text>
+            }
+        ];
+
+        function setupAutocomplete(input, suggestionBox, items, onSelect) {
+            if (!input || !suggestionBox) return;
+
+            function renderSuggestions() {
+                const searchText = normalizeTurkishText(input.value.trim());
+
+                suggestionBox.innerHTML = "";
+
+                if (!searchText) {
+                    suggestionBox.style.display = "none";
+                    return;
+                }
+
+                const matches = items
+                    .filter(item => {
+                        const name = typeof item === "string" ? item : item.name;
+
+                        return normalizeTurkishText(name).includes(searchText);
+                    })
+                    .slice(0, 8);
+
+                if (matches.length === 0) {
+                    suggestionBox.style.display = "none";
+                    return;
+                }
+
+                matches.forEach(item => {
+                    const name = typeof item === "string" ? item : item.name;
+
+                    const option = document.createElement("div");
+                    option.className = "autocomplete-option";
+                    option.textContent = name;
+                    option.setAttribute("role", "option");
+
+                    option.addEventListener("mousedown", function (event) {
+                        event.preventDefault();
+
+                        input.value = name;
+                        suggestionBox.style.display = "none";
+
+                        if (onSelect) {
+                            onSelect(item);
+                        }
+                    });
+
+                    suggestionBox.appendChild(option);
+                });
+
+                suggestionBox.style.display = "block";
+            }
+
+            input.addEventListener("input", renderSuggestions);
+            input.addEventListener("focus", renderSuggestions);
+
+            input.addEventListener("blur", function () {
+                setTimeout(() => {
+                    suggestionBox.style.display = "none";
+                }, 150);
+            });
+        }
+
+        const provinceSearch = document.getElementById("provinceSearch");
+        const provinceId = document.getElementById("provinceId");
+        const provinceForm = provinceSearch.closest("form");
+
+        setupAutocomplete(
+            provinceSearch,
+            document.getElementById("provinceSuggestions"),
+            provinces,
+            function (selectedProvince) {
+                provinceId.value = selectedProvince.id;
+                provinceForm.requestSubmit();
+            }
+        );
+
+        provinceForm.addEventListener("submit", function (event) {
+            const typedProvince = normalizeTurkishText(
+                provinceSearch.value.trim()
+            );
+
+            if (!typedProvince) {
+                provinceId.value = "";
+                return;
+            }
+
+            const selectedProvince = provinces.find(province =>
+                normalizeTurkishText(province.name) === typedProvince
+            );
+
+            if (!selectedProvince) {
+                event.preventDefault();
+                provinceId.value = "";
+                provinceSearch.focus();
+                return;
+            }
+
+            provinceId.value = selectedProvince.id;
+        });
+
+        setupAutocomplete(
+            document.getElementById("District"),
+            document.getElementById("districtSuggestions"),
+            districts
+        );
+    </script>
+}

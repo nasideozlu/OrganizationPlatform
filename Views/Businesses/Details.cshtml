@@ -1,7 +1,13 @@
 @model OrganizationPlatform.Models.BusinessProfile
+@using OrganizationPlatform.Models
+@using OrganizationPlatform.ViewModels
+
 @{
     ViewData["Title"] = Model.Name;
     var cover = Model.Photos.OrderByDescending(photo => photo.UploadedAt).FirstOrDefault();
+
+    var ratings = ViewBag.Ratings as List<BusinessRatingViewModel>
+    ?? new List<BusinessRatingViewModel>();
 }
 
 <section class="public-business-page">
@@ -22,6 +28,34 @@
 
             <div class="d-flex justify-content-between align-items-center gap-3">
                 <h1>@Model.Name</h1>
+                @if (ViewBag.RatingCount > 0)
+                {
+                    <div class="business-rating-summary">
+
+                        <span class="business-rating-star">
+                            ★
+                        </span>
+
+                        <strong>
+                            @(((double)ViewBag.AverageRating).ToString("0.0"))
+                        </strong>
+
+                        <span class="text-muted">
+                            (@ViewBag.RatingCount değerlendirme)
+                        </span>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="business-rating-summary">
+
+                        <span class="text-muted">
+                            Henüz değerlendirme yapılmadı.
+                        </span>
+
+                    </div>
+                }
 
                 @if (ViewBag.CanFavorite == true)
                 {
@@ -66,7 +100,7 @@
                         class="detail-icon">✳</span><span><small>Kategori</small><strong>@Model.Category.Name</strong></span>
                     </div>
                     <div><span class="detail-icon">⌖</span><span><small>Hizmet
-                        bölgesi</small><strong>@Model.City@(string.IsNullOrWhiteSpace(Model.District) ? "" : $",                               {Model.District}")</strong></span></div>
+                        bölgesi</small><strong>@Model.City@(string.IsNullOrWhiteSpace(Model.District) ? "" : $",                                {Model.District}")</strong></span></div>
                     </div>
                 </section>
 
@@ -284,6 +318,10 @@
                                             }
                                         </ul>
                                     </div>
+                                    @if (package.Venues.Any())
+                                    {
+                                        <div class="public-package-venues"><small>Geçerli mekânlar</small><div>@foreach (var venue in package.Venues.OrderBy(venue => venue.Name)) { <span>⌖ @venue.Name</span> }</div></div>
+                                    }
                                 </article>
                             }
 
@@ -359,6 +397,103 @@
                             }
                             <div class="public-contact-note">İşletme hizmetleri ve uygunluk bilgisi için doğrudan iletişime
                                 geçebilirsin.</div>
+                                @if (ViewBag.CanRate == true)
+                                {
+                                    <section class="business-rating-section">
+
+                                        @if (ViewBag.HasRated == true)
+                                        {
+                                            <div class="rating-thanks"><span aria-hidden="true">✓</span><div><strong>Değerlendirmen alındı</strong><small>Bu işletmeye zaten puan verdin. Katkın için teşekkürler.</small></div></div>
+                                        }
+                                        else
+                                        {
+                                            <span class="dashboard-kicker">DENEYİMİNİ PAYLAŞ</span>
+                                            <h3>Bu işletmeyi değerlendir</h3>
+                                            <p>Diğer çiftlere karar verirken yardımcı ol.</p>
+
+                                            <form asp-controller="BusinessRatings" asp-action="Create" method="post">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden" name="businessProfileId" value="@Model.Id" />
+
+                                                <fieldset class="rating-choice">
+                                                    <legend class="form-label">Puanın</legend>
+                                                    <div class="rating-choice-options">
+                                                        @for (var score = 5; score >= 1; score--)
+                                                        {
+                                                            <label title="@score yıldız"><input type="radio" name="rating" value="@score" required /><span aria-hidden="true">★</span><small>@score</small></label>
+                                                        }
+                                                    </div>
+                                                </fieldset>
+
+                                                <div class="mb-3">
+                                                    <label class="form-label">
+                                                        Yorumunuz (isteğe bağlı)
+                                                    </label>
+
+                                                    <textarea name="comment" class="form-control" rows="3" maxlength="1000" placeholder="Deneyimini paylaşabilirsin."></textarea>
+                                                </div>
+
+                                                <button type="submit" class="btn btn-primary">
+                                                    Değerlendirmeyi gönder
+                                                </button>
+
+                                            </form>
+                                        }
+
+                                    </section>
+                                }
+                                <div class="business-reviews-section mt-4">
+
+                                    <span class="dashboard-kicker">DEĞERLENDİRMELER</span>
+                                    <h3>Müşteri yorumları</h3>
+
+                                    <p class="text-muted">
+                                        @ratings.Count değerlendirme
+                                    </p>
+
+                                    @if (ratings.Count == 0)
+                                    {
+                                        <p>Henüz değerlendirme yapılmamış.</p>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var rating in ratings)
+                                        {
+                                            <div class="business-review-card mb-3">
+
+                                                <div class="d-flex justify-content-between">
+                                                    <strong>@rating.CustomerName</strong>
+
+                                                    <span>
+                                                        @rating.Rating / 5
+                                                    </span>
+                                                </div>
+
+                                                <div class="text-warning">
+                                                    @for (int i = 1; i <= 5; i++)
+                                                    {
+                                                        @(i <= rating.Rating ? "★" : "☆")
+                                                    }
+                                                </div>
+
+                                                @if (!string.IsNullOrWhiteSpace(rating.Comment))
+                                                {
+                                                    <p class="mt-2 mb-0">
+                                                        @rating.Comment
+                                                    </p>
+                                                }
+
+                                                <small class="text-muted">
+                                                    @rating.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy")
+                                                </small>
+
+                                            </div>
+                                        }
+                                    }
+
+                                </div>
                             </aside>
                         </div>
                     </section>

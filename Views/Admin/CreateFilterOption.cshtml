@@ -1,0 +1,71 @@
+@{
+    ViewData["Title"] = "Yeni Filtre Seçeneği";
+    var filter = ViewBag.Filter as OrganizationPlatform.Models.BusinessFilterDefinition;
+}
+
+<section class="management-page admin-page">
+
+    <header class="admin-welcome">
+        <div>
+            <div class="eyebrow">MIORA YÖNETİMİ</div>
+            <h1>Yeni seçenek oluştur</h1>
+            <p>@filter?.Name filtresine yeni bir seçenek ekle.</p>
+        </div>
+    </header>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <div class="management-list p-4">
+
+        <form asp-action="CreateFilterOption" method="post">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   name="filterId"
+                   value="@filter?.Id" />
+
+            <div class="mb-3">
+                <label class="form-label">Seçenek adı</label>
+                <input type="text"
+                       name="name"
+                       class="form-control"
+                       placeholder="Örn. Drone Çekimi"
+                       required />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Seçenek değeri</label>
+                <input type="text"
+                       name="value"
+                       class="form-control"
+                       placeholder="Örn. drone-cekimi"
+                       required />
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Görüntülenme sırası</label>
+                <input type="number"
+                       name="sortOrder"
+                       class="form-control"
+                       value="1"
+                       min="0" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Seçeneği kaydet
+            </button>
+
+            <a asp-action="ManageFilterOptions"
+               asp-route-id="@filter?.Id"
+               class="btn btn-outline-secondary">
+                Vazgeç
+            </a>
+
+        </form>
+
+    </div>
+</section>

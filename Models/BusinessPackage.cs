@@ -19,4 +19,5 @@ public class BusinessPackage
 
     public List<BusinessPackageItem> Items { get; set; } = new();
     public List<BusinessCampaign> Campaigns { get; set; } = new();
+    public List<Venue> Venues { get; set; } = new();
 }

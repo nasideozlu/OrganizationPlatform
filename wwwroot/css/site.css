@@ -624,7 +624,7 @@ textarea.form-control { min-height: 120px; }
     }
 }
 
-/* Vera UI refresh: shared surfaces and account management */
+/* MIORA UI refresh: shared surfaces and account management */
 :root {
   --ink: #1c302d;
   --muted: #74817b;
@@ -1273,4 +1273,173 @@ body { background: var(--paper); }
 
 .catalog-cover {
     position: relative;
+}
+
+/* Catalog management and customer saved places */
+.campaign-summary-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 14px; margin: 0 0 24px; }
+.campaign-summary-grid article { padding: 17px 20px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
+.campaign-summary-grid span, .campaign-summary-grid strong { display: block; }
+.campaign-summary-grid span { color: var(--muted); font-size: .78rem; }
+.campaign-summary-grid strong { margin-top: 4px; color: var(--ink); font-size: 1.55rem; }
+.campaign-management-card { position: relative; overflow: hidden; }
+.campaign-management-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.campaign-management-icon, .campaign-empty-icon, .favorites-empty-icon { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 13px; background: #edf4ee; color: var(--green); font-size: 1.35rem; font-weight: 700; }
+.campaign-management-type { color: var(--muted); font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.campaign-management-card h2 { margin: 5px 0 8px; color: var(--ink); font-size: 1.22rem; }
+.campaign-management-card > p { min-height: 42px; margin: 0; color: var(--muted); font-size: .88rem; line-height: 1.5; }
+.status-pill.campaign-live { color: #246342; background: #e8f5ed; }
+.status-pill.campaign-upcoming { color: #835a19; background: #fff4d9; }
+.status-pill.campaign-inactive { color: #69736d; background: #eff1ef; }
+.campaign-management-discount { display: flex; align-items: baseline; gap: 7px; padding: 15px 0; margin-top: 5px; border-bottom: 1px solid var(--line); }
+.campaign-management-discount strong { color: var(--green); font-size: 1.8rem; }
+.campaign-management-discount span, .campaign-management-package > span { color: var(--muted); font-size: .78rem; }
+.campaign-management-package { display: grid; gap: 3px; padding: 12px; margin-top: 12px; border-radius: 12px; background: #f5f7f3; }
+.campaign-management-package strong { color: var(--ink); font-size: .94rem; }
+.campaign-management-package small { display: flex; gap: 8px; color: var(--muted); }
+.campaign-management-package small b { color: var(--green); }
+.campaign-management-dates { display: flex; align-items: center; gap: 8px; margin-top: 14px; color: var(--muted); font-size: .8rem; }
+.campaign-management-card .management-card-actions { margin-top: 15px; }
+.favorites-count { margin: -7px 0 15px; color: var(--muted); font-size: .86rem; }
+.favorite-business-card { overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: #fff; box-shadow: 0 8px 28px rgba(27,48,37,.055); }
+.favorite-business-image { position: relative; display: grid; height: 205px; place-items: center; overflow: hidden; background: #edf3ec; color: var(--green); font-size: 2.3rem; }
+.favorite-business-image img { width: 100%; height: 100%; object-fit: cover; transition: transform .25s ease; }
+.favorite-business-card:hover .favorite-business-image img { transform: scale(1.04); }
+.favorite-category { position: absolute; bottom: 12px; left: 12px; padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,.94); color: var(--ink); font-size: .72rem; font-weight: 600; }
+.favorite-business-body { padding: 16px; }
+.favorite-location { color: var(--muted); font-size: .78rem; }
+.favorite-business-body h2 { margin: 6px 0 16px; font-size: 1.15rem; }
+.favorite-business-body h2 a { color: var(--ink); text-decoration: none; }
+.favorite-business-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.favorite-business-actions .btn { flex: 1; }
+.favorite-business-actions form { margin: 0; }
+.favorite-remove-button { display: grid; width: 39px; height: 39px; place-items: center; border: 1px solid #f0d8da; border-radius: 11px; background: #fff8f8; color: #b44f58; font-size: 1.2rem; }
+.favorite-remove-button:hover { background: #fbe9ea; }
+.favorites-empty-icon { width: 56px; height: 56px; border-radius: 17px; color: #b44f58; background: #fff0f1; font-size: 2rem; }
+.favorites-empty { text-align: center; }
+.favorites-empty .favorites-empty-icon { margin: 0 auto 14px; }
+
+/* Wedding venue discovery */
+.venue-discovery-page { width: min(1240px,calc(100% - 40px)); margin: 34px auto 70px; }
+.venue-discovery-hero { position: relative; display: flex; min-height: 285px; align-items: center; overflow: hidden; padding: 42px 52px; border-radius: 26px; background: linear-gradient(112deg,#eaf1e9 0%,#f6f3eb 66%,#f4e8e4 100%); }
+.venue-discovery-hero-copy { position: relative; z-index: 1; max-width: 590px; }
+.venue-discovery-hero h1 { margin: 16px 0 10px; color: var(--ink); font-family: Georgia,serif; font-size: clamp(2.3rem,5vw,3.6rem); line-height: 1.03; }
+.venue-discovery-hero h1 em { color: var(--green); font-weight: 400; }
+.venue-discovery-hero p { max-width: 490px; margin: 0; color: #5c6a60; line-height: 1.6; }
+.venue-discovery-decoration { position: absolute; right: 8%; color: rgba(72,113,83,.09); font-family: Georgia,serif; font-size: 18rem; line-height: 1; }
+.venue-discovery-layout { display: grid; grid-template-columns: 270px minmax(0,1fr); align-items: start; gap: 25px; margin-top: 28px; }
+.venue-filter-panel { position: sticky; top: 95px; padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: #fff; }
+.venue-filter-heading { margin-bottom: 15px; }
+.venue-filter-heading h2, .venue-results-heading h2 { margin: 4px 0 0; color: var(--ink); font-size: 1.15rem; }
+.venue-filter-form { display: grid; gap: 8px; }
+.venue-filter-form > label, .venue-feature-filters > label { margin-top: 5px; color: var(--ink); font-size: .78rem; font-weight: 650; }
+.venue-capacity-field { position: relative; }
+.venue-capacity-field input { padding-right: 48px; }
+.venue-capacity-field span { position: absolute; top: 10px; right: 12px; color: var(--muted); font-size: .78rem; }
+.venue-feature-filters { display: grid; gap: 8px; margin: 8px 0; }
+.venue-feature-category { border-bottom: 1px solid var(--line); padding: 8px 0; }
+.venue-feature-category summary { display: flex; justify-content: space-between; cursor: pointer; color: var(--ink); font-size: .84rem; font-weight: 600; }
+.venue-feature-category > div { display: grid; gap: 8px; padding: 10px 0 2px; }
+.venue-feature-option { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .8rem; }
+.venue-filter-reset { color: var(--muted); font-size: .8rem; text-align: center; text-decoration: none; }
+.venue-results-heading { display: flex; align-items: end; justify-content: space-between; gap: 14px; margin-bottom: 15px; }
+.venue-results-count { padding: 7px 10px; border-radius: 999px; background: #eff4ef; color: var(--green); font-size: .78rem; font-weight: 650; white-space: nowrap; }
+.venue-discovery-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+.venue-discovery-card { overflow: hidden; border: 1px solid var(--line); border-radius: 17px; background: #fff; color: inherit; text-decoration: none; box-shadow: 0 8px 25px rgba(27,48,37,.045); transition: transform .18s ease,box-shadow .18s ease; }
+.venue-discovery-card:hover { transform: translateY(-3px); color: inherit; box-shadow: 0 14px 32px rgba(27,48,37,.1); }
+.venue-discovery-image { position: relative; display: grid; height: 190px; place-items: center; overflow: hidden; background: #edf3ec; }
+.venue-discovery-image img { width: 100%; height: 100%; object-fit: cover; transition: transform .25s ease; }
+.venue-discovery-card:hover .venue-discovery-image img { transform: scale(1.04); }
+.venue-image-placeholder { color: #829688; font-size: 2.6rem; }
+.venue-capacity-badge { position: absolute; right: 11px; bottom: 11px; padding: 6px 9px; border-radius: 999px; background: rgba(255,255,255,.95); color: var(--ink); font-size: .74rem; font-weight: 650; }
+.venue-discovery-card-body { padding: 15px; }
+.venue-discovery-card-body h3 { margin: 5px 0 6px; color: var(--ink); font-size: 1.08rem; }
+.venue-discovery-card-body p { display: -webkit-box; overflow: hidden; min-height: 38px; margin: 0 0 12px; color: var(--muted); font-size: .81rem; line-height: 1.45; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp:2 }
+.venue-card-link { display: flex; justify-content: space-between; padding-top: 10px; border-top: 1px solid var(--line); color: var(--green); font-size: .81rem; font-weight: 650; }
+.venue-no-results { text-align: center; }
+.venue-no-results .campaign-empty-icon { margin: 0 auto 13px; }
+.public-package-venues { padding-top: 11px; margin-top: 12px; border-top: 1px solid var(--line); }
+.public-package-venues small { display: block; margin-bottom: 7px; color: var(--muted); font-size: .72rem; }
+.public-package-venues > div { display: flex; flex-wrap: wrap; gap: 6px; }
+.public-package-venues span { padding: 5px 8px; border-radius: 8px; background: #f2f5f1; color: var(--ink); font-size: .73rem; }
+.package-venue-list { padding-top: 12px; margin-top: 13px; border-top: 1px solid var(--line); }
+.package-venue-list h3 { margin-bottom: 8px; color: var(--muted); font-size: .76rem; }
+.package-venue-list > div { display: flex; flex-wrap: wrap; gap: 6px; }
+.package-venue-list span { padding: 5px 8px; border-radius: 8px; background: #f2f5f1; color: var(--ink); font-size: .73rem; }
+.business-rating-section { padding: 17px; margin-top: 20px; border: 1px solid var(--line); border-radius: 15px; background: #fbfcfa; }
+.business-rating-section h3 { margin: 5px 0; color: var(--ink); font-size: 1.03rem; }
+.business-rating-section > p { margin: 0 0 12px; color: var(--muted); font-size: .82rem; }
+.rating-choice { padding: 0; margin: 0 0 12px; border: 0; }
+.rating-choice legend { float: none; width: auto; margin-bottom: 6px; font-size: .8rem; }
+.rating-choice-options { display: flex; gap: 5px; }
+.rating-choice-options label { position: relative; display: flex; width: 42px; height: 43px; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: #a2aaa4; cursor: pointer; }
+.rating-choice-options input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.rating-choice-options label span { font-size: 1.15rem; }
+.rating-choice-options label small { position: absolute; right: 3px; bottom: 1px; font-size: .53rem; }
+.rating-choice-options label:has(input:checked), .rating-choice-options label:has(input:focus-visible) { border-color: #d9b457; background: #fff8e6; color: #bb8c25; }
+.rating-thanks { display: flex; align-items: center; gap: 10px; }
+.rating-thanks > span { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 50%; background: #e8f5ed; color: #246342; }
+.rating-thanks strong, .rating-thanks small { display: block; }
+.rating-thanks strong { color: var(--ink); font-size: .86rem; }
+.rating-thanks small { margin-top: 3px; color: var(--muted); font-size: .75rem; }
+
+@media (max-width: 760px) {
+    .campaign-summary-grid { grid-template-columns: 1fr; gap: 9px; }
+    .campaign-summary-grid article { display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; }
+    .campaign-summary-grid strong { margin: 0; }
+    .venue-discovery-page { width: min(100% - 26px,620px); margin-top: 18px; }
+    .venue-discovery-hero { min-height: 245px; padding: 28px 23px; border-radius: 20px; }
+    .venue-discovery-decoration { right: -12%; font-size: 13rem; }
+    .venue-discovery-layout { grid-template-columns: 1fr; gap: 20px; }
+    .venue-filter-panel { position: static; }
+    .venue-discovery-grid { grid-template-columns: 1fr; }
+}
+.venue-favorite-form {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+}
+.favorites-section + .favorites-section { margin-top: 30px; }
+.favorites-section-heading { display: flex; align-items: end; justify-content: space-between; gap: 14px; margin: 0 0 13px; }
+.favorites-section-heading h2 { display: flex; align-items: center; gap: 9px; margin: 4px 0 0; color: var(--ink); font-size: 1.15rem; }
+.favorites-section-heading h2 small { display: grid; min-width: 25px; height: 25px; place-items: center; padding: 0 6px; border-radius: 99px; background: #edf4ee; color: var(--green); font-size: .7rem; }
+.favorites-section-heading > a { color: var(--green); font-size: .82rem; font-weight: 650; text-decoration: none; }
+.favorites-section-heading > a:hover { text-decoration: underline; }
+.venue-list-card-link { display: flex; min-width: 0; flex: 1; flex-direction: column; color: inherit; text-decoration: none; }
+.venue-list-card { position: relative; }
+.venue-list-card-link:hover { color: inherit; }
+.venue-list-card-link:focus-visible { outline: 3px solid rgba(30,107,88,.5); outline-offset: -3px; }
+.venue-detail-favorite-form { position: absolute; top: 18px; right: 18px; z-index: 5; margin: 0; }
+.venue-detail-favorite-form .favorite-button { width: 48px; height: 48px; font-size: 1.65rem; }
+.explore-venue-card .explore-favorite-form { top: 12px; right: 12px; }
+
+.autocomplete-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.autocomplete-suggestions {
+    display: none;
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    max-height: 220px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #dce5df;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.10);
+}
+
+.autocomplete-option {
+    padding: 12px 16px;
+    cursor: pointer;
+    color: #263b35;
+    transition: background 0.15s ease;
+}
+
+.autocomplete-option:hover {
+    background: #edf5f0;
 }

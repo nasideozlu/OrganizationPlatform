@@ -1,0 +1,193 @@
+
+@model OrganizationPlatform.Models.VenueFilterViewModel
+
+@{
+    ViewData["Title"] = "Düğün Mekânları";
+    var resultCount = Model.Venues.Count;
+}
+
+<section class="venue-discovery-page">
+    <header class="venue-discovery-hero">
+        <div class="venue-discovery-hero-copy">
+            <div class="eyebrow">
+                <span class="eyebrow-dot"></span> MIORA · MEKÂN REHBERİ
+            </div>
+            <h1>Hayalindeki kutlama<br /><em>için doğru mekân.</em></h1>
+            <p>Şehir, kapasite ve özelliklere göre düğün mekânlarını keşfet; sana uyan seçenekleri karşılaştır.</p>
+        </div>
+        <div class="venue-discovery-decoration" aria-hidden="true">V</div>
+    </header>
+
+    <div class="venue-discovery-layout">
+        <aside class="venue-filter-panel">
+            <div class="venue-filter-heading">
+                <span class="dashboard-kicker">ARAMANI DARALT</span>
+                <h2>Mekân filtreleri</h2>
+            </div>
+
+            <form method="get" asp-action="WeddingVenues" class="venue-filter-form">
+                <label asp-for="SearchTerm">Mekân adı</label>
+                <input asp-for="SearchTerm" class="form-control" placeholder="Örn. bahçe, salon..." />
+
+                <label asp-for="ProvinceId">İl</label>
+                <select asp-for="ProvinceId" class="form-select" id="provinceSelect" onchange="this.form.submit()">
+                    <option value="">Tüm iller</option>
+                    @foreach (var province in Model.Provinces)
+                    {
+                        <option value="@province.Id">@province.Name</option>
+                    }
+                </select>
+
+                <label asp-for="District">İlçe</label>
+                <select asp-for="District" class="form-select" id="districtSelect">
+                    <option value="">Tüm ilçeler</option>
+                    @foreach (var district in Model.DistrictOptions)
+                    {
+                        <option value="@district.Name">@district.Name</option>
+                    }
+                </select>
+
+                <label asp-for="MinCapacity">Minimum kapasite</label>
+                <div class="venue-capacity-field">
+                    <input asp-for="MinCapacity" type="number" min="1"
+                           class="form-control" placeholder="Örn. 200" />
+                    <span>kişi</span>
+                </div>
+
+                @if (Model.FeatureCategories.Any())
+                {
+                    <div class="venue-feature-filters">
+                        <label>Mekân özellikleri</label>
+
+                        @foreach (var category in Model.FeatureCategories)
+                        {
+                            if (category.PhysicalFeatures.Any())
+                            {
+                                <details class="venue-feature-category">
+                                    <summary>@category.Name <span>⌄</span></summary>
+                                    <div>
+                                        @foreach (var feature in category.PhysicalFeatures.OrderBy(feature => feature.Name))
+                                        {
+                                            <label class="venue-feature-option">
+                                                <input type="checkbox"
+                                                       name="SelectedFeatureIds"
+                                                       value="@feature.Id"
+                                                       checked="@Model.SelectedFeatureIds.Contains(feature.Id)" />
+                                                @feature.Name
+                                            </label>
+                                        }
+                                    </div>
+                                </details>
+                            }
+                        }
+                    </div>
+                }
+
+                <button type="submit" class="btn btn-primary w-100">
+                    Mekânları göster <span aria-hidden="true">→</span>
+                </button>
+
+                <a asp-action="WeddingVenues" class="venue-filter-reset">
+                    Filtreleri temizle
+                </a>
+            </form>
+        </aside>
+
+        <div class="venue-discovery-results">
+            <div class="venue-results-heading">
+                <div>
+                    <span class="dashboard-kicker">DÜĞÜN MEKÂNLARI</span>
+                    <h2>Sana uygun seçenekler</h2>
+                </div>
+                <span class="venue-results-count">@resultCount mekân</span>
+            </div>
+
+            @if (resultCount == 0)
+            {
+                <div class="management-empty venue-no-results">
+                    <span class="campaign-empty-icon" aria-hidden="true">⌖</span>
+                    <h2>Bu aramada mekân bulunamadı</h2>
+                    <p>Filtreleri değiştir veya aramanı biraz genişlet.</p>
+                    <a asp-action="WeddingVenues" class="btn btn-outline-primary">
+                        Tüm mekânlara dön
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="venue-discovery-grid">
+                    @foreach (var venue in Model.Venues)
+                    {
+                        var photo = venue.Photos
+                            .OrderByDescending(item => item.UploadedAt)
+                            .FirstOrDefault();
+
+                        <article class="venue-discovery-card">
+                            <div class="venue-discovery-image">
+                                @if (photo != null)
+                                {
+                                    <img src="@photo.FilePath"
+                                         alt="@venue.Name"
+                                         loading="lazy" />
+                                }
+                                else
+                                {
+                                    <span class="venue-image-placeholder" aria-hidden="true">⌖</span>
+                                }
+
+                                <span class="venue-capacity-badge">
+                                    @venue.Capacity kişi
+                                </span>
+
+                                @if (ViewBag.CanFavorite == true)
+                                {
+                                    <form asp-controller="BusinessFavorites"
+                                          asp-action="ToggleVenueFavorite"
+                                          method="post"
+                                          class="venue-favorite-form">
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="venueId"
+                                               value="@venue.Id" />
+
+                                        <input type="hidden"
+                                               name="returnUrl"
+                                               value="@Context.Request.Path@Context.Request.QueryString" />
+
+                                        <button type="submit"
+                                                class="favorite-remove-button"
+                                                aria-label="@venue.Name favorilere ekle veya çıkar"
+                                                title="Favorilere ekle veya çıkar">
+                                            @(Model.FavoriteVenueIds.Contains(venue.Id) ? "♥" : "♡")
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+
+                            <div class="venue-discovery-card-body">
+                                <span class="favorite-location">
+                                    ⌖ @venue.City · @venue.District
+                                </span>
+
+                                <h3>@venue.Name</h3>
+
+                                @if (!string.IsNullOrWhiteSpace(venue.Description))
+                                {
+                                    <p>@venue.Description</p>
+                                }
+
+                                <a class="venue-card-link"
+                                   asp-controller="Venues"
+                                   asp-action="Details"
+                                   asp-route-id="@venue.Id">
+                                    Mekânı incele <b aria-hidden="true">↗</b>
+                                </a>
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</section>

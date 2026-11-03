@@ -35,6 +35,17 @@ public class BusinessCampaignsController : Controller
             .FirstOrDefaultAsync(profile =>
                 profile.ApplicationUserId == user.Id);
     }
+    private async Task LoadVenuesAsync(
+    int businessId,
+    List<int>? selectedVenueIds = null)
+    {
+        ViewBag.Venues = await _context.Venues
+            .Where(venue => venue.BusinessProfileId == businessId)
+            .OrderBy(venue => venue.Name)
+            .ToListAsync();
+
+        ViewBag.SelectedVenueIds = selectedVenueIds ?? new List<int>();
+    }
 
     public async Task<IActionResult> Index()
     {
@@ -66,15 +77,26 @@ public class BusinessCampaignsController : Controller
             return Forbid();
         }
 
-        var packages = await _context.BusinessPackages
+        var isWeddingVenue = await _context.BusinessProfiles
+            .Where(profile => profile.Id == business.Id)
+            .Select(profile => profile.Category.Name == "Düğün Mekanı")
+            .FirstOrDefaultAsync();
+
+        ViewBag.IsWeddingVenue = isWeddingVenue;
+
+        if (isWeddingVenue)
+        {
+            await LoadVenuesAsync(business.Id);
+        }
+
+        ViewBag.Packages = await _context.BusinessPackages
             .AsNoTracking()
+            .Include(package => package.Venues)
             .Where(package =>
                 package.BusinessProfileId == business.Id &&
                 package.IsActive)
             .OrderBy(package => package.Name)
             .ToListAsync();
-
-        ViewBag.Packages = packages;
 
         return View();
     }
@@ -89,13 +111,38 @@ public class BusinessCampaignsController : Controller
         BusinessCampaignType campaignType,
         DiscountType discountType,
         decimal discountValue,
-        int? businessPackageId)
+        int? businessPackageId,
+        List<int>? venueIds)
     {
         var business = await GetCurrentBusinessAsync();
 
         if (business == null)
         {
             return Forbid();
+        }
+
+        var isWeddingVenue = await _context.BusinessProfiles
+            .Where(profile => profile.Id == business.Id)
+            .Select(profile => profile.Category.Name == "Düğün Mekanı")
+            .FirstOrDefaultAsync();
+
+        var selectedVenues = new List<Venue>();
+
+        if (isWeddingVenue)
+        {
+            selectedVenues = await _context.Venues
+                .Where(venue =>
+                    venue.BusinessProfileId == business.Id &&
+                    venueIds != null &&
+                    venueIds.Contains(venue.Id))
+                .ToListAsync();
+
+            if (selectedVenues.Count == 0)
+            {
+                ModelState.AddModelError(
+                    "venueIds",
+                    "En az bir mekân seçmelisiniz.");
+            }
         }
 
         // Temel kontroller
@@ -141,9 +188,10 @@ public class BusinessCampaignsController : Controller
             else
             {
                 var selectedPackage = await _context.BusinessPackages
-                    .FirstOrDefaultAsync(package =>
-                        package.Id == businessPackageId.Value &&
-                        package.BusinessProfileId == business.Id);
+    .Include(package => package.Venues)
+    .FirstOrDefaultAsync(package =>
+        package.Id == businessPackageId.Value &&
+        package.BusinessProfileId == business.Id);
 
                 if (selectedPackage == null)
                 {
@@ -153,6 +201,15 @@ public class BusinessCampaignsController : Controller
                 }
                 else
                 {
+                    if (isWeddingVenue &&
+    selectedVenues.Any(venue =>
+        !selectedPackage.Venues.Any(packageVenue =>
+            packageVenue.Id == venue.Id)))
+                    {
+                        ModelState.AddModelError(
+                            nameof(businessPackageId),
+                            "Seçtiğiniz mekânlardan bazıları bu paketle ilişkili değil.");
+                    }
                     if
                 (discountType == DiscountType.FixedAmount &&
                     discountValue >= selectedPackage.Amount)
@@ -170,7 +227,10 @@ public class BusinessCampaignsController : Controller
                             campaign.CampaignType == BusinessCampaignType.Package &&
                             campaign.IsActive &&
                             campaign.StartDate <= endDate &&
-                            campaign.EndDate >= startDate);
+                            campaign.EndDate >= startDate &&
+                            campaign.Venues.Any(venue =>
+                                selectedVenues.Select(selected => selected.Id)
+                                    .Contains(venue.Id)));
 
                     if (hasOverlappingCampaign)
                     {
@@ -184,8 +244,16 @@ public class BusinessCampaignsController : Controller
 
         if (!ModelState.IsValid)
         {
+            ViewBag.IsWeddingVenue = isWeddingVenue;
+
+            if (isWeddingVenue)
+            {
+                await LoadVenuesAsync(business.Id, venueIds);
+            }
+
             ViewBag.Packages = await _context.BusinessPackages
                 .AsNoTracking()
+                .Include(package => package.Venues)
                 .Where(package =>
                     package.BusinessProfileId == business.Id &&
                     package.IsActive)
@@ -216,7 +284,9 @@ public class BusinessCampaignsController : Controller
             BusinessPackageId =
                 campaignType == BusinessCampaignType.Package
                     ? businessPackageId
-                    : null
+                    : null,
+
+            Venues = selectedVenues
         };
 
         _context.BusinessCampaigns.Add(campaign);
@@ -237,6 +307,7 @@ public class BusinessCampaignsController : Controller
         }
 
         var campaign = await _context.BusinessCampaigns
+            .Include(campaign => campaign.Venues)
             .FirstOrDefaultAsync(campaign =>
                 campaign.Id == id &&
                 campaign.BusinessProfileId == business.Id);
@@ -246,7 +317,26 @@ public class BusinessCampaignsController : Controller
             return NotFound();
         }
 
+        var isWeddingVenue = await _context.BusinessProfiles
+    .Where(profile => profile.Id == business.Id)
+    .Select(profile => profile.Category.Name == "Düğün Mekanı")
+    .FirstOrDefaultAsync();
+
+
+        ViewBag.IsWeddingVenue = isWeddingVenue;
+
+        if (isWeddingVenue)
+        {
+            var selectedVenueIds = campaign.Venues
+                .Select(venue => venue.Id)
+                .ToList();
+
+            await LoadVenuesAsync(business.Id, selectedVenueIds);
+        }
+
         ViewBag.Packages = await _context.BusinessPackages
+            .AsNoTracking()
+            .Include(package => package.Venues)
             .Where(package =>
                 package.BusinessProfileId == business.Id &&
                 package.IsActive)
@@ -258,8 +348,10 @@ public class BusinessCampaignsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id,
-        BusinessCampaign model)
+    public async Task<IActionResult> Edit(
+    int id,
+    BusinessCampaign model,
+    List<int>? venueIds)
     {
         var business = await GetCurrentBusinessAsync();
 
@@ -269,13 +361,37 @@ public class BusinessCampaignsController : Controller
         }
 
         var campaign = await _context.BusinessCampaigns
-            .FirstOrDefaultAsync(campaign =>
-                campaign.Id == id &&
-                campaign.BusinessProfileId == business.Id);
+    .Include(campaign => campaign.Venues)
+    .FirstOrDefaultAsync(campaign =>
+        campaign.Id == id &&
+        campaign.BusinessProfileId == business.Id);
 
         if (campaign == null)
         {
             return NotFound();
+        }
+        var isWeddingVenue = await _context.BusinessProfiles
+    .Where(profile => profile.Id == business.Id)
+    .Select(profile => profile.Category.Name == "Düğün Mekanı")
+    .FirstOrDefaultAsync();
+
+        var selectedVenues = new List<Venue>();
+
+        if (isWeddingVenue)
+        {
+            selectedVenues = await _context.Venues
+                .Where(venue =>
+                    venue.BusinessProfileId == business.Id &&
+                    venueIds != null &&
+                    venueIds.Contains(venue.Id))
+                .ToListAsync();
+
+            if (selectedVenues.Count == 0)
+            {
+                ModelState.AddModelError(
+                    "venueIds",
+                    "En az bir mekân seçmelisiniz.");
+            }
         }
 
         // Temel kontroller
@@ -322,9 +438,10 @@ public class BusinessCampaignsController : Controller
             else
             {
                 var selectedPackage = await _context.BusinessPackages
-                    .FirstOrDefaultAsync(package =>
-                        package.Id == model.BusinessPackageId.Value &&
-                        package.BusinessProfileId == business.Id);
+    .Include(package => package.Venues)
+    .FirstOrDefaultAsync(package =>
+        package.Id == model.BusinessPackageId.Value &&
+        package.BusinessProfileId == business.Id);
 
                 if (selectedPackage == null)
                 {
@@ -334,6 +451,15 @@ public class BusinessCampaignsController : Controller
                 }
                 else
                 {
+                    if (isWeddingVenue &&
+    selectedVenues.Any(venue =>
+        !selectedPackage.Venues.Any(packageVenue =>
+            packageVenue.Id == venue.Id)))
+                    {
+                        ModelState.AddModelError(
+                            nameof(model.BusinessPackageId),
+                            "Seçtiğiniz mekânlardan bazıları bu paketle ilişkili değil.");
+                    }
                     if (model.DiscountType == DiscountType.FixedAmount &&
                         model.DiscountValue >= selectedPackage.Amount)
                     {
@@ -343,16 +469,18 @@ public class BusinessCampaignsController : Controller
                     }
 
                     var hasOverlappingCampaign =
-                        await _context.BusinessCampaigns.AnyAsync(
-                            existingCampaign =>
-                                existingCampaign.Id != id &&
-                                existingCampaign.BusinessProfileId == business.Id &&
-                                existingCampaign.BusinessPackageId == model.BusinessPackageId.Value &&
-                                existingCampaign.CampaignType == BusinessCampaignType.Package &&
-                                existingCampaign.IsActive &&
-                                existingCampaign.StartDate <= model.EndDate &&
-                                existingCampaign.EndDate >= model.StartDate);
-
+    await _context.BusinessCampaigns.AnyAsync(
+        existingCampaign =>
+            existingCampaign.Id != id &&
+            existingCampaign.BusinessProfileId == business.Id &&
+            existingCampaign.BusinessPackageId == model.BusinessPackageId.Value &&
+            existingCampaign.CampaignType == BusinessCampaignType.Package &&
+            existingCampaign.IsActive &&
+            existingCampaign.StartDate <= model.EndDate &&
+            existingCampaign.EndDate >= model.StartDate &&
+            existingCampaign.Venues.Any(venue =>
+                selectedVenues.Select(selected => selected.Id)
+                    .Contains(venue.Id)));
                     if (hasOverlappingCampaign)
                     {
                         ModelState.AddModelError(
@@ -366,13 +494,23 @@ public class BusinessCampaignsController : Controller
 
         if (!ModelState.IsValid)
         {
+            ViewBag.IsWeddingVenue = isWeddingVenue;
+
+            if (isWeddingVenue)
+            {
+                await LoadVenuesAsync(business.Id, venueIds);
+            }
+
             ViewBag.Packages = await _context.BusinessPackages
                 .AsNoTracking()
+                .Include(package => package.Venues)
                 .Where(package =>
                     package.BusinessProfileId == business.Id &&
                     package.IsActive)
                 .OrderBy(package => package.Name)
                 .ToListAsync();
+
+            model.Venues = selectedVenues;
 
             return View(model);
         }
@@ -395,6 +533,7 @@ public class BusinessCampaignsController : Controller
         campaign.DiscountValue = model.DiscountValue;
         campaign.StartDate = model.StartDate;
         campaign.EndDate = model.EndDate;
+        campaign.Venues = selectedVenues;
 
         await _context.SaveChangesAsync();
 

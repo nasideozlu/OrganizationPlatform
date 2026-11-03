@@ -1,3 +1,4 @@
+using OrganizationPlatform.Services;
 
 namespace OrganizationPlatform.Models;
 
@@ -16,14 +17,15 @@ public class VenueFilterViewModel
     public string? PriceType { get; set; }
     public string? SortBy { get; set; }
     public string? SearchTerm { get; set; }
+    public int? ProvinceId { get; set; }
 
     public List<int> SelectedFeatureIds { get; set; } = new();
 
     public List<Venue> Venues { get; set; } = new();
 
-    public List<string> Cities { get; set; } = new();
-
-    public List<string> Districts { get; set; } = new();
-
     public List<FeatureCategory> FeatureCategories { get; set; } = new();
+    public List<LocationItem> Provinces { get; set; } = new();
+
+    public List<LocationItem> DistrictOptions { get; set; } = new();
+    public List<int> FavoriteVenueIds { get; set; } = new();
 }

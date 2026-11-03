@@ -34,6 +34,15 @@ public class BusinessPackagesController : Controller
         return await _context.BusinessProfiles
             .FirstOrDefaultAsync(p => p.ApplicationUserId == user.Id);
     }
+    private async Task LoadVenuesAsync(int businessId, int? selectedVenueId = null)
+    {
+        ViewBag.Venues = await _context.Venues
+            .Where(venue => venue.BusinessProfileId == businessId)
+            .OrderBy(venue => venue.Name)
+            .ToListAsync();
+
+        ViewBag.SelectedVenueId = selectedVenueId;
+    }
 
 
     public async Task<IActionResult> Index()
@@ -49,6 +58,7 @@ public class BusinessPackagesController : Controller
             .AsNoTracking()
             .Where(p => p.BusinessProfileId == business.Id)
             .Include(p => p.Items)
+            .Include(p => p.Venues)
             .OrderBy(p => p.Name)
             .ToListAsync();
 
@@ -66,6 +76,18 @@ public class BusinessPackagesController : Controller
             return Forbid();
         }
 
+        var isWeddingVenue = await _context.BusinessProfiles
+            .Where(profile => profile.Id == business.Id)
+            .Select(profile => profile.Category.Name == "Düğün Mekanı")
+            .FirstOrDefaultAsync();
+
+        ViewBag.IsWeddingVenue = isWeddingVenue;
+
+        if (isWeddingVenue)
+        {
+            await LoadVenuesAsync(business.Id);
+        }
+
         return View();
     }
 
@@ -73,16 +95,41 @@ public class BusinessPackagesController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(
-        string name,
-        string? description,
-        decimal amount,
-        List<string> items)
+    string name,
+    string? description,
+    decimal amount,
+    List<string> items,
+    List<int>? venueIds)
     {
         var business = await GetCurrentBusinessAsync();
 
         if (business == null)
         {
             return Forbid();
+        }
+
+        var isWeddingVenue = await _context.BusinessProfiles
+            .Where(profile => profile.Id == business.Id)
+            .Select(profile => profile.Category.Name == "Düğün Mekanı")
+            .FirstOrDefaultAsync();
+
+        var selectedVenues = new List<Venue>();
+
+        if (isWeddingVenue)
+        {
+            selectedVenues = await _context.Venues
+                .Where(venue =>
+                    venue.BusinessProfileId == business.Id &&
+                    venueIds != null &&
+                    venueIds.Contains(venue.Id))
+                .ToListAsync();
+
+            if (selectedVenues.Count == 0)
+            {
+                ModelState.AddModelError(
+                    "venueIds",
+                    "En az bir mekân seçmelisiniz.");
+            }
         }
 
         if (string.IsNullOrWhiteSpace(name))
@@ -108,6 +155,13 @@ public class BusinessPackagesController : Controller
 
         if (!ModelState.IsValid)
         {
+            ViewBag.IsWeddingVenue = isWeddingVenue;
+
+            if (isWeddingVenue)
+            {
+                await LoadVenuesAsync(business.Id);
+            }
+
             return View();
         }
 
@@ -120,14 +174,17 @@ public class BusinessPackagesController : Controller
             Amount = amount,
             BusinessProfileId = business.Id,
             BusinessProfile = business,
+
             Items = (items ?? new List<string>())
-                .Where(item => !string.IsNullOrWhiteSpace(item))
-                .Select(item => new BusinessPackageItem
-                    {
-                        Name = item.Trim(),
-                        BusinessPackage = null!
-                    })
-                .ToList()
+    .Where(item => !string.IsNullOrWhiteSpace(item))
+    .Select(item => new BusinessPackageItem
+    {
+        Name = item!.Trim(),
+        BusinessPackage = null!
+    })
+    .ToList(),
+
+            Venues = selectedVenues
         };
 
         _context.BusinessPackages.Add(package);
@@ -138,87 +195,153 @@ public class BusinessPackagesController : Controller
     }
 
     [HttpGet]
-public async Task<IActionResult> Edit(int id)
-{
-    var business = await GetCurrentBusinessAsync();
-
-    if (business == null)
+    public async Task<IActionResult> Edit(int id)
     {
-        return Forbid();
+        var business = await GetCurrentBusinessAsync();
+
+        if (business == null)
+        {
+            return Forbid();
+        }
+
+        var package = await _context.BusinessPackages
+            .Include(p => p.Items)
+            .Include(p => p.Venues)
+            .FirstOrDefaultAsync(p =>
+                p.Id == id &&
+                p.BusinessProfileId == business.Id);
+
+        if (package == null)
+        {
+            return NotFound();
+        }
+
+        var isWeddingVenue = await _context.BusinessProfiles
+            .Where(profile => profile.Id == business.Id)
+            .Select(profile => profile.Category.Name == "Düğün Mekanı")
+            .FirstOrDefaultAsync();
+
+        ViewBag.IsWeddingVenue = isWeddingVenue;
+
+        if (isWeddingVenue)
+        {
+            await LoadVenuesAsync(
+                business.Id,
+                package.Venues.FirstOrDefault()?.Id);
+        }
+
+        return View(package);
     }
 
-    var package = await _context.BusinessPackages
-        .Include(p => p.Items)
-        .FirstOrDefaultAsync(p =>
-            p.Id == id &&
-            p.BusinessProfileId == business.Id);
-
-    if (package == null)
-    {
-        return NotFound();
-    }
-
-    return View(package);
-}
-
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> Edit(
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(
     int id,
     string name,
     string? description,
     decimal amount,
-    List<string>? items)
-{
-    var business = await GetCurrentBusinessAsync();
-
-    if (business == null)
+    List<string>? items,
+    List<int>? venueIds)
     {
-        return Forbid();
-    }
+        var business = await GetCurrentBusinessAsync();
 
-    var package = await _context.BusinessPackages
-        .Include(p => p.Items)
-        .FirstOrDefaultAsync(p =>
-            p.Id == id &&
-            p.BusinessProfileId == business.Id);
+        if (business == null)
+        {
+            return Forbid();
+        }
 
-    if (package == null)
-    {
-        return NotFound();
-    }
+        var package = await _context.BusinessPackages
+            .Include(p => p.Items)
+            .Include(p => p.Venues)
+            .FirstOrDefaultAsync(p =>
+                p.Id == id &&
+                p.BusinessProfileId == business.Id);
 
-    if (string.IsNullOrWhiteSpace(name))
-    {
-        ModelState.AddModelError(
-            nameof(name),
-            "Paket adı zorunludur.");
-    }
+        if (package == null)
+        {
+            return NotFound();
+        }
 
-    if (amount < 0)
-    {
-        ModelState.AddModelError(
-            nameof(amount),
-            "Paket fiyatı negatif olamaz.");
-    }
+        var isWeddingVenue = await _context.BusinessProfiles
+            .Where(profile => profile.Id == business.Id)
+            .Select(profile => profile.Category.Name == "Düğün Mekanı")
+            .FirstOrDefaultAsync();
 
-    var validItems = (items ?? new List<string>())
-        .Where(item => !string.IsNullOrWhiteSpace(item))
-        .Select(item => item.Trim())
-        .ToList();
+        var selectedVenues = new List<Venue>();
 
-    if (validItems.Count == 0)
-    {
-        ModelState.AddModelError(
-            nameof(items),
-            "En az bir paket içeriği eklemelisiniz.");
-    }
+        if (isWeddingVenue)
+        {
+            selectedVenues = await _context.Venues
+                .Where(venue =>
+                    venue.BusinessProfileId == business.Id &&
+                    venueIds != null &&
+                    venueIds.Contains(venue.Id))
+                .ToListAsync();
 
-    if (!ModelState.IsValid)
-    {
-        package.Name = name ?? string.Empty;
-        package.Description = description;
+            if (selectedVenues.Count == 0)
+            {
+                ModelState.AddModelError(
+                    "venueIds",
+                    "En az bir mekân seçmelisiniz.");
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            ModelState.AddModelError(
+                nameof(name),
+                "Paket adı zorunludur.");
+        }
+
+        if (amount < 0)
+        {
+            ModelState.AddModelError(
+                nameof(amount),
+                "Paket fiyatı negatif olamaz.");
+        }
+
+        var validItems = (items ?? new List<string>())
+            .Where(item => !string.IsNullOrWhiteSpace(item))
+            .Select(item => item.Trim())
+            .ToList();
+
+        if (validItems.Count == 0)
+        {
+            ModelState.AddModelError(
+                nameof(items),
+                "En az bir paket içeriği eklemelisiniz.");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            package.Name = name ?? string.Empty;
+            package.Description = description;
+            package.Amount = amount;
+            package.Items = validItems
+                .Select(item => new BusinessPackageItem
+                {
+                    Name = item,
+                    BusinessPackage = package
+                })
+                .ToList();
+
+            package.Venues = selectedVenues;
+
+            ViewBag.IsWeddingVenue = isWeddingVenue;
+            await LoadVenuesAsync(business.Id);
+
+            return View(package);
+        }
+
+        package.Name = name.Trim();
+        package.Description = string.IsNullOrWhiteSpace(description)
+            ? null
+            : description.Trim();
+
         package.Amount = amount;
+
+        _context.BusinessPackageItems.RemoveRange(package.Items);
+
         package.Items = validItems
             .Select(item => new BusinessPackageItem
             {
@@ -227,58 +350,41 @@ public async Task<IActionResult> Edit(
             })
             .ToList();
 
-        return View(package);
+        package.Venues = selectedVenues;
+
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Index));
     }
 
-    package.Name = name.Trim();
-    package.Description = string.IsNullOrWhiteSpace(description)
-        ? null
-        : description.Trim();
-    package.Amount = amount;
 
-    _context.BusinessPackageItems.RemoveRange(package.Items);
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToggleStatus(int id)
+    {
+        var business = await GetCurrentBusinessAsync();
 
-    package.Items = validItems
-        .Select(item => new BusinessPackageItem
+        if (business == null)
         {
-            Name = item,
-            BusinessPackage = package
-        })
-        .ToList();
+            return Forbid();
+        }
 
-    await _context.SaveChangesAsync();
+        var package = await _context.BusinessPackages
+            .FirstOrDefaultAsync(p =>
+                p.Id == id &&
+                p.BusinessProfileId == business.Id);
 
-    return RedirectToAction(nameof(Index));
-}
+        if (package == null)
+        {
+            return NotFound();
+        }
 
+        package.IsActive = !package.IsActive;
 
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> ToggleStatus(int id)
-{
-    var business = await GetCurrentBusinessAsync();
+        await _context.SaveChangesAsync();
 
-    if (business == null)
-    {
-        return Forbid();
+        return RedirectToAction(nameof(Index));
     }
-
-    var package = await _context.BusinessPackages
-        .FirstOrDefaultAsync(p =>
-            p.Id == id &&
-            p.BusinessProfileId == business.Id);
-
-    if (package == null)
-    {
-        return NotFound();
-    }
-
-    package.IsActive = !package.IsActive;
-
-    await _context.SaveChangesAsync();
-
-    return RedirectToAction(nameof(Index));
-}
 
 
 }

@@ -4,12 +4,12 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # 2. Proje dosyasını kopyala ve bağımlılıkları indir
-COPY ["OrganizationPlatform.csproj", "./"]
-RUN dotnet restore "OrganizationPlatform.csproj"
+COPY ["MIORA.csproj", "./"]
+RUN dotnet restore "MIORA.csproj"
 
 # 3. Kaynak kodlarını kopyala ve uygulamayı yayımla
 COPY . .
-RUN dotnet publish "OrganizationPlatform.csproj" \
+RUN dotnet publish "MIORA.csproj" \
     -c Release \
     -o /app/publish \
     /p:UseAppHost=false
@@ -23,4 +23,4 @@ COPY --from=build /app/publish .
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 
-ENTRYPOINT ["dotnet", "OrganizationPlatform.dll"]
+ENTRYPOINT ["dotnet", "MIORA.dll"]

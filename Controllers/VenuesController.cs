@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using OrganizationPlatform.Models;
 using OrganizationPlatform.Services;
+using OrganizationPlatform.Helpers;
+
 
 namespace OrganizationPlatform.Controllers;
 
@@ -33,6 +35,27 @@ public class VenuesController : Controller
     [HttpGet]
     public async Task<IActionResult> Index(VenueFilterViewModel filter)
     {
+        // İlleri Location API'den al
+        filter.Provinces = await _locationService.GetProvincesAsync();
+
+        // Seçilen ilin adını bul
+        var selectedProvince = filter.ProvinceId.HasValue
+            ? filter.Provinces.FirstOrDefault(
+                province => province.Id == filter.ProvinceId.Value)
+            : null;
+
+        if (selectedProvince != null)
+        {
+            filter.City = selectedProvince.Name;
+        }
+
+        // Seçilen ilin ilçelerini API'den al
+        if (filter.ProvinceId.HasValue)
+        {
+            filter.DistrictOptions = await _locationService
+                .GetDistrictsAsync(filter.ProvinceId.Value);
+        }
+
         var query = _context.Venues
             .AsNoTracking()
             .AsQueryable();
@@ -50,16 +73,24 @@ public class VenuesController : Controller
         }
 
 
-        // 1. İl filtresi
         if (!string.IsNullOrWhiteSpace(filter.City))
         {
-            query = query.Where(venue => venue.City == filter.City);
+            var city = SearchTextHelper.Normalize(filter.City);
+
+            query = query.Where(v =>
+                PostgreSqlFunctions.Unaccent(v.City)
+                    .ToLower()
+                    .Replace("ı", "i") == city);
         }
 
-        // 2. İlçe filtresi
         if (!string.IsNullOrWhiteSpace(filter.District))
         {
-            query = query.Where(venue => venue.District == filter.District);
+            var district = SearchTextHelper.Normalize(filter.District);
+
+            query = query.Where(v =>
+                PostgreSqlFunctions.Unaccent(v.District)
+                    .ToLower()
+                    .Replace("ı", "i") == district);
         }
 
         // 3. Minimum kapasite filtresi
@@ -164,29 +195,7 @@ public class VenuesController : Controller
             .ToListAsync();
 
 
-        // 7. Filtre seçeneklerini hazırla
-        filter.Cities = await _context.Venues
-            .AsNoTracking()
-            .Select(venue => venue.City)
-            .Distinct()
-            .OrderBy(city => city)
-            .ToListAsync();
-
-        var districtQuery = _context.Venues
-            .AsNoTracking()
-            .AsQueryable();
-
-        if (!string.IsNullOrWhiteSpace(filter.City))
-        {
-            districtQuery = districtQuery.Where(venue =>
-                venue.City == filter.City);
-        }
-
-        filter.Districts = await districtQuery
-            .Select(venue => venue.District)
-            .Distinct()
-            .OrderBy(district => district)
-            .ToListAsync();
+        // 7. Fiziksel özellik kategorilerini yükle
 
         filter.FeatureCategories = await _context.FeatureCategories
             .AsNoTracking()
@@ -194,6 +203,18 @@ public class VenuesController : Controller
             .OrderBy(category => category.Name)
             .ToListAsync();
 
+
+        ViewBag.CanFavorite = false;
+        var currentUser = await _userManager.GetUserAsync(User);
+        if (currentUser?.AccountType == AccountType.Customer)
+        {
+            ViewBag.CanFavorite = true;
+
+            filter.FavoriteVenueIds = await _context.FavoriteVenues
+                .Where(f => f.ApplicationUserId == currentUser.Id)
+                .Select(f => f.VenueId)
+                .ToListAsync();
+        }
         return View(filter);
     }
 
@@ -210,6 +231,16 @@ public class VenuesController : Controller
         if (venue == null)
         {
             return NotFound();
+        }
+
+        ViewBag.CanFavorite = false;
+        ViewBag.IsFavorite = false;
+        var currentUser = await _userManager.GetUserAsync(User);
+        if (currentUser?.AccountType == AccountType.Customer)
+        {
+            ViewBag.CanFavorite = true;
+            ViewBag.IsFavorite = await _context.FavoriteVenues.AnyAsync(favorite =>
+                favorite.ApplicationUserId == currentUser.Id && favorite.VenueId == id);
         }
 
         return View(venue);
@@ -701,6 +732,61 @@ public class VenuesController : Controller
         return RedirectToAction(nameof(Edit), new { id = venueId });
     }
 
+    [Authorize]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToggleFavorite(int venueId, string? returnUrl)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+            return Challenge();
 
+        if (user.AccountType != AccountType.Customer)
+            return Forbid();
+
+        var favorite = await _context.FavoriteVenues
+            .FirstOrDefaultAsync(f =>
+                f.ApplicationUserId == user.Id &&
+                f.VenueId == venueId);
+
+        if (favorite == null)
+        {
+            var venueExists = await _context.Venues
+                .AnyAsync(v => v.Id == venueId);
+
+            if (!venueExists)
+                return NotFound();
+
+            _context.FavoriteVenues.Add(new FavoriteVenue
+            {
+                ApplicationUserId = user.Id,
+                VenueId = venueId
+            });
+        }
+        else
+        {
+            _context.FavoriteVenues.Remove(favorite);
+        }
+
+        await _context.SaveChangesAsync();
+
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            return LocalRedirect(returnUrl);
+
+        return RedirectToAction(nameof(Details), new { id = venueId });
+    }
+
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> MyFavorites()
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+            return Challenge();
+        if (user.AccountType != AccountType.Customer)
+            return Forbid();
+
+        return RedirectToAction("Index", "BusinessFavorites");
+    }
 
 }

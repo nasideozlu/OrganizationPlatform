@@ -1,0 +1,83 @@
+@model OrganizationPlatform.Models.BusinessFilterOption
+
+@{
+    ViewData["Title"] = "Seçenek Düzenle";
+}
+
+<section class="management-page admin-page">
+
+    <header class="admin-welcome">
+        <div>
+            <div class="eyebrow">MIORA YÖNETİMİ</div>
+            <h1>Seçenek düzenle</h1>
+            <p>@Model.Definition.Name filtresindeki seçeneği güncelle.</p>
+        </div>
+    </header>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <div class="management-list p-4">
+
+        <form asp-action="EditFilterOption" method="post">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" name="id" value="@Model.Id" />
+
+            <div class="mb-3">
+                <label class="form-label">Seçenek adı</label>
+                <input type="text"
+                       name="name"
+                       value="@Model.Name"
+                       class="form-control"
+                       required />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Seçenek değeri</label>
+                <input type="text"
+                       name="value"
+                       value="@Model.Value"
+                       class="form-control"
+                       required />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Görüntülenme sırası</label>
+                <input type="number"
+                       name="sortOrder"
+                       value="@Model.SortOrder"
+                       min="0"
+                       class="form-control" />
+            </div>
+
+            <div class="form-check mb-4">
+                <input type="checkbox"
+                       name="isActive"
+                       value="true"
+                       class="form-check-input"
+                       id="isActive"
+                       checked="@Model.IsActive" />
+
+                <label class="form-check-label" for="isActive">
+                    Seçenek aktif
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Değişiklikleri kaydet
+            </button>
+
+            <a asp-action="ManageFilterOptions"
+               asp-route-id="@Model.BusinessFilterDefinitionId"
+               class="btn btn-outline-secondary">
+                Vazgeç
+            </a>
+
+        </form>
+
+    </div>
+</section>

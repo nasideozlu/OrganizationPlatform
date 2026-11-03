@@ -22,6 +22,36 @@ namespace OrganizationPlatform.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("BusinessCampaignVenue", b =>
+                {
+                    b.Property<int>("BusinessCampaignsId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("VenuesId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("BusinessCampaignsId", "VenuesId");
+
+                    b.HasIndex("VenuesId");
+
+                    b.ToTable("BusinessCampaignVenues", (string)null);
+                });
+
+            modelBuilder.Entity("BusinessPackageVenue", b =>
+                {
+                    b.Property<int>("BusinessPackagesId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("VenuesId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("BusinessPackagesId", "VenuesId");
+
+                    b.HasIndex("VenuesId");
+
+                    b.ToTable("BusinessPackageVenues", (string)null);
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -315,6 +345,81 @@ namespace OrganizationPlatform.Migrations
                     b.ToTable("BusinessFavorites");
                 });
 
+            modelBuilder.Entity("OrganizationPlatform.Models.BusinessFilterDefinition", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BusinessCategoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("DataType")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Unit")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessCategoryId", "Code")
+                        .IsUnique();
+
+                    b.ToTable("BusinessFilterDefinitions");
+                });
+
+            modelBuilder.Entity("OrganizationPlatform.Models.BusinessFilterOption", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BusinessFilterDefinitionId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessFilterDefinitionId", "Value")
+                        .IsUnique();
+
+                    b.ToTable("BusinessFilterOptions");
+                });
+
             modelBuilder.Entity("OrganizationPlatform.Models.BusinessPackage", b =>
                 {
                     b.Property<int>("Id")
@@ -469,6 +574,95 @@ namespace OrganizationPlatform.Migrations
                     b.ToTable("BusinessProfiles");
                 });
 
+            modelBuilder.Entity("OrganizationPlatform.Models.BusinessProfileFilterOption", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BusinessFilterOptionId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("BusinessProfileId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessFilterOptionId");
+
+                    b.HasIndex("BusinessProfileId", "BusinessFilterOptionId")
+                        .IsUnique();
+
+                    b.ToTable("BusinessProfileFilterOptions");
+                });
+
+            modelBuilder.Entity("OrganizationPlatform.Models.BusinessProfileFilterValue", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool?>("BooleanValue")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("BusinessFilterDefinitionId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("BusinessProfileId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal?>("NumericValue")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("TextValue")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessFilterDefinitionId");
+
+                    b.HasIndex("BusinessProfileId", "BusinessFilterDefinitionId")
+                        .IsUnique();
+
+                    b.ToTable("BusinessProfileFilterValues");
+                });
+
+            modelBuilder.Entity("OrganizationPlatform.Models.BusinessRating", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ApplicationUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("BusinessProfileId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationUserId", "BusinessProfileId")
+                        .IsUnique();
+
+                    b.ToTable("BusinessRatings");
+                });
+
             modelBuilder.Entity("OrganizationPlatform.Models.CustomerProfile", b =>
                 {
                     b.Property<int>("Id")
@@ -495,6 +689,34 @@ namespace OrganizationPlatform.Migrations
                         .IsUnique();
 
                     b.ToTable("CustomerProfiles");
+                });
+
+            modelBuilder.Entity("OrganizationPlatform.Models.FavoriteVenue", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ApplicationUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("VenueId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VenueId");
+
+                    b.HasIndex("ApplicationUserId", "VenueId")
+                        .IsUnique();
+
+                    b.ToTable("FavoriteVenues");
                 });
 
             modelBuilder.Entity("OrganizationPlatform.Models.FeatureCategory", b =>
@@ -625,6 +847,36 @@ namespace OrganizationPlatform.Migrations
                     b.ToTable("PhysicalFeatureVenue");
                 });
 
+            modelBuilder.Entity("BusinessCampaignVenue", b =>
+                {
+                    b.HasOne("OrganizationPlatform.Models.BusinessCampaign", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessCampaignsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OrganizationPlatform.Models.Venue", null)
+                        .WithMany()
+                        .HasForeignKey("VenuesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BusinessPackageVenue", b =>
+                {
+                    b.HasOne("OrganizationPlatform.Models.BusinessPackage", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessPackagesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OrganizationPlatform.Models.Venue", null)
+                        .WithMany()
+                        .HasForeignKey("VenuesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -713,6 +965,28 @@ namespace OrganizationPlatform.Migrations
                     b.Navigation("BusinessProfile");
                 });
 
+            modelBuilder.Entity("OrganizationPlatform.Models.BusinessFilterDefinition", b =>
+                {
+                    b.HasOne("OrganizationPlatform.Models.BusinessCategory", "BusinessCategory")
+                        .WithMany("FilterDefinitions")
+                        .HasForeignKey("BusinessCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BusinessCategory");
+                });
+
+            modelBuilder.Entity("OrganizationPlatform.Models.BusinessFilterOption", b =>
+                {
+                    b.HasOne("OrganizationPlatform.Models.BusinessFilterDefinition", "Definition")
+                        .WithMany("Options")
+                        .HasForeignKey("BusinessFilterDefinitionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Definition");
+                });
+
             modelBuilder.Entity("OrganizationPlatform.Models.BusinessPackage", b =>
                 {
                     b.HasOne("OrganizationPlatform.Models.BusinessProfile", "BusinessProfile")
@@ -776,6 +1050,44 @@ namespace OrganizationPlatform.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("OrganizationPlatform.Models.BusinessProfileFilterOption", b =>
+                {
+                    b.HasOne("OrganizationPlatform.Models.BusinessFilterOption", "FilterOption")
+                        .WithMany("BusinessProfileOptions")
+                        .HasForeignKey("BusinessFilterOptionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OrganizationPlatform.Models.BusinessProfile", "BusinessProfile")
+                        .WithMany("FilterOptions")
+                        .HasForeignKey("BusinessProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BusinessProfile");
+
+                    b.Navigation("FilterOption");
+                });
+
+            modelBuilder.Entity("OrganizationPlatform.Models.BusinessProfileFilterValue", b =>
+                {
+                    b.HasOne("OrganizationPlatform.Models.BusinessFilterDefinition", "Definition")
+                        .WithMany("ProfileValues")
+                        .HasForeignKey("BusinessFilterDefinitionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OrganizationPlatform.Models.BusinessProfile", "BusinessProfile")
+                        .WithMany("FilterValues")
+                        .HasForeignKey("BusinessProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BusinessProfile");
+
+                    b.Navigation("Definition");
+                });
+
             modelBuilder.Entity("OrganizationPlatform.Models.CustomerProfile", b =>
                 {
                     b.HasOne("OrganizationPlatform.Models.ApplicationUser", "ApplicationUser")
@@ -785,6 +1097,25 @@ namespace OrganizationPlatform.Migrations
                         .IsRequired();
 
                     b.Navigation("ApplicationUser");
+                });
+
+            modelBuilder.Entity("OrganizationPlatform.Models.FavoriteVenue", b =>
+                {
+                    b.HasOne("OrganizationPlatform.Models.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OrganizationPlatform.Models.Venue", "Venue")
+                        .WithMany()
+                        .HasForeignKey("VenueId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("Venue");
                 });
 
             modelBuilder.Entity("OrganizationPlatform.Models.PhysicalFeature", b =>
@@ -838,6 +1169,20 @@ namespace OrganizationPlatform.Migrations
             modelBuilder.Entity("OrganizationPlatform.Models.BusinessCategory", b =>
                 {
                     b.Navigation("BusinessProfiles");
+
+                    b.Navigation("FilterDefinitions");
+                });
+
+            modelBuilder.Entity("OrganizationPlatform.Models.BusinessFilterDefinition", b =>
+                {
+                    b.Navigation("Options");
+
+                    b.Navigation("ProfileValues");
+                });
+
+            modelBuilder.Entity("OrganizationPlatform.Models.BusinessFilterOption", b =>
+                {
+                    b.Navigation("BusinessProfileOptions");
                 });
 
             modelBuilder.Entity("OrganizationPlatform.Models.BusinessPackage", b =>
@@ -850,6 +1195,10 @@ namespace OrganizationPlatform.Migrations
             modelBuilder.Entity("OrganizationPlatform.Models.BusinessProfile", b =>
                 {
                     b.Navigation("Campaigns");
+
+                    b.Navigation("FilterOptions");
+
+                    b.Navigation("FilterValues");
 
                     b.Navigation("Packages");
 

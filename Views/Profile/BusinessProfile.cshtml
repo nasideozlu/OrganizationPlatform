@@ -1,4 +1,5 @@
 @model OrganizationPlatform.Models.BusinessProfile
+@using OrganizationPlatform.ViewModels
 
 @{
     ViewData["Title"] = "İşletme panelim";
@@ -166,7 +167,7 @@
 
 @Model.City@(hasDistrict
                             ? $", {Model.District}"
-                                                : "")
+                                                                                        : "")
                     </p>
                 </div>
 
@@ -301,5 +302,55 @@
         </aside>
 
     </div>
+    <section class="business-reviews-section mt-4">
 
+        <div class="dashboard-card-head">
+            <div>
+                <span class="dashboard-kicker">MÜŞTERİ GERİ BİLDİRİMLERİ</span>
+                <h2>İşletme değerlendirmeleri</h2>
+            </div>
+
+            <div>
+                <strong>@ViewBag.AverageRating.ToString("0.0") / 5</strong>
+                <span>★</span>
+                <p>@ViewBag.RatingCount değerlendirme</p>
+            </div>
+        </div>
+
+        @if (((List<BusinessRatingViewModel>)ViewBag.Ratings).Count == 0)
+        {
+            <p>Henüz işletmen için değerlendirme yapılmamış.</p>
+        }
+        else
+        {
+            @foreach (var rating in (List<BusinessRatingViewModel>)ViewBag.Ratings)
+            {
+                <article class="business-review-card mb-3">
+
+                    <div class="d-flex justify-content-between">
+                        <strong>@rating.CustomerName</strong>
+                        <span>@rating.Rating / 5</span>
+                    </div>
+
+                    <div class="text-warning">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            @(i <= rating.Rating ? "★" : "☆")
+                        }
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(rating.Comment))
+                    {
+                        <p class="mt-2 mb-0">@rating.Comment</p>
+                    }
+
+                    <small class="text-muted">
+                        @rating.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy")
+                    </small>
+
+                </article>
+            }
+        }
+
+    </section>
 </section>
