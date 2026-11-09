@@ -10,11 +10,16 @@ public class Venue
     public string? Address { get; set; }
     public required int Capacity { get; set; }
     public string? Description { get; set; }
+    public string? PhoneNumber { get; set; }
+    public string? InstagramUrl { get; set; }
+    public string? Email { get; set; }
     public decimal? MealIncludedPrice { get; set; }
     public decimal? MealExcludedPrice { get; set; }
 
     public int BusinessProfileId { get; set; }
+    
     public required BusinessProfile BusinessProfile { get; set; }
+    public List<AuthorizedPerson> AuthorizedPeople { get; set; } = new();
 
     public List<PhysicalFeature> PhysicalFeatures { get; set; } = new List<PhysicalFeature>();
     public List<VenuePhoto> Photos { get; set; } = new();

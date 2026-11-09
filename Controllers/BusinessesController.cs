@@ -375,6 +375,7 @@ public class BusinessesController : Controller
             .Include(b => b.Category)
             .Include(b => b.Photos)
             .Include(b => b.ApplicationUser)
+            .Include(b => b.AuthorizedPeople)
             .Include(b => b.Pricings.Where(p => p.IsActive))
             .Include(b => b.Packages.Where(p => p.IsActive))
                 .ThenInclude(p => p.Items)
@@ -430,7 +431,8 @@ public class BusinessesController : Controller
             }
         }
         var ratings = await _context.BusinessRatings
-            .Where(rating => rating.BusinessProfileId == id)
+            .Where(rating => rating.BusinessProfileId == id &&
+                rating.ReviewStatus == ReviewStatus.Approved)
             .ToListAsync();
 
         ViewBag.RatingCount = ratings.Count;
@@ -440,19 +442,24 @@ public class BusinessesController : Controller
             : 0;
 
         ViewBag.Ratings = await _context.BusinessRatings
-    .Where(rating => rating.BusinessProfileId == id)
-    .OrderByDescending(rating => rating.CreatedAt)
-    .Select(rating => new BusinessRatingViewModel
-    {
-        Rating = rating.Rating,
-        Comment = rating.Comment,
-        CreatedAt = rating.CreatedAt,
-        CustomerName = _context.CustomerProfiles
-            .Where(profile => profile.ApplicationUserId == rating.ApplicationUserId)
-            .Select(profile => profile.Name + " " + profile.Surname)
-            .FirstOrDefault() ?? "Müşteri"
-    })
-    .ToListAsync();
+            .Where(rating => rating.BusinessProfileId == id &&
+                rating.ReviewStatus == ReviewStatus.Approved)
+            .OrderByDescending(rating => rating.CreatedAt)
+            .Select(rating => new BusinessRatingViewModel
+            {
+                Id = rating.Id,
+                Rating = rating.Rating,
+                Comment = rating.Comment,
+                CreatedAt = rating.CreatedAt,
+                CustomerName = _context.CustomerProfiles
+                    .Where(profile => profile.ApplicationUserId == rating.ApplicationUserId)
+                    .Select(profile => profile.Name + " " + profile.Surname)
+                    .FirstOrDefault() ?? "Müşteri",
+
+                BusinessReply = rating.BusinessReply,
+                BusinessReplyAt = rating.BusinessReplyAt
+            })
+            .ToListAsync();
 
         return View(business);
 

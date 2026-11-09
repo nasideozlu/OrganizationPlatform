@@ -76,19 +76,25 @@ public class ProfileController : Controller
             ViewBag.PackageCount = await _context.BusinessPackages
                 .CountAsync(package => package.BusinessProfileId == profile.Id);
             var ratings = await _context.BusinessRatings
-    .Where(rating => rating.BusinessProfileId == profile.Id)
-    .OrderByDescending(rating => rating.CreatedAt)
-    .Select(rating => new BusinessRatingViewModel
-    {
-        Rating = rating.Rating,
-        Comment = rating.Comment,
-        CreatedAt = rating.CreatedAt,
-        CustomerName = _context.CustomerProfiles
-            .Where(customer => customer.ApplicationUserId == rating.ApplicationUserId)
-            .Select(customer => customer.Name + " " + customer.Surname)
-            .FirstOrDefault() ?? "Müşteri"
-    })
-    .ToListAsync();
+                .Where(rating =>
+                    rating.BusinessProfileId == profile.Id &&
+                    rating.ReviewStatus == ReviewStatus.Approved)
+                .OrderByDescending(rating => rating.CreatedAt)
+                .Select(rating => new BusinessRatingViewModel
+                {
+                    Id = rating.Id,
+                    Rating = rating.Rating,
+                    Comment = rating.Comment,
+                    CreatedAt = rating.CreatedAt,
+                    CustomerName = _context.CustomerProfiles
+        .Where(customer => customer.ApplicationUserId == rating.ApplicationUserId)
+        .Select(customer => customer.Name + " " + customer.Surname)
+        .FirstOrDefault() ?? "Müşteri",
+
+                    BusinessReply = rating.BusinessReply,
+                    BusinessReplyAt = rating.BusinessReplyAt
+                })
+                .ToListAsync();
 
             ViewBag.Ratings = ratings;
 
@@ -201,6 +207,9 @@ public class ProfileController : Controller
             City = profile.City,
             District = profile.District,
             Description = profile.Description,
+            PhoneNumber = profile.PhoneNumber,
+            InstagramUrl = profile.InstagramUrl,
+            Address = profile.Address,
             ExistingPhotos = profile.Photos
         };
 
@@ -466,10 +475,13 @@ public class ProfileController : Controller
         profile.Description = model.Description;
         profile.City = model.City;
         profile.District = model.District;
+        profile.PhoneNumber = model.PhoneNumber?.Trim();
+        profile.InstagramUrl = model.InstagramUrl?.Trim();
+        profile.Address = model.Address?.Trim();
 
         try
         {
-            foreach (var photo in model.Photos.Where(p => p.Length > 0))
+            foreach (var photo in model.Photos?.Where(p => p.Length > 0) ?? Enumerable.Empty<IFormFile>())
             {
                 var filePath = await _photoStorageService.SavePhotoAsync(
                     photo,
@@ -498,6 +510,264 @@ public class ProfileController : Controller
 
         return RedirectToAction(nameof(Index));
 
+    }
+    [HttpGet]
+    public async Task<IActionResult> AuthorizedPeople()
+    {
+        var user = await _userManager.GetUserAsync(User);
+
+        if (user == null)
+            return Challenge();
+
+        if (user.AccountType != AccountType.Business)
+            return Forbid();
+
+        var businessProfile = await _context.BusinessProfiles
+            .FirstOrDefaultAsync(b => b.ApplicationUserId == user.Id);
+
+        if (businessProfile == null)
+            return NotFound();
+
+        var people = await _context.AuthorizedPeople
+            .Where(p => p.BusinessProfileId == businessProfile.Id)
+            .OrderBy(p => p.Role)
+            .ToListAsync();
+
+        return View(people);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> AddAuthorizedPerson()
+    {
+        var user = await _userManager.GetUserAsync(User);
+
+        if (user == null)
+            return Challenge();
+
+        if (user.AccountType != AccountType.Business)
+            return Forbid();
+
+        var businessProfileExists = await _context.BusinessProfiles
+            .AnyAsync(b => b.ApplicationUserId == user.Id);
+
+        if (!businessProfileExists)
+            return NotFound();
+
+        return View(new AuthorizedPersonViewModel());
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddAuthorizedPerson(AuthorizedPersonViewModel model)
+    {
+        var user = await _userManager.GetUserAsync(User);
+
+        if (user == null)
+            return Challenge();
+
+        if (user.AccountType != AccountType.Business)
+            return Forbid();
+
+        var businessProfile = await _context.BusinessProfiles
+            .FirstOrDefaultAsync(b => b.ApplicationUserId == user.Id);
+
+        if (businessProfile == null)
+            return NotFound();
+
+        if (!ModelState.IsValid)
+            return View(model);
+
+        var person = new AuthorizedPerson
+        {
+            FirstName = model.FirstName.Trim(),
+            LastName = model.LastName.Trim(),
+            Role = model.Role,
+            PhoneNumber = model.PhoneNumber?.Trim(),
+            Email = model.Email?.Trim(),
+            BusinessProfileId = businessProfile.Id
+        };
+
+        try
+        {
+            if (model.Photo != null && model.Photo.Length > 0)
+            {
+                person.PhotoPath = await _photoStorageService.SavePhotoAsync(
+                    model.Photo,
+                    "authorized-people",
+                    businessProfile.Id);
+            }
+        }
+        catch (InvalidOperationException exception)
+        {
+            ModelState.AddModelError(nameof(model.Photo), exception.Message);
+            return View(model);
+        }
+
+        _context.AuthorizedPeople.Add(person);
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = "Yetkili kişi başarıyla eklendi.";
+
+        return RedirectToAction(nameof(AuthorizedPeople));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> EditAuthorizedPerson(int id)
+    {
+        var user = await _userManager.GetUserAsync(User);
+
+        if (user == null)
+            return Challenge();
+
+        if (user.AccountType != AccountType.Business)
+            return Forbid();
+
+        var businessProfile = await _context.BusinessProfiles
+            .FirstOrDefaultAsync(b => b.ApplicationUserId == user.Id);
+
+        if (businessProfile == null)
+            return NotFound();
+
+        var person = await _context.AuthorizedPeople
+            .FirstOrDefaultAsync(p =>
+                p.Id == id &&
+                p.BusinessProfileId == businessProfile.Id);
+
+        if (person == null)
+            return NotFound();
+
+        var model = new AuthorizedPersonViewModel
+        {
+            Id = person.Id,
+            FirstName = person.FirstName,
+            LastName = person.LastName,
+            Role = person.Role,
+            PhoneNumber = person.PhoneNumber,
+            Email = person.Email,
+            ExistingPhotoPath = person.PhotoPath
+        };
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditAuthorizedPerson(
+    int id,
+    AuthorizedPersonViewModel model)
+    {
+        var user = await _userManager.GetUserAsync(User);
+
+        if (user == null)
+            return Challenge();
+
+        if (user.AccountType != AccountType.Business)
+            return Forbid();
+
+        var businessProfile = await _context.BusinessProfiles
+            .FirstOrDefaultAsync(b => b.ApplicationUserId == user.Id);
+
+        if (businessProfile == null)
+            return NotFound();
+
+        var person = await _context.AuthorizedPeople
+            .FirstOrDefaultAsync(p =>
+                p.Id == id &&
+                p.BusinessProfileId == businessProfile.Id);
+
+        if (person == null)
+            return NotFound();
+
+        if (!ModelState.IsValid)
+        {
+            model.ExistingPhotoPath = person.PhotoPath;
+            return View(model);
+        }
+
+        person.FirstName = model.FirstName.Trim();
+        person.LastName = model.LastName.Trim();
+        person.Role = model.Role;
+        person.PhoneNumber = model.PhoneNumber?.Trim();
+        person.Email = model.Email?.Trim();
+
+        string? oldPhotoPath = null;
+
+        try
+        {
+            if (model.Photo != null && model.Photo.Length > 0)
+            {
+                var newPhotoPath = await _photoStorageService.SavePhotoAsync(
+                    model.Photo,
+                    "authorized-people",
+                    businessProfile.Id);
+
+                oldPhotoPath = person.PhotoPath;
+                person.PhotoPath = newPhotoPath;
+            }
+        }
+        catch (InvalidOperationException exception)
+        {
+            ModelState.AddModelError(nameof(model.Photo), exception.Message);
+            model.ExistingPhotoPath = person.PhotoPath;
+            return View(model);
+        }
+
+        await _context.SaveChangesAsync();
+
+        if (oldPhotoPath != null)
+        {
+            await _photoStorageService.DeletePhotoAsync(
+                oldPhotoPath,
+                "authorized-people",
+                businessProfile.Id);
+        }
+
+        TempData["Success"] = "Yetkili kişi bilgileri güncellendi.";
+
+        return RedirectToAction(nameof(AuthorizedPeople));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteAuthorizedPerson(int id)
+    {
+        var user = await _userManager.GetUserAsync(User);
+
+        if (user == null)
+            return Challenge();
+
+        if (user.AccountType != AccountType.Business)
+            return Forbid();
+
+        var businessProfile = await _context.BusinessProfiles
+            .FirstOrDefaultAsync(b => b.ApplicationUserId == user.Id);
+
+        if (businessProfile == null)
+            return NotFound();
+
+        var person = await _context.AuthorizedPeople
+            .FirstOrDefaultAsync(p =>
+                p.Id == id &&
+                p.BusinessProfileId == businessProfile.Id);
+
+        if (person == null)
+            return NotFound();
+
+        if (!string.IsNullOrWhiteSpace(person.PhotoPath))
+        {
+            await _photoStorageService.DeletePhotoAsync(
+                person.PhotoPath,
+                "authorized-people",
+                businessProfile.Id);
+        }
+
+        _context.AuthorizedPeople.Remove(person);
+
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = "Yetkili kişi silindi.";
+
+        return RedirectToAction(nameof(AuthorizedPeople));
     }
 
 

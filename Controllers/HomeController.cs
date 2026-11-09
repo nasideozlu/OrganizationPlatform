@@ -21,8 +21,9 @@ public class HomeController : Controller
         _userManager = userManager;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string? searchTerm)
     {
+        ViewBag.SearchTerm = searchTerm?.Trim() ?? string.Empty;
         if (User.Identity?.IsAuthenticated == true)
         {
             if (User.IsInRole("Admin"))

@@ -15,8 +15,14 @@ public class BusinessProfileEditViewModel
     public string City { get; set; } = string.Empty;
     [Required]
     public string District { get; set; } = string.Empty;
+    public string? PhoneNumber { get; set; }
 
-    public List<IFormFile> Photos { get; set; } = new();
+    [Url(ErrorMessage = "Geçerli bir Instagram bağlantısı girin.")]
+    public string? InstagramUrl { get; set; }
+
+    public string? Address { get; set; }
+
+    public List<IFormFile>? Photos { get; set; }
     public List<BusinessPhoto> ExistingPhotos { get; set; } = new();
     public List<BusinessProfileFilterEditItemViewModel> FilterItems { get; set; } = new();
 

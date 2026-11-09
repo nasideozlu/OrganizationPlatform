@@ -13,5 +13,10 @@ public class BusinessRating
     public int Rating { get; set; }
     public string? Comment { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public ReviewStatus ReviewStatus { get; set; } = ReviewStatus.Approved;
+
+    public string? BusinessReply { get; set; }
+
+    public DateTime? BusinessReplyAt { get; set; }
 
 }

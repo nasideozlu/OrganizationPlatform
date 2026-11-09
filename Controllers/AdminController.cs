@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OrganizationPlatform.Data;
 using OrganizationPlatform.Models;
+using OrganizationPlatform.ViewModels;
 
 namespace OrganizationPlatform.Controllers;
 
@@ -25,6 +26,124 @@ public class AdminController : Controller
             .ToListAsync();
 
         return View(categories);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ReviewModeration()
+    {
+        var viewModel = new AdminReviewViewModel();
+
+        // Onay bekleyen işletme yorumları
+        viewModel.BusinessReviews = await _context.BusinessRatings
+            .Where(rating => rating.ReviewStatus == ReviewStatus.Pending)
+            .OrderBy(rating => rating.CreatedAt)
+            .Select(rating => new AdminReviewItemViewModel
+            {
+                Id = rating.Id,
+                Rating = rating.Rating,
+                Comment = rating.Comment,
+                CreatedAt = rating.CreatedAt,
+
+                CustomerName = _context.CustomerProfiles
+                    .Where(profile =>
+                        profile.ApplicationUserId == rating.ApplicationUserId)
+                    .Select(profile => profile.Name + " " + profile.Surname)
+                    .FirstOrDefault() ?? "Müşteri",
+
+                TargetName = _context.BusinessProfiles
+                    .Where(business => business.Id == rating.BusinessProfileId)
+                    .Select(business => business.Name)
+                    .FirstOrDefault() ?? "İşletme"
+            })
+            .ToListAsync();
+
+        // Onay bekleyen mekân yorumları
+        viewModel.VenueReviews = await _context.VenueRatings
+            .Where(rating => rating.ReviewStatus == ReviewStatus.Pending)
+            .OrderBy(rating => rating.CreatedAt)
+            .Select(rating => new AdminReviewItemViewModel
+            {
+                Id = rating.Id,
+                Rating = rating.Rating,
+                Comment = rating.Comment,
+                CreatedAt = rating.CreatedAt,
+
+                CustomerName = _context.CustomerProfiles
+                    .Where(profile =>
+                        profile.ApplicationUserId == rating.ApplicationUserId)
+                    .Select(profile => profile.Name + " " + profile.Surname)
+                    .FirstOrDefault() ?? "Müşteri",
+
+                TargetName = _context.Venues
+                    .Where(venue => venue.Id == rating.VenueId)
+                    .Select(venue => venue.Name)
+                    .FirstOrDefault() ?? "Mekân"
+            })
+            .ToListAsync();
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateBusinessReviewStatus(
+    int id,
+    ReviewStatus status)
+    {
+        if (status != ReviewStatus.Approved &&
+            status != ReviewStatus.Rejected)
+        {
+            return BadRequest();
+        }
+
+        var review = await _context.BusinessRatings
+            .FirstOrDefaultAsync(rating => rating.Id == id);
+
+        if (review == null)
+        {
+            return NotFound();
+        }
+
+        review.ReviewStatus = status;
+
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = status == ReviewStatus.Approved
+            ? "İşletme yorumu onaylandı."
+            : "İşletme yorumu reddedildi.";
+
+        return RedirectToAction(nameof(ReviewModeration));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateVenueReviewStatus(
+    int id,
+    ReviewStatus status)
+    {
+        if (status != ReviewStatus.Approved &&
+            status != ReviewStatus.Rejected)
+        {
+            return BadRequest();
+        }
+
+        var review = await _context.VenueRatings
+            .FirstOrDefaultAsync(rating => rating.Id == id);
+
+        if (review == null)
+        {
+            return NotFound();
+        }
+
+        review.ReviewStatus = status;
+
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = status == ReviewStatus.Approved
+            ? "Mekân yorumu onaylandı."
+            : "Mekân yorumu reddedildi.";
+
+        return RedirectToAction(nameof(ReviewModeration));
     }
     // İşletme filtrelerini listele
     [HttpGet]

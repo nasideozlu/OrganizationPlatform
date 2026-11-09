@@ -4,496 +4,669 @@
 
 @{
     ViewData["Title"] = Model.Name;
-    var cover = Model.Photos.OrderByDescending(photo => photo.UploadedAt).FirstOrDefault();
+    var photos = Model.Photos.OrderByDescending(photo => photo.UploadedAt).ToList();
+    var phoneNumber = !string.IsNullOrWhiteSpace(Model.PhoneNumber)
+        ? Model.PhoneNumber
+        : Model.ApplicationUser.PhoneNumber;
 
+    var phoneDigits = System.Text.RegularExpressions.Regex.Replace(
+        phoneNumber ?? "", "[^0-9]", "");
+
+    var businessAddress = string.Join(", ", new[]
+    {
+    Model.Address,
+    Model.District,
+    Model.City
+}.Where(value => !string.IsNullOrWhiteSpace(value)));
+
+    var mapsUrl = !string.IsNullOrWhiteSpace(businessAddress)
+        ? $"https://www.google.com/maps/search/?api=1&query={Uri.EscapeDataString(businessAddress)}"
+        : null;
     var ratings = ViewBag.Ratings as List<BusinessRatingViewModel>
     ?? new List<BusinessRatingViewModel>();
 }
 
-<section class="public-business-page">
+<section class="public-business-page venue-detail-page">
     <a asp-controller="Home" asp-action="Index" asp-fragment="kesfet" class="business-back-link">← Keşfe dön</a>
 
-    <header class="public-business-hero">
-        @if (cover != null)
-        {
-            <img class="public-business-cover" src="@cover.FilePath" alt="@Model.Name işletme fotoğrafı" />
-        }
-        else
-        {
-            <div class="public-business-cover public-business-cover-empty" aria-hidden="true">✳</div>
-        }
-        <div class="public-business-shade"></div>
-        <div class="public-business-title">
-            <span class="public-business-category">@Model.Category.Name</span>
-
-            <div class="d-flex justify-content-between align-items-center gap-3">
-                <h1>@Model.Name</h1>
+    <header class="detail-profile-heading">
+        <div class="detail-profile-title">
+            <span class="detail-profile-category">@Model.Category.Name</span>
+            <h1>@Model.Name</h1>
+            <div class="detail-profile-meta">
                 @if (ViewBag.RatingCount > 0)
                 {
-                    <div class="business-rating-summary">
-
-                        <span class="business-rating-star">
-                            ★
-                        </span>
-
-                        <strong>
-                            @(((double)ViewBag.AverageRating).ToString("0.0"))
-                        </strong>
-
-                        <span class="text-muted">
-                            (@ViewBag.RatingCount değerlendirme)
-                        </span>
-
-                    </div>
-                }
+                    <span class="detail-meta-rating"><span aria-hidden="true">★</span>
+                        @(((double)ViewBag.AverageRating).ToString("0.0")) <small>(@ViewBag.RatingCount)</small></span>
+                    }
                 else
-                {
-                    <div class="business-rating-summary">
+                    {
 
-                        <span class="text-muted">
-                            Henüz değerlendirme yapılmadı.
-                        </span>
-
+                        <span class="detail-meta-muted">Henüz değerlendirme yok</span>
+                    }
+                    <span><span aria-hidden="true">⌖</span> @Model.City@(string.IsNullOrWhiteSpace(Model.District) ? "" :
+                                                                                                                                                                    $", {Model.District}")</span>
+                                    @if (!string.IsNullOrWhiteSpace(phoneNumber))
+                        {
+                            <a href="tel:@phoneNumber">
+                                <span aria-hidden="true">☎</span>
+                                @phoneNumber
+                            </a>
+                            <a href="https://wa.me/@phoneDigits" target="_blank" rel="noopener noreferrer"
+                               class="detail-whatsapp">WhatsApp</a>
+                        }
                     </div>
-                }
-
+                </div>
                 @if (ViewBag.CanFavorite == true)
                 {
-                    <form asp-controller="BusinessFavorites" asp-action="ToggleFavorite" method="post">
-
+                    <form asp-controller="BusinessFavorites" asp-action="ToggleFavorite" method="post" class="detail-favorite-form">
                         @Html.AntiForgeryToken()
-
                         <input type="hidden" name="businessProfileId" value="@Model.Id" />
+                        <button type="submit" class="detail-favorite-button"
+                                aria-label="@(ViewBag.IsFavorite == true ? "Favorilerden çıkar" : "Favorilere ekle")"
+                                title="@(ViewBag.IsFavorite == true ? "Favorilerden çıkar" : "Favorilere ekle")">@(ViewBag.IsFavorite ==
+                                true ? "♥" : "♡")</button>
+                        </form>
+                    }
+                </header>
 
-                        <button type="submit" class="btn btn-light rounded-circle"
-                                title="@(ViewBag.IsFavorite == true ? "Favorilerden çıkar" : "Favorilere ekle")">
-
-                            @if (ViewBag.IsFavorite == true)
+                <section class="detail-photo-slider" id="detail-photos" data-photo-slider aria-label="@Model.Name fotoğraf albümü">
+                    @if (photos.Count > 0)
+                    {
+                        <div class="detail-slide-stage">
+                            @for (var i = 0; i < photos.Count; i++)
                             {
-                                <span class="text-danger fs-4">♥</span>
+                                <img class="detail-slide @(i == 0 ? "is-active" : "")" src="@photos[i].FilePath"
+                                     alt="@Model.Name fotoğrafı @(i + 1)" loading="@(i == 0 ? "eager" : "lazy")" data-slide-index="@i" />
                             }
-                            else
+                            @if (photos.Count > 1)
                             {
-                                <span class="text-danger fs-4">♡</span>
+                                <button class="detail-slide-arrow detail-slide-prev" type="button" data-slide-prev
+                                        aria-label="Önceki fotoğraf">‹</button>
+                                <button class="detail-slide-arrow detail-slide-next" type="button" data-slide-next
+                                        aria-label="Sonraki fotoğraf">›</button>
                             }
-
-                        </button>
-                    </form>
-                }
-            </div>
-
-            <p>
-                <span aria-hidden="true">⌖</span>
-                @Model.City@(string.IsNullOrWhiteSpace(Model.District) ? "" : $", {Model.District}")
-            </p>
-        </div>
-    </header>
-
-    <div class="public-business-layout">
-        <div class="public-business-main">
-            <section class="public-business-panel">
-                <span class="dashboard-kicker">İŞLETMENİN HİKÂYESİ</span>
-                <h2>@Model.Name</h2>
-                <p class="public-business-description">@(string.IsNullOrWhiteSpace(Model.Description) ? "Bu işletme henüz bir açıklama eklememiş." : Model.Description)</p>
-                <div class="public-business-facts">
-                    <div><span
-                        class="detail-icon">✳</span><span><small>Kategori</small><strong>@Model.Category.Name</strong></span>
-                    </div>
-                    <div><span class="detail-icon">⌖</span><span><small>Hizmet
-                        bölgesi</small><strong>@Model.City@(string.IsNullOrWhiteSpace(Model.District) ? "" : $",                                {Model.District}")</strong></span></div>
-                    </div>
-                </section>
-
-                @if (Model.Campaigns.Any())
-                {
-                    <section class="public-business-panel public-business-campaigns">
-                        <div class="detail-panel-heading">
-                            <div>
-                                <span class="dashboard-kicker">KAMPANYALAR</span>
-                                <h2>Aktif fırsatlar</h2>
-                            </div>
-
-                            <span class="business-venue-count">
-                                @Model.Campaigns.Count
-                            </span>
+                            <span class="detail-slide-count" aria-live="polite"><span data-slide-current>1</span> / @photos.Count</span>
                         </div>
+                    }
+                    else
+                    {
+                        <div class="detail-slide-empty"><span aria-hidden="true">✳</span><strong>Fotoğraf albümü
+                            hazırlanıyor</strong><small>İşletme yakında fotoğraflarını paylaşacak.</small></div>
+                        }
+                    </section>
 
-                        <div class="public-business-campaign-grid">
+                    <div class="public-business-layout venue-detail-content">
+                        <div class="public-business-main venue-detail-main">
+                            <section class="public-business-panel venue-detail-panel" id="detail-about">
+                                <span class="dashboard-kicker">İŞLETMENİN HİKÂYESİ</span>
+                                <h2>@Model.Name</h2>
+                                <p class="public-business-description">@(string.IsNullOrWhiteSpace(Model.Description) ? "Bu işletme henüz bir açıklama eklememiş." : Model.Description)</p>
+                                <div class="public-business-facts">
+                                    <div><span
+                                        class="detail-icon">✳</span><span><small>Kategori</small><strong>@Model.Category.Name</strong></span>
+                                    </div>
+                                    <div><span class="detail-icon">⌖</span><span><small>Hizmet
+                                        bölgesi</small><strong>@Model.City@(string.IsNullOrWhiteSpace(Model.District) ? "" : $",                                {Model.District}")</strong></span></div>
+                                    </div>
+                                </section>
 
-                            @foreach (var campaign in Model.Campaigns)
-                            {
-                                <article class="public-business-campaign-card">
 
-                                    <div class="campaign-card-top">
-                                        <div>
-                                            <span class="campaign-badge">
-                                                @if (campaign.CampaignType == BusinessCampaignType.General)
+                                @if (Model.Category.Name != "Düğün Mekanı" && Model.AuthorizedPeople.Any())
+                                {
+                                    <section class="public-business-panel venue-detail-panel" id="detail-team">
+                                        <div class="detail-panel-heading">
+                                            <div>
+                                                <span class="dashboard-kicker">EKİBİMİZ</span>
+                                                <h2>Ekiple Tanışın</h2>
+                                            </div>
+                                            <span class="business-venue-count">
+                                                @Model.AuthorizedPeople.Count
+                                            </span>
+                                        </div>
+
+                                        <div class="authorized-people-list">
+                                            @foreach (var person in Model.AuthorizedPeople)
+                                            {
+                                                var phone = !string.IsNullOrWhiteSpace(person.PhoneNumber)
+                                                    ? person.PhoneNumber
+                                                    : Model.ApplicationUser.PhoneNumber;
+
+                                                var email = !string.IsNullOrWhiteSpace(person.Email)
+                                                    ? person.Email
+                                                    : Model.ApplicationUser.Email;
+
+                                                var roleName = person.Role switch
                                                 {
-                                                    <text>İşletme Kampanyası</text>
+                                                    AuthorizedPersonRole.BusinessOwner => "İşletme Sahibi",
+                                                    AuthorizedPersonRole.CompanyRepresentative => "Firma Yetkilisi",
+                                                    _ => "Yetkili"
+                                                };
+
+                                                <article class="authorized-person-card">
+                                                    <div class="authorized-person-info">
+                                                        @if (!string.IsNullOrWhiteSpace(person.PhotoPath))
+                                                        {
+                                                            <img src="@person.PhotoPath" alt="@person.FirstName @person.LastName"
+                                                                 class="authorized-person-photo" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="authorized-person-avatar">
+                                                                @(string.IsNullOrWhiteSpace(person.FirstName)
+? "?"
+: person.FirstName.Substring(0, 1).ToUpper())
+                                                            </div>
+                                                        }
+
+                                                        <div>
+                                                            <h3>@person.FirstName @person.LastName</h3>
+                                                            <span>@roleName</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="authorized-person-actions">
+                                                        @if (!string.IsNullOrWhiteSpace(phone))
+                                                        {
+                                                            <a href="tel:@phone" class="btn btn-outline-primary">
+                                                                Ara
+                                                            </a>
+                                                        }
+
+                                                        @if (!string.IsNullOrWhiteSpace(email))
+                                                        {
+                                                            <a href="mailto:@email" class="btn btn-primary">
+                                                                Mesaj At
+                                                            </a>
+                                                        }
+                                                    </div>
+                                                </article>
+                                            }
+                                        </div>
+                                    </section>
+                                }
+
+                                @if (Model.Campaigns.Any())
+                                {
+                                    <section class="public-business-panel venue-detail-panel public-business-campaigns" id="detail-campaigns">
+                                        <div class="detail-panel-heading">
+                                            <div>
+                                                <span class="dashboard-kicker">KAMPANYALAR</span>
+                                                <h2>Aktif fırsatlar</h2>
+                                            </div>
+
+                                            <span class="business-venue-count">
+                                                @Model.Campaigns.Count
+                                            </span>
+                                        </div>
+
+                                        <div class="public-business-campaign-grid">
+
+                                            @foreach (var campaign in Model.Campaigns)
+                                            {
+                                                <article class="public-business-campaign-card">
+
+                                                    <div class="campaign-card-top">
+                                                        <div>
+                                                            <span class="campaign-badge">
+                                                                @if (campaign.CampaignType == BusinessCampaignType.General)
+                                                                {
+                                                                    <text>İşletme Kampanyası</text>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <text>Paket Kampanyası</text>
+                                                                }
+                                                            </span>
+
+                                                            <h3>@campaign.Name</h3>
+                                                        </div>
+
+                                                        <strong class="campaign-discount">
+                                                            @if (campaign.DiscountType == DiscountType.Percentage)
+                                                            {
+                                                                <text>%@campaign.DiscountValue.ToString("N0")</text>
+                                                            }
+                                                            else
+                                                            {
+                                                                <text>@campaign.DiscountValue.ToString("N2") TL</text>
+                                                            }
+                                                        </strong>
+                                                    </div>
+
+                                                    @if (!string.IsNullOrWhiteSpace(campaign.Description))
+                                                    {
+                                                        <p>@campaign.Description</p>
+                                                    }
+
+                                                    @if (campaign.CampaignType == BusinessCampaignType.Package &&
+                                                         campaign.BusinessPackage != null)
+                                                    {
+                                                        <div class="campaign-package-info">
+                                                            <small>Kampanyalı paket</small>
+                                                            <strong>@campaign.BusinessPackage.Name</strong>
+                                                        </div>
+                                                    }
+
+                                                    <div class="campaign-date">
+                                                        <span>⌛</span>
+                                                        <span>
+                                                            @campaign.StartDate.ToString("dd.MM.yyyy")
+                                                            -
+                                                            @campaign.EndDate.ToString("dd.MM.yyyy")
+                                                        </span>
+                                                    </div>
+
+                                                </article>
+                                            }
+
+                                        </div>
+                                    </section>
+                                }
+
+                                @if (Model.Pricings.Any())
+                                {
+                                    <section class="public-business-panel venue-detail-panel" id="detail-pricing">
+                                        <div class="detail-panel-heading">
+                                            <div>
+                                                <span class="dashboard-kicker">HİZMETLER VE ÜCRETLER</span>
+                                                <h2>Fiyat listesi</h2>
+                                            </div>
+                                            <span class="business-venue-count">
+                                                @Model.Pricings.Count
+                                            </span>
+                                        </div>
+
+                                        <div class="public-business-pricing-list">
+                                            @foreach (var pricing in Model.Pricings.OrderBy(p => p.ServiceName))
+                                            {
+                                                <div class="public-business-pricing-item">
+                                                    <div class="public-pricing-info">
+                                                        <h3>@pricing.ServiceName</h3>
+
+                                                        @if (!string.IsNullOrWhiteSpace(pricing.Description))
+                                                        {
+                                                            <p>@pricing.Description</p>
+                                                        }
+                                                    </div>
+
+                                                    <div class="public-pricing-price">
+                                                        <strong>@pricing.Amount.ToString("N2") TL</strong>
+
+                                                        <small>
+                                                            @switch (pricing.PricingType)
+                                                            {
+                                                                case OrganizationPlatform.Models.BusinessPricingType.Fixed:
+                                                                    @:Sabit fiyat
+                                                                    break;
+
+                                                                case OrganizationPlatform.Models.BusinessPricingType.StartingFrom:
+                                                                    @:Başlangıç fiyatı
+                                                                    break;
+
+                                                                case OrganizationPlatform.Models.BusinessPricingType.PerPerson:
+                                                                    @:Kişi başı
+                                                                    break;
+
+                                                                case OrganizationPlatform.Models.BusinessPricingType.PerHour:
+                                                                    @:Saatlik
+                                                                    break;
+                                                            }
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </section>
+                                }
+
+
+                                @if (Model.Packages.Any())
+                                {
+                                    <section class="public-business-panel venue-detail-panel" id="detail-packages">
+                                        <div class="detail-panel-heading">
+                                            <div>
+                                                <span class="dashboard-kicker">İŞLETME PAKETLERİ</span>
+                                                <h2>Hizmet Paketleri</h2>
+                                            </div>
+
+                                            <span class="business-venue-count">
+                                                @Model.Packages.Count
+                                            </span>
+                                        </div>
+
+                                        <div class="public-business-package-grid">
+                            
+                                            @foreach (var package in Model.Packages.OrderBy(p => p.Amount))
+                                            {
+                                                var packageCampaign = Model.Campaigns
+                                                    .Where(c => c.CampaignType == BusinessCampaignType.Package
+                                                                && c.BusinessPackageId == package.Id)
+                                                    .OrderByDescending(c => c.DiscountType == DiscountType.Percentage
+                                                        ? package.Amount * c.DiscountValue / 100
+                                                        : c.DiscountValue)
+                                                    .FirstOrDefault();
+
+                                                var displayedPrice = package.Amount;
+
+                                                if (packageCampaign != null)
+                                                {
+                                                    if (packageCampaign.DiscountType == DiscountType.Percentage)
+                                                    {
+                                                        displayedPrice = package.Amount -
+                                                            (package.Amount * packageCampaign.DiscountValue / 100);
+                                                    }
+                                                    else
+                                                    {
+                                                        displayedPrice = package.Amount - packageCampaign.DiscountValue;
+                                                    }
+
+                                                    displayedPrice = Math.Max(0, displayedPrice);
+                                                }
+
+                                                <article class="public-business-package-card">
+                                                    <div class="public-package-header">
+                                                        <div>
+                                                            <h3>@package.Name</h3>
+
+                                                            @if (packageCampaign != null)
+                                                            {
+                                                                <span class="campaign-badge">Kampanyalı fiyat</span>
+                                                            }
+                                                        </div>
+
+                                                        <strong>
+                                                            @displayedPrice.ToString("N2") TL
+                                                        </strong>
+                                                    </div>
+
+                                                    @if (!string.IsNullOrWhiteSpace(package.Description))
+                                                    {
+                                                        <p class="public-package-description">
+                                                            @package.Description
+                                                        </p>
+                                                    }
+
+                                                    <div class="public-package-items">
+                                                        <h4>Paket içeriği</h4>
+
+                                                        <ul>
+                                                            @foreach (var item in package.Items)
+                                                            {
+                                                                <li>
+                                                                    <span aria-hidden="true">✓</span>
+                                                                    @item.Name
+                                                                </li>
+                                                            }
+                                                        </ul>
+                                                    </div>
+                                                    @if (package.Venues.Any())
+                                                    {
+                                                        <div class="public-package-venues"><small>Geçerli mekânlar</small>
+                                                            <div>@foreach (var venue in package.Venues.OrderBy(venue => venue.Name)) {
+                                                                <span>⌖
+                                                                    @venue.Name</span>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </article>
+                                            }
+
+                                        </div>
+                                    </section>
+                                }
+
+
+
+                                @if (Model.Venues.Count > 0)
+                                {
+                                    <section class="public-business-panel venue-detail-panel" id="detail-venues">
+                                        <div class="detail-panel-heading">
+                                            <div><span class="dashboard-kicker">MEKÂNLAR</span>
+                                                <h2>Bu işletmenin mekânları</h2>
+                                            </div><span class="business-venue-count">@Model.Venues.Count</span>
+                                        </div>
+                                        <div class="public-business-venue-grid">
+                                            @foreach (var venue in Model.Venues)
+                                            {
+                                                var venuePhoto = venue.Photos.OrderBy(photo => photo.UploadedAt).FirstOrDefault();
+                                                <a class="public-business-venue" asp-controller="Venues" asp-action="Details"
+                                                   asp-route-id="@venue.Id">
+                                                    @if (venuePhoto != null)
+                                                    {
+                                                        <img src="@venuePhoto.FilePath" alt="@venue.Name mekân fotoğrafı" loading="lazy" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="public-venue-placeholder" aria-hidden="true">⌖</span>
+                                                    }
+                                                    <span class="public-venue-info"><strong>@venue.Name</strong><small>@venue.City · @venue.District
+                                                        · @venue.Capacity kişi</small><b>Mekân detayları <span
+                                                        aria-hidden="true">↗</span></b></span>
+                                                    </a>
+                                                }
+                                            </div>
+                                        </section>
+                                    }
+                                </div>
+
+                        <aside class="venue-detail-sidebar">
+                            <section class="venue-price-card business-price-summary">
+                                <span class="dashboard-kicker">FİYAT BİLGİSİ</span>
+                                <h2>Hizmet fiyatları</h2>
+                                @if (Model.Pricings.Any())
+                                {
+                                    @foreach (var pricing in Model.Pricings.OrderBy(pricing => pricing.Amount).Take(3))
+                                    {
+                                        <div class="venue-price-row"><span>@pricing.ServiceName</span><strong>@pricing.Amount.ToString("N0") ₺</strong></div>
+                                    }
+                                    <a href="#detail-pricing" class="business-price-more">Tüm fiyatları gör <span aria-hidden="true">↗</span></a>
+                                }
+                                else
+                                {
+                                    <p class="text-secondary mb-0">Fiyat bilgisi için işletmeyle iletişime geçebilirsin.</p>
+                                }
+                            </section>
+                            <section class="public-business-contact venue-price-card" id="detail-contact">
+                                    <span class="dashboard-kicker">İLETİŞİM</span>
+                                    <h2>İşletmeyle iletişime geç</h2>
+
+                                    @if (!string.IsNullOrWhiteSpace(phoneNumber))
+                                    {
+                                        <div class="public-contact-row">
+                                            <span class="contact-icon">☎</span>
+                                            <span>
+                                                <small>Telefon</small>
+                                            <a href="tel:@phoneNumber">@phoneNumber</a>
+                                            </span>
+                                        </div>
+                                    }
+
+                                    @if (!string.IsNullOrWhiteSpace(Model.InstagramUrl))
+                                    {
+                                        <div class="public-contact-row">
+                                            <span class="contact-icon">◎</span>
+                                            <span>
+                                                <small>Instagram</small>
+                                                <a href="@Model.InstagramUrl" target="_blank" rel="noopener noreferrer">
+                                                    Instagram'da Görüntüle
+                                                </a>
+                                            </span>
+                                        </div>
+                                    }
+
+                                    @if (!string.IsNullOrWhiteSpace(businessAddress))
+                                    {
+                                        <div class="public-contact-row">
+                                            <span class="contact-icon">⌖</span>
+                                            <span>
+                                                <small>Adres</small>
+                                                <strong>@businessAddress</strong>
+                                            </span>
+                                        </div>
+
+                                        <a href="@mapsUrl" target="_blank" rel="noopener noreferrer" class="btn btn-primary w-100">
+                                            Yol Tarifi Al
+                                        </a>
+                                    }
+
+                                    @if (!string.IsNullOrWhiteSpace(Model.ApplicationUser.Email))
+                                    {
+                                        <div class="public-contact-row">
+                                            <span class="contact-icon">✉</span>
+                                            <span>
+                                                <small>E-posta</small>
+                                                <a href="mailto:@Model.ApplicationUser.Email">
+                                                    @Model.ApplicationUser.Email
+                                                </a>
+                                            </span>
+                                        </div>
+                                    }
+
+                                    <div class="public-contact-note">
+                                        İşletme hizmetleri ve uygunluk bilgisi için doğrudan iletişime geçebilirsin.
+                                    </div>
+                        </section>
+                        </aside>
+                    </div>
+                    <section class="venue-reviews-panel business-public-reviews mt-4" id="detail-reviews">
+                        <header class="detail-panel-heading business-reviews-heading">
+                            <div><span class="dashboard-kicker">DEĞERLENDİRMELER</span><h2>Müşteri yorumları</h2></div>
+                            <span class="business-venue-count">@ratings.Count</span>
+                        </header>
+                                    @if (ViewBag.CanRate == true)
+                                    {
+                                        <section class="business-rating-section">
+
+                                            @if (ViewBag.HasRated == true)
+                                            {
+                                                <div class="rating-thanks"><span aria-hidden="true">✓</span>
+                                                    <div><strong>Değerlendirmen alındı</strong><small>Bu işletmeye zaten puan verdin. Katkın için
+                                                        teşekkürler.</small></div>
+                                                    </div>
+                                                }
+                                        else
+                                                {
+                                                    <span class="dashboard-kicker">DENEYİMİNİ PAYLAŞ</span>
+                                                    <h3>Bu işletmeyi değerlendir</h3>
+                                                    <p>Diğer çiftlere karar verirken yardımcı ol.</p>
+
+                                                    <form asp-controller="BusinessRatings" asp-action="Create" method="post">
+
+                                                        @Html.AntiForgeryToken()
+
+                                                        <input type="hidden" name="businessProfileId" value="@Model.Id" />
+
+                                                        <fieldset class="rating-choice">
+                                                            <legend class="form-label">Puanın</legend>
+                                                            <div class="rating-choice-options">
+                                                                @for (var score = 5; score >= 1; score--)
+                                                                {
+                                                                    <label title="@score yıldız"><input type="radio" name="rating" value="@score"
+                                                                                                            required /><span aria-hidden="true">★</span><small>@score</small></label>
+                                                                    }
+                                                                </div>
+                                                            </fieldset>
+
+                                                            <div class="mb-3">
+                                                                <label class="form-label">
+                                                                    Yorumunuz (isteğe bağlı)
+                                                                </label>
+
+                                                                <textarea name="comment" class="form-control" rows="3" maxlength="1000"
+                                                                          placeholder="Deneyimini paylaşabilirsin."></textarea>
+                                                            </div>
+
+                                                            <button type="submit" class="btn btn-primary">
+                                                                Değerlendirmeyi gönder
+                                                            </button>
+
+                                                        </form>
+                                                    }
+
+                                                </section>
+                                            }
+                                            <div class="business-reviews-section mt-4">
+
+                                                @if (ratings.Count == 0)
+                                                {
+                                                    <p>Henüz değerlendirme yapılmamış.</p>
                                                 }
                                                 else
                                                 {
-                                                    <text>Paket Kampanyası</text>
-                                                }
-                                            </span>
-
-                                            <h3>@campaign.Name</h3>
-                                        </div>
-
-                                        <strong class="campaign-discount">
-                                            @if (campaign.DiscountType == DiscountType.Percentage)
-                                            {
-                                                <text>%@campaign.DiscountValue.ToString("N0")</text>
-                                            }
-                                            else
-                                            {
-                                                <text>@campaign.DiscountValue.ToString("N2") TL</text>
-                                            }
-                                        </strong>
-                                    </div>
-
-                                    @if (!string.IsNullOrWhiteSpace(campaign.Description))
-                                    {
-                                        <p>@campaign.Description</p>
-                                    }
-
-                                    @if (campaign.CampaignType == BusinessCampaignType.Package &&
-                                         campaign.BusinessPackage != null)
-                                    {
-                                        <div class="campaign-package-info">
-                                            <small>Kampanyalı paket</small>
-                                            <strong>@campaign.BusinessPackage.Name</strong>
-                                        </div>
-                                    }
-
-                                    <div class="campaign-date">
-                                        <span>⌛</span>
-                                        <span>
-                                            @campaign.StartDate.ToString("dd.MM.yyyy")
-                                            -
-                                            @campaign.EndDate.ToString("dd.MM.yyyy")
-                                        </span>
-                                    </div>
-
-                                </article>
-                            }
-
-                        </div>
-                    </section>
-                }
-
-                @if (Model.Pricings.Any())
-                {
-                    <section class="public-business-panel">
-                        <div class="detail-panel-heading">
-                            <div>
-                                <span class="dashboard-kicker">HİZMETLER VE ÜCRETLER</span>
-                                <h2>Fiyat listesi</h2>
-                            </div>
-                            <span class="business-venue-count">
-                                @Model.Pricings.Count
-                            </span>
-                        </div>
-
-                        <div class="public-business-pricing-list">
-                            @foreach (var pricing in Model.Pricings.OrderBy(p => p.ServiceName))
-                            {
-                                <div class="public-business-pricing-item">
-                                    <div class="public-pricing-info">
-                                        <h3>@pricing.ServiceName</h3>
-
-                                        @if (!string.IsNullOrWhiteSpace(pricing.Description))
-                                        {
-                                            <p>@pricing.Description</p>
-                                        }
-                                    </div>
-
-                                    <div class="public-pricing-price">
-                                        <strong>@pricing.Amount.ToString("N2") TL</strong>
-
-                                        <small>
-                                            @switch (pricing.PricingType)
-                                            {
-                                                case OrganizationPlatform.Models.BusinessPricingType.Fixed:
-                                                    @:Sabit fiyat
-                                                    break;
-
-                                                case OrganizationPlatform.Models.BusinessPricingType.StartingFrom:
-                                                    @:Başlangıç fiyatı
-                                                    break;
-
-                                                case OrganizationPlatform.Models.BusinessPricingType.PerPerson:
-                                                    @:Kişi başı
-                                                    break;
-
-                                                case OrganizationPlatform.Models.BusinessPricingType.PerHour:
-                                                    @:Saatlik
-                                                    break;
-                                            }
-                                        </small>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    </section>
-                }
-
-
-                @if (Model.Packages.Any())
-                {
-                    <section class="public-business-panel">
-                        <div class="detail-panel-heading">
-                            <div>
-                                <span class="dashboard-kicker">İŞLETME PAKETLERİ</span>
-                                <h2>Hizmet Paketleri</h2>
-                            </div>
-
-                            <span class="business-venue-count">
-                                @Model.Packages.Count
-                            </span>
-                        </div>
-
-                        <div class="public-business-package-grid">
-                            
-                            @foreach (var package in Model.Packages.OrderBy(p => p.Amount))
-                            {
-                                var packageCampaign = Model.Campaigns
-                                    .Where(c => c.CampaignType == BusinessCampaignType.Package
-                                                && c.BusinessPackageId == package.Id)
-                                    .OrderByDescending(c => c.DiscountType == DiscountType.Percentage
-                                        ? package.Amount * c.DiscountValue / 100
-                                        : c.DiscountValue)
-                                    .FirstOrDefault();
-
-                                var displayedPrice = package.Amount;
-
-                                if (packageCampaign != null)
-                                {
-                                    if (packageCampaign.DiscountType == DiscountType.Percentage)
-                                    {
-                                        displayedPrice = package.Amount -
-                                            (package.Amount * packageCampaign.DiscountValue / 100);
-                                    }
-                                    else
-                                    {
-                                        displayedPrice = package.Amount - packageCampaign.DiscountValue;
-                                    }
-
-                                    displayedPrice = Math.Max(0, displayedPrice);
-                                }
-
-                                <article class="public-business-package-card">
-                                    <div class="public-package-header">
-                                        <div>
-                                            <h3>@package.Name</h3>
-
-                                            @if (packageCampaign != null)
-                                            {
-                                                <span class="campaign-badge">Kampanyalı fiyat</span>
-                                            }
-                                        </div>
-
-                                        <strong>
-                                            @displayedPrice.ToString("N2") TL
-                                        </strong>
-                                    </div>
-
-                                    @if (!string.IsNullOrWhiteSpace(package.Description))
-                                    {
-                                        <p class="public-package-description">
-                                            @package.Description
-                                        </p>
-                                    }
-
-                                    <div class="public-package-items">
-                                        <h4>Paket içeriği</h4>
-
-                                        <ul>
-                                            @foreach (var item in package.Items)
-                                            {
-                                                <li>
-                                                    <span aria-hidden="true">✓</span>
-                                                    @item.Name
-                                                </li>
-                                            }
-                                        </ul>
-                                    </div>
-                                    @if (package.Venues.Any())
-                                    {
-                                        <div class="public-package-venues"><small>Geçerli mekânlar</small><div>@foreach (var venue in package.Venues.OrderBy(venue => venue.Name)) { <span>⌖ @venue.Name</span> }</div></div>
-                                    }
-                                </article>
-                            }
-
-                        </div>
-                    </section>
-                }
-
-
-
-                @if (Model.Photos.Count > 0)
-                {
-                    <section class="public-business-panel">
-                        <div class="detail-panel-heading">
-                            <div><span class="dashboard-kicker">İŞLETMEDEN</span>
-                                <h2>Fotoğraf galerisi</h2>
-                            </div><span class="business-venue-count">@Model.Photos.Count</span>
-                        </div>
-                        <div class="public-business-gallery">
-                            @foreach (var photo in Model.Photos.OrderByDescending(photo => photo.UploadedAt))
-                            {
-                                <a href="@photo.FilePath" target="_blank" rel="noopener noreferrer"><img src="@photo.FilePath"
-                                                                                                             alt="@Model.Name fotoğrafı" loading="lazy" /></a>
-                                }
-                            </div>
-                        </section>
-                    }
-
-                    @if (Model.Venues.Count > 0)
-                    {
-                        <section class="public-business-panel">
-                            <div class="detail-panel-heading">
-                                <div><span class="dashboard-kicker">MEKÂNLAR</span>
-                                    <h2>Bu işletmenin mekânları</h2>
-                                </div><span class="business-venue-count">@Model.Venues.Count</span>
-                            </div>
-                            <div class="public-business-venue-grid">
-                                @foreach (var venue in Model.Venues)
-                                {
-                                    var venuePhoto = venue.Photos.OrderByDescending(photo => photo.UploadedAt).FirstOrDefault();
-                                    <a class="public-business-venue" asp-controller="Venues" asp-action="Details"
-                                       asp-route-id="@venue.Id">
-                                        @if (venuePhoto != null)
-                                        {
-                                            <img src="@venuePhoto.FilePath" alt="@venue.Name mekân fotoğrafı" loading="lazy" />
-                                        }
-                                        else
-                                        {
-                                            <span class="public-venue-placeholder" aria-hidden="true">⌖</span>
-                                        }
-                                        <span class="public-venue-info"><strong>@venue.Name</strong><small>@venue.City · @venue.District
-                                            · @venue.Capacity kişi</small><b>Mekân detayları <span
-                                            aria-hidden="true">↗</span></b></span>
-                                        </a>
-                                    }
-                                </div>
-                            </section>
-                        }
-                    </div>
-
-                    <aside class="public-business-contact">
-                        <span class="dashboard-kicker">İLETİŞİM</span>
-                        <h2>İşletmeyle iletişime geç</h2>
-                        @if (!string.IsNullOrWhiteSpace(Model.ApplicationUser.Email))
-                        {
-                            <div class="public-contact-row"><span class="contact-icon">✉</span><span><small>E-posta</small><a
-                                href="mailto:@Model.ApplicationUser.Email">@Model.ApplicationUser.Email</a></span></div>
-                            }
-                            @if (!string.IsNullOrWhiteSpace(Model.ApplicationUser.PhoneNumber))
-                            {
-                                <div class="public-contact-row"><span class="contact-icon">⌕</span><span><small>Telefon</small><a
-                                    href="tel:@Model.ApplicationUser.PhoneNumber">@Model.ApplicationUser.PhoneNumber</a></span>
-                                </div>
-                            }
-                            <div class="public-contact-note">İşletme hizmetleri ve uygunluk bilgisi için doğrudan iletişime
-                                geçebilirsin.</div>
-                                @if (ViewBag.CanRate == true)
-                                {
-                                    <section class="business-rating-section">
-
-                                        @if (ViewBag.HasRated == true)
-                                        {
-                                            <div class="rating-thanks"><span aria-hidden="true">✓</span><div><strong>Değerlendirmen alındı</strong><small>Bu işletmeye zaten puan verdin. Katkın için teşekkürler.</small></div></div>
-                                        }
-                                        else
-                                        {
-                                            <span class="dashboard-kicker">DENEYİMİNİ PAYLAŞ</span>
-                                            <h3>Bu işletmeyi değerlendir</h3>
-                                            <p>Diğer çiftlere karar verirken yardımcı ol.</p>
-
-                                            <form asp-controller="BusinessRatings" asp-action="Create" method="post">
-
-                                                @Html.AntiForgeryToken()
-
-                                                <input type="hidden" name="businessProfileId" value="@Model.Id" />
-
-                                                <fieldset class="rating-choice">
-                                                    <legend class="form-label">Puanın</legend>
-                                                    <div class="rating-choice-options">
-                                                        @for (var score = 5; score >= 1; score--)
-                                                        {
-                                                            <label title="@score yıldız"><input type="radio" name="rating" value="@score" required /><span aria-hidden="true">★</span><small>@score</small></label>
-                                                        }
-                                                    </div>
-                                                </fieldset>
-
-                                                <div class="mb-3">
-                                                    <label class="form-label">
-                                                        Yorumunuz (isteğe bağlı)
-                                                    </label>
-
-                                                    <textarea name="comment" class="form-control" rows="3" maxlength="1000" placeholder="Deneyimini paylaşabilirsin."></textarea>
-                                                </div>
-
-                                                <button type="submit" class="btn btn-primary">
-                                                    Değerlendirmeyi gönder
-                                                </button>
-
-                                            </form>
-                                        }
-
-                                    </section>
-                                }
-                                <div class="business-reviews-section mt-4">
-
-                                    <span class="dashboard-kicker">DEĞERLENDİRMELER</span>
-                                    <h3>Müşteri yorumları</h3>
-
-                                    <p class="text-muted">
-                                        @ratings.Count değerlendirme
-                                    </p>
-
-                                    @if (ratings.Count == 0)
-                                    {
-                                        <p>Henüz değerlendirme yapılmamış.</p>
-                                    }
-                                    else
-                                    {
-                                        @foreach (var rating in ratings)
-                                        {
-                                            <div class="business-review-card mb-3">
-
-                                                <div class="d-flex justify-content-between">
-                                                    <strong>@rating.CustomerName</strong>
-
-                                                    <span>
-                                                        @rating.Rating / 5
-                                                    </span>
-                                                </div>
-
-                                                <div class="text-warning">
-                                                    @for (int i = 1; i <= 5; i++)
+                                                    @foreach (var rating in ratings)
                                                     {
-                                                        @(i <= rating.Rating ? "★" : "☆")
+                                                        <div class="business-review-card mb-3">
+
+                                                            <div class="d-flex justify-content-between">
+                                                                <strong>@rating.CustomerName</strong>
+
+                                                                <span>
+                                                                    @rating.Rating / 5
+                                                                </span>
+                                                            </div>
+
+                                                            <div class="text-warning">
+                                                                @for (int i = 1; i <= 5; i++)
+                                                                {
+                                                                    @(i <= rating.Rating ? "★" : "☆")
+                                                                }
+                                                            </div>
+
+                                                            @if (!string.IsNullOrWhiteSpace(rating.Comment))
+                                                            {
+                                                                <p class="mt-2 mb-0">
+                                                                    @rating.Comment
+                                                                </p>
+                                                            }
+
+                                                            <small class="text-muted">
+                                                                @rating.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy")
+                                                            </small>
+                                                            @if (!string.IsNullOrWhiteSpace(rating.BusinessReply))
+                                                            {
+                                                                <div class="border-start border-3 ps-3 mt-3">
+                                                                    <strong>@Model.Name</strong>
+                                                                    <small class="text-muted"> · İşletme yanıtı</small>
+
+                                                                    <p class="mt-1 mb-1">@rating.BusinessReply</p>
+
+                                                                    @if (rating.BusinessReplyAt != null)
+                                                                    {
+                                                                        <small class="text-muted">
+                                                                            @rating.BusinessReplyAt.Value.ToLocalTime().ToString("dd.MM.yyyy")
+                                                                        </small>
+                                                                    }
+                                                                </div>
+                                                            }
+
+                                                            @if (User.Identity?.IsAuthenticated == true &&
+                                                                Model.ApplicationUserId ==
+                                                                User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+                                                            {
+                                                                <form asp-controller="BusinessRatings" asp-action="Reply" method="post" class="mt-3">
+
+                                                                    @Html.AntiForgeryToken()
+
+                                                                    <input type="hidden" name="businessRatingId" value="@rating.Id" />
+
+                                                                    <textarea name="reply" class="form-control mb-2" rows="2" maxlength="1000"
+                                                                              placeholder="Müşteri yorumunu yanıtlayın..." required>@rating.BusinessReply</textarea>
+
+                                                                    <button type="submit" class="btn btn-outline-primary btn-sm">
+                                                                        @(string.IsNullOrWhiteSpace(rating.BusinessReply)
+                                                                            ? "Yanıtla"
+                                                                            : "Yanıtı güncelle")
+                                                                    </button>
+                                                                </form>
+                                                            }
+
+                                                        </div>
                                                     }
-                                                </div>
 
-                                                @if (!string.IsNullOrWhiteSpace(rating.Comment))
-                                                {
-                                                    <p class="mt-2 mb-0">
-                                                        @rating.Comment
-                                                    </p>
                                                 }
-
-                                                <small class="text-muted">
-                                                    @rating.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy")
-                                                </small>
-
                                             </div>
-                                        }
-                                    }
-
-                                </div>
-                            </aside>
-                        </div>
+                
                     </section>
+                </section>

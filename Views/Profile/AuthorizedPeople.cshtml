@@ -1,0 +1,81 @@
+@model List<OrganizationPlatform.Models.AuthorizedPerson>
+@using OrganizationPlatform.Models
+
+@{
+    ViewData["Title"] = "Yetkili kişiler";
+}
+
+<section class="dashboard-page business-dashboard">
+
+    <header class="dashboard-welcome business-welcome">
+        <div>
+            <div class="eyebrow">
+                <span class="eyebrow-dot"></span>
+                İŞLETME AYARLARI
+            </div>
+
+            <h1>Yetkili kişiler</h1>
+
+            <p>
+                İşletmeni temsil eden kişileri buradan yönetebilirsin.
+            </p>
+        </div>
+
+        <a asp-controller="Profile" asp-action="AddAuthorizedPerson" class="btn btn-primary">
+            + Yetkili kişi ekle
+        </a>
+    </header>
+
+    <div class="mt-4">
+
+        @if (Model.Count == 0)
+        {
+            <div class="empty-state">
+                <h3>Henüz yetkili kişi eklenmemiş</h3>
+                <p class="mb-0">İşletmeni temsil edecek kişileri buradan ekleyebilirsin.</p>
+            </div>
+        }
+        else
+        {
+            <div class="authorized-people-list">
+                @foreach (var person in Model)
+                {
+                    <article class="authorized-person-card">
+                        <div class="authorized-person-info">
+                            @if (!string.IsNullOrWhiteSpace(person.PhotoPath))
+                            {
+                                <img src="@person.PhotoPath" alt="@person.FirstName @person.LastName" class="authorized-person-photo" />
+                            }
+                            else
+                            {
+                                <div class="authorized-person-avatar" aria-hidden="true">@person.FirstName.Substring(0, 1).ToUpperInvariant()</div>
+                            }
+                            <div>
+                                <h3>@person.FirstName @person.LastName</h3>
+                                <span>@(person.Role == AuthorizedPersonRole.BusinessOwner ? "İşletme Sahibi" : "Firma Yetkilisi")</span>
+                                @if (!string.IsNullOrWhiteSpace(person.PhoneNumber)) { <p>@person.PhoneNumber</p> }
+                                @if (!string.IsNullOrWhiteSpace(person.Email)) { <p>@person.Email</p> }
+                            </div>
+                        </div>
+                        <div class="authorized-person-actions">
+                            <a asp-controller="Profile" asp-action="EditAuthorizedPerson" asp-route-id="@person.Id" class="btn btn-outline-primary btn-sm">Düzenle</a>
+                            <form asp-controller="Profile" asp-action="DeleteAuthorizedPerson" method="post"
+                                  onsubmit="return confirm('Bu yetkili kişiyi silmek istediğine emin misin?');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@person.Id" />
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Sil</button>
+                            </form>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+
+        <div class="mt-4">
+            <a asp-controller="Profile" asp-action="Index" class="btn btn-outline-secondary">
+                İşletme paneline dön
+            </a>
+        </div>
+
+    </div>
+</section>

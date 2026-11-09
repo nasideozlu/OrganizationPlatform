@@ -16,6 +16,12 @@ public class CreateVenueViewModel
     public string Neighborhood { get; set; } = string.Empty;
 
     public string? Address { get; set; }
+    public string? PhoneNumber { get; set; }
+    [Url(ErrorMessage = "Geçerli bir Instagram bağlantısı girin.")]
+    public string? InstagramUrl { get; set; }
+
+    [EmailAddress(ErrorMessage = "Geçerli bir e-posta adresi girin.")]
+    public string? Email { get; set; }
     [Required]
     public int Capacity { get; set; }
     [Required]
@@ -27,7 +33,7 @@ public class CreateVenueViewModel
     public decimal? MealExcludedPrice { get; set; }
 
     public List<int> SelectedPhysicalFeatureIds { get; set; } = new();
-    public List<IFormFile> Photos { get; set; } = new();
+    public List<IFormFile>? Photos { get; set; }
     public List<VenuePhoto> ExistingPhotos { get; set; } = new();
 
 }

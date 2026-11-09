@@ -15,8 +15,6 @@
             Businesses = group.Take(4).ToList()
         }).ToList();
     var featuredBusinessCount = businessGroups.Sum(group => group.Businesses.Count);
-    var heroVenue = Model.Venues.FirstOrDefault(venue => venue.Photos.Any());
-    var heroPhoto = heroVenue?.Photos.OrderByDescending(photo => photo.UploadedAt).FirstOrDefault();
     var totalFeaturedCount = featuredVenues.Count + featuredBusinessCount;
     var favoriteVenueIds = ViewBag.FavoriteVenueIds as HashSet<int>
     ?? new HashSet<int>();
@@ -24,10 +22,6 @@
 
 <div class="explore-home">
     <section class="explore-hero">
-        @if (heroPhoto != null)
-        {
-            <img class="explore-hero-photo" src="@heroPhoto.FilePath" alt="" fetchpriority="high" />
-        }
         <div class="explore-hero-shade"></div>
         <div class="explore-hero-content">
             <span class="explore-overline"><span></span> MIORA’DA KEŞFET</span>
@@ -44,7 +38,7 @@
             <div class="explore-search">
                 <span class="explore-search-icon" aria-hidden="true">⌕</span>
                 <label class="visually-hidden" for="homeCatalogSearch">Mekân veya işletme ara</label>
-                <input id="homeCatalogSearch" type="search" placeholder="Mekân, hizmet veya şehir ara"
+                <input id="homeCatalogSearch" type="search" value="@ViewBag.SearchTerm" placeholder="Mekân, hizmet veya şehir ara"
                        autocomplete="off" />
                 <a href="#kesfet" class="btn btn-primary">Keşfet <span aria-hidden="true">↗</span></a>
             </div>
@@ -287,5 +281,8 @@
                                         homeCatalogCount.textContent = visibleCount + ' seçenek gösteriliyor';
                                         homeNoSearchResults.hidden = visibleCount !== 0 || query.length === 0;
                                     });
+                                    if (homeCatalogSearch?.value.trim()) {
+                                        homeCatalogSearch.dispatchEvent(new Event('input'));
+                                    }
                                 </script>
                             }

@@ -19,6 +19,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<CustomerProfile> CustomerProfiles { get; set; }
     public DbSet<BusinessCategory> BusinessCategories { get; set; }
     public DbSet<BusinessProfile> BusinessProfiles { get; set; }
+    public DbSet<AuthorizedPerson> AuthorizedPeople { get; set; } = null!;
 
     public DbSet<BusinessPhoto> BusinessPhotos { get; set; }
         = null!;
@@ -44,6 +45,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<BusinessRating> BusinessRatings { get; set; }
     = null!;
 
+    public DbSet<VenueRating> VenueRatings { get; set; } = null!;
+
     public DbSet<FavoriteVenue> FavoriteVenues { get; set; }
 
     public DbSet<BusinessFilterDefinition> BusinessFilterDefinitions { get; set; } = null!;
@@ -54,9 +57,34 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<BusinessProfileFilterValue> BusinessProfileFilterValues { get; set; } = null!;
 
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<AuthorizedPerson>(entity =>
+{
+    entity.HasOne(person => person.BusinessProfile)
+        .WithMany(business => business.AuthorizedPeople)
+        .HasForeignKey(person => person.BusinessProfileId)
+        .OnDelete(DeleteBehavior.Cascade);
+
+    entity.HasOne(person => person.Venue)
+        .WithMany(venue => venue.AuthorizedPeople)
+        .HasForeignKey(person => person.VenueId)
+        .OnDelete(DeleteBehavior.Cascade);
+
+    entity.ToTable(table =>
+        table.HasCheckConstraint(
+            "CK_AuthorizedPerson_OneParent",
+            """
+            (
+                ("BusinessProfileId" IS NOT NULL AND "VenueId" IS NULL)
+                OR
+                ("BusinessProfileId" IS NULL AND "VenueId" IS NOT NULL)
+            )
+            """));
+});
 
         modelBuilder.Entity<CustomerProfile>()
             .HasIndex(customer => customer.ApplicationUserId)
@@ -136,6 +164,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 rating.ApplicationUserId,
                 rating.BusinessProfileId
             })
+            .IsUnique();
+
+        modelBuilder.Entity<VenueRating>()
+            .HasIndex(rating => new { rating.ApplicationUserId, rating.VenueId })
             .IsUnique();
 
         modelBuilder.Entity<BusinessPackage>()

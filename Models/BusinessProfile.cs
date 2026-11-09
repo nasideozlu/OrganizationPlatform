@@ -11,6 +11,9 @@ public class BusinessProfile
     public required string City { get; set; }
 
     public required string District { get; set; }
+    public string? PhoneNumber { get; set; }
+    public string? InstagramUrl { get; set; }
+    public string? Address { get; set; }
 
     public int CategoryId { get; set; }
 
@@ -21,6 +24,7 @@ public class BusinessProfile
     public required ApplicationUser ApplicationUser { get; set; }
 
     public List<Venue> Venues { get; set; } = new();
+    public List<AuthorizedPerson> AuthorizedPeople { get; set; } = new();
 
     public List<BusinessPhoto> Photos { get; set; } = new();
 

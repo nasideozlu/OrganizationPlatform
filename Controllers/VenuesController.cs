@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using OrganizationPlatform.Models;
 using OrganizationPlatform.Services;
 using OrganizationPlatform.Helpers;
+using OrganizationPlatform.ViewModels;
 
 
 namespace OrganizationPlatform.Controllers;
@@ -224,23 +225,63 @@ public class VenuesController : Controller
         var venue = await _context.Venues
             .Include(v => v.BusinessProfile)
                 .ThenInclude(b => b.Category)
+            .Include(v => v.BusinessProfile)
+                .ThenInclude(b => b.ApplicationUser)
             .Include(v => v.Photos)
             .Include(v => v.PhysicalFeatures)
+            .Include(v => v.AuthorizedPeople)
+            .Include(v => v.BusinessProfile)
+                .ThenInclude(b => b.AuthorizedPeople)
             .FirstOrDefaultAsync(v => v.Id == id);
 
         if (venue == null)
         {
             return NotFound();
         }
+        var ratings = await (
+            from rating in _context.VenueRatings
+            join customer in _context.CustomerProfiles
+                on rating.ApplicationUserId equals customer.ApplicationUserId
+            where rating.VenueId == id &&
+                rating.ReviewStatus == ReviewStatus.Approved
+            orderby rating.CreatedAt descending
+            select new
+            {
+                rating.Id,
+                rating.Rating,
+                rating.Comment,
+                rating.CreatedAt,
+                CustomerName = customer.Name + " " + customer.Surname,
+                rating.BusinessReply,
+                rating.BusinessReplyAt
+            }
+        ).ToListAsync();
+
+        ViewBag.Ratings = ratings;
+
+        ViewBag.AverageRating = ratings.Any()
+            ? ratings.Average(rating => rating.Rating)
+            : 0;
+
+        ViewBag.RatingCount = ratings.Count;
 
         ViewBag.CanFavorite = false;
         ViewBag.IsFavorite = false;
+        ViewBag.HasRated = false;
+
         var currentUser = await _userManager.GetUserAsync(User);
+
         if (currentUser?.AccountType == AccountType.Customer)
         {
             ViewBag.CanFavorite = true;
+
             ViewBag.IsFavorite = await _context.FavoriteVenues.AnyAsync(favorite =>
-                favorite.ApplicationUserId == currentUser.Id && favorite.VenueId == id);
+                favorite.ApplicationUserId == currentUser.Id &&
+                favorite.VenueId == id);
+
+            ViewBag.HasRated = await _context.VenueRatings.AnyAsync(rating =>
+                rating.VenueId == id &&
+                rating.ApplicationUserId == currentUser.Id);
         }
 
         return View(venue);
@@ -284,6 +325,46 @@ public class VenuesController : Controller
 
 
         return View(venues);
+    }
+
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> AuthorizedPeople(int venueId)
+    {
+        var user = await _userManager.GetUserAsync(User);
+
+        if (user == null)
+            return Challenge();
+
+        if (user.AccountType != AccountType.Business)
+            return Forbid();
+
+        if (!await CanManageVenues(user.Id))
+            return Forbid();
+
+        var businessProfile = await _context.BusinessProfiles
+            .FirstOrDefaultAsync(b => b.ApplicationUserId == user.Id);
+
+        if (businessProfile == null)
+            return NotFound();
+
+        var venue = await _context.Venues
+            .FirstOrDefaultAsync(v =>
+                v.Id == venueId &&
+                v.BusinessProfileId == businessProfile.Id);
+
+        if (venue == null)
+            return NotFound();
+
+        var people = await _context.AuthorizedPeople
+            .Where(p => p.VenueId == venueId)
+            .OrderBy(p => p.Role)
+            .ToListAsync();
+
+        ViewBag.VenueId = venue.Id;
+        ViewBag.VenueName = venue.Name;
+
+        return View(people);
     }
 
     [Authorize]
@@ -378,6 +459,9 @@ public class VenuesController : Controller
             District = model.District,
             Neighborhood = model.Neighborhood,
             Address = model.Address,
+            PhoneNumber = model.PhoneNumber,
+            InstagramUrl = model.InstagramUrl,
+            Email = model.Email,
             Capacity = model.Capacity,
             Description = model.Description,
             BusinessProfileId = businessProfile.Id,
@@ -390,7 +474,7 @@ public class VenuesController : Controller
         _context.Venues.Add(venue);
         await _context.SaveChangesAsync();
 
-        foreach (var photo in model.Photos)
+        foreach (var photo in model.Photos?.Where(p => p.Length > 0) ?? Enumerable.Empty<IFormFile>())
         {
             if (photo.Length == 0)
             {
@@ -462,6 +546,9 @@ public class VenuesController : Controller
             Neighborhood = venue.Neighborhood,
             Capacity = venue.Capacity,
             Address = venue.Address ?? string.Empty,
+            PhoneNumber = venue.PhoneNumber,
+            InstagramUrl = venue.InstagramUrl,
+            Email = venue.Email,
             Description = venue.Description,
             MealIncludedPrice = venue.MealIncludedPrice,
             MealExcludedPrice = venue.MealExcludedPrice,
@@ -548,6 +635,9 @@ public class VenuesController : Controller
         venue.District = model.District;
         venue.Neighborhood = model.Neighborhood;
         venue.Address = model.Address;
+        venue.PhoneNumber = model.PhoneNumber;
+        venue.InstagramUrl = model.InstagramUrl;
+        venue.Email = model.Email;
         venue.Capacity = model.Capacity;
         venue.Description = model.Description;
         venue.MealIncludedPrice = model.MealIncludedPrice;
@@ -560,7 +650,7 @@ public class VenuesController : Controller
             venue.PhysicalFeatures.Add(feature);
         }
 
-        foreach (var photo in model.Photos)
+        foreach (var photo in model.Photos?.Where(p => p.Length > 0) ?? Enumerable.Empty<IFormFile>())
         {
             if (photo.Length == 0)
             {
@@ -788,5 +878,322 @@ public class VenuesController : Controller
 
         return RedirectToAction("Index", "BusinessFavorites");
     }
+
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> AddAuthorizedPerson(int venueId)
+    {
+        var user = await _userManager.GetUserAsync(User);
+
+        if (user == null)
+            return Challenge();
+
+        if (user.AccountType != AccountType.Business)
+            return Forbid();
+
+        if (!await CanManageVenues(user.Id))
+            return Forbid();
+
+        var businessProfile = await _context.BusinessProfiles
+            .FirstOrDefaultAsync(b => b.ApplicationUserId == user.Id);
+
+        if (businessProfile == null)
+            return NotFound();
+
+        var venue = await _context.Venues
+            .FirstOrDefaultAsync(v =>
+                v.Id == venueId &&
+                v.BusinessProfileId == businessProfile.Id);
+
+        if (venue == null)
+            return NotFound();
+
+        ViewBag.VenueId = venue.Id;
+        ViewBag.VenueName = venue.Name;
+
+        return View(new AuthorizedPersonViewModel());
+    }
+
+    [Authorize]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddAuthorizedPerson(
+        int venueId,
+        AuthorizedPersonViewModel model)
+    {
+        var user = await _userManager.GetUserAsync(User);
+
+        if (user == null)
+            return Challenge();
+
+        if (user.AccountType != AccountType.Business)
+            return Forbid();
+
+        if (!await CanManageVenues(user.Id))
+            return Forbid();
+
+        var businessProfile = await _context.BusinessProfiles
+            .FirstOrDefaultAsync(b => b.ApplicationUserId == user.Id);
+
+        if (businessProfile == null)
+            return NotFound();
+
+        var venue = await _context.Venues
+            .FirstOrDefaultAsync(v =>
+                v.Id == venueId &&
+                v.BusinessProfileId == businessProfile.Id);
+
+        if (venue == null)
+            return NotFound();
+
+        if (!Enum.IsDefined(typeof(AuthorizedPersonRole), model.Role))
+        {
+            ModelState.AddModelError(
+                nameof(model.Role),
+                "Geçerli bir yetki türü seçmelisiniz.");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            ViewBag.VenueId = venue.Id;
+            ViewBag.VenueName = venue.Name;
+            return View(model);
+        }
+
+        var person = new AuthorizedPerson
+        {
+            FirstName = model.FirstName.Trim(),
+            LastName = model.LastName.Trim(),
+            Role = model.Role,
+            PhoneNumber = model.PhoneNumber?.Trim(),
+            Email = model.Email?.Trim(),
+            VenueId = venue.Id
+        };
+
+        try
+        {
+            if (model.Photo != null && model.Photo.Length > 0)
+            {
+                person.PhotoPath = await _photoStorageService.SavePhotoAsync(
+                    model.Photo,
+                    "authorized-people",
+                    venue.Id);
+            }
+        }
+        catch (InvalidOperationException exception)
+        {
+            ModelState.AddModelError(nameof(model.Photo), exception.Message);
+
+            ViewBag.VenueId = venue.Id;
+            ViewBag.VenueName = venue.Name;
+
+            return View(model);
+        }
+
+        _context.AuthorizedPeople.Add(person);
+
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = "Mekân yetkilisi başarıyla eklendi.";
+
+        return RedirectToAction(
+            nameof(AuthorizedPeople),
+            new { venueId = venue.Id });
+    }
+
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> EditAuthorizedPerson(int id, int venueId)
+    {
+        var user = await _userManager.GetUserAsync(User);
+
+        if (user == null)
+            return Challenge();
+
+        if (user.AccountType != AccountType.Business)
+            return Forbid();
+
+        if (!await CanManageVenues(user.Id))
+            return Forbid();
+
+        var businessProfile = await _context.BusinessProfiles
+            .FirstOrDefaultAsync(b => b.ApplicationUserId == user.Id);
+
+        if (businessProfile == null)
+            return NotFound();
+
+        var person = await _context.AuthorizedPeople
+            .FirstOrDefaultAsync(p =>
+                p.Id == id &&
+                p.VenueId == venueId &&
+                p.Venue!.BusinessProfileId == businessProfile.Id);
+
+        if (person == null)
+            return NotFound();
+
+        ViewBag.VenueId = venueId;
+        ViewBag.VenueName = await _context.Venues
+            .Where(v => v.Id == venueId)
+            .Select(v => v.Name)
+            .FirstAsync();
+
+        return View(new AuthorizedPersonViewModel
+        {
+            Id = person.Id,
+            FirstName = person.FirstName,
+            LastName = person.LastName,
+            Role = person.Role,
+            PhoneNumber = person.PhoneNumber,
+            Email = person.Email,
+            ExistingPhotoPath = person.PhotoPath
+        });
+    }
+
+    [Authorize]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditAuthorizedPerson(
+        int id,
+        int venueId,
+        AuthorizedPersonViewModel model)
+    {
+        var user = await _userManager.GetUserAsync(User);
+
+        if (user == null)
+            return Challenge();
+
+        if (user.AccountType != AccountType.Business)
+            return Forbid();
+
+        if (!await CanManageVenues(user.Id))
+            return Forbid();
+
+        var businessProfile = await _context.BusinessProfiles
+            .FirstOrDefaultAsync(b => b.ApplicationUserId == user.Id);
+
+        if (businessProfile == null)
+            return NotFound();
+
+        var person = await _context.AuthorizedPeople
+            .FirstOrDefaultAsync(p =>
+                p.Id == id &&
+                p.VenueId == venueId &&
+                p.Venue!.BusinessProfileId == businessProfile.Id);
+
+        if (person == null)
+            return NotFound();
+
+        if (!Enum.IsDefined(typeof(AuthorizedPersonRole), model.Role))
+        {
+            ModelState.AddModelError(
+                nameof(model.Role),
+                "Geçerli bir yetki türü seçmelisiniz.");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            model.ExistingPhotoPath = person.PhotoPath;
+            ViewBag.VenueId = venueId;
+            ViewBag.VenueName = person.Venue!.Name;
+            return View(model);
+        }
+
+        person.FirstName = model.FirstName.Trim();
+        person.LastName = model.LastName.Trim();
+        person.Role = model.Role;
+        person.PhoneNumber = model.PhoneNumber?.Trim();
+        person.Email = model.Email?.Trim();
+
+        string? oldPhotoPath = null;
+
+        try
+        {
+            if (model.Photo != null && model.Photo.Length > 0)
+            {
+                var newPhotoPath = await _photoStorageService.SavePhotoAsync(
+                    model.Photo,
+                    "authorized-people",
+                    venueId);
+
+                oldPhotoPath = person.PhotoPath;
+                person.PhotoPath = newPhotoPath;
+            }
+        }
+        catch (InvalidOperationException exception)
+        {
+            ModelState.AddModelError(nameof(model.Photo), exception.Message);
+            model.ExistingPhotoPath = person.PhotoPath;
+            ViewBag.VenueId = venueId;
+            ViewBag.VenueName = person.Venue!.Name;
+            return View(model);
+        }
+
+        await _context.SaveChangesAsync();
+
+        if (oldPhotoPath != null)
+        {
+            await _photoStorageService.DeletePhotoAsync(
+                oldPhotoPath,
+                "authorized-people",
+                venueId);
+        }
+
+        TempData["Success"] = "Yetkili kişi bilgileri güncellendi.";
+
+        return RedirectToAction(
+            nameof(AuthorizedPeople),
+            new { venueId });
+    }
+
+    [Authorize]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteAuthorizedPerson(int id, int venueId)
+    {
+        var user = await _userManager.GetUserAsync(User);
+
+        if (user == null)
+            return Challenge();
+
+        if (user.AccountType != AccountType.Business)
+            return Forbid();
+
+        if (!await CanManageVenues(user.Id))
+            return Forbid();
+
+        var businessProfile = await _context.BusinessProfiles
+            .FirstOrDefaultAsync(b => b.ApplicationUserId == user.Id);
+
+        if (businessProfile == null)
+            return NotFound();
+
+        var person = await _context.AuthorizedPeople
+            .FirstOrDefaultAsync(p =>
+                p.Id == id &&
+                p.VenueId == venueId &&
+                p.Venue!.BusinessProfileId == businessProfile.Id);
+
+        if (person == null)
+            return NotFound();
+
+        if (!string.IsNullOrWhiteSpace(person.PhotoPath))
+        {
+            await _photoStorageService.DeletePhotoAsync(
+                person.PhotoPath,
+                "authorized-people",
+                venueId);
+        }
+
+        _context.AuthorizedPeople.Remove(person);
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = "Yetkili kişi silindi.";
+
+        return RedirectToAction(
+            nameof(AuthorizedPeople),
+            new { venueId });
+    }
+
+
 
 }

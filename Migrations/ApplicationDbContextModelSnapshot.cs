@@ -251,6 +251,52 @@ namespace OrganizationPlatform.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("OrganizationPlatform.Models.AuthorizedPerson", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("BusinessProfileId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhotoPath")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("VenueId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessProfileId");
+
+                    b.HasIndex("VenueId");
+
+                    b.ToTable("AuthorizedPeople", t =>
+                        {
+                            t.HasCheckConstraint("CK_AuthorizedPerson_OneParent", "(\n    (\"BusinessProfileId\" IS NOT NULL AND \"VenueId\" IS NULL)\n    OR\n    (\"BusinessProfileId\" IS NULL AND \"VenueId\" IS NOT NULL)\n)");
+                        });
+                });
+
             modelBuilder.Entity("OrganizationPlatform.Models.BusinessCampaign", b =>
                 {
                     b.Property<int>("Id")
@@ -542,6 +588,9 @@ namespace OrganizationPlatform.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Address")
+                        .HasColumnType("text");
+
                     b.Property<string>("ApplicationUserId")
                         .IsRequired()
                         .HasColumnType("text");
@@ -560,8 +609,14 @@ namespace OrganizationPlatform.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("InstagramUrl")
+                        .HasColumnType("text");
+
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -646,6 +701,12 @@ namespace OrganizationPlatform.Migrations
                     b.Property<int>("BusinessProfileId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("BusinessReply")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("BusinessReplyAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Comment")
                         .HasColumnType("text");
 
@@ -653,6 +714,9 @@ namespace OrganizationPlatform.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Rating")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ReviewStatus")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -786,6 +850,12 @@ namespace OrganizationPlatform.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
+                    b.Property<string>("InstagramUrl")
+                        .HasColumnType("text");
+
                     b.Property<decimal?>("MealExcludedPrice")
                         .HasColumnType("numeric");
 
@@ -798,6 +868,9 @@ namespace OrganizationPlatform.Migrations
 
                     b.Property<string>("Neighborhood")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -830,6 +903,49 @@ namespace OrganizationPlatform.Migrations
                     b.HasIndex("VenueId");
 
                     b.ToTable("VenuePhotos");
+                });
+
+            modelBuilder.Entity("OrganizationPlatform.Models.VenueRating", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ApplicationUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("BusinessReply")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("BusinessReplyAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ReviewStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("VenueId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VenueId");
+
+                    b.HasIndex("ApplicationUserId", "VenueId")
+                        .IsUnique();
+
+                    b.ToTable("VenueRatings");
                 });
 
             modelBuilder.Entity("PhysicalFeatureVenue", b =>
@@ -926,6 +1042,23 @@ namespace OrganizationPlatform.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("OrganizationPlatform.Models.AuthorizedPerson", b =>
+                {
+                    b.HasOne("OrganizationPlatform.Models.BusinessProfile", "BusinessProfile")
+                        .WithMany("AuthorizedPeople")
+                        .HasForeignKey("BusinessProfileId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("OrganizationPlatform.Models.Venue", "Venue")
+                        .WithMany("AuthorizedPeople")
+                        .HasForeignKey("VenueId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("BusinessProfile");
+
+                    b.Navigation("Venue");
                 });
 
             modelBuilder.Entity("OrganizationPlatform.Models.BusinessCampaign", b =>
@@ -1151,6 +1284,17 @@ namespace OrganizationPlatform.Migrations
                     b.Navigation("Venue");
                 });
 
+            modelBuilder.Entity("OrganizationPlatform.Models.VenueRating", b =>
+                {
+                    b.HasOne("OrganizationPlatform.Models.Venue", "Venue")
+                        .WithMany()
+                        .HasForeignKey("VenueId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Venue");
+                });
+
             modelBuilder.Entity("PhysicalFeatureVenue", b =>
                 {
                     b.HasOne("OrganizationPlatform.Models.PhysicalFeature", null)
@@ -1194,6 +1338,8 @@ namespace OrganizationPlatform.Migrations
 
             modelBuilder.Entity("OrganizationPlatform.Models.BusinessProfile", b =>
                 {
+                    b.Navigation("AuthorizedPeople");
+
                     b.Navigation("Campaigns");
 
                     b.Navigation("FilterOptions");
@@ -1216,6 +1362,8 @@ namespace OrganizationPlatform.Migrations
 
             modelBuilder.Entity("OrganizationPlatform.Models.Venue", b =>
                 {
+                    b.Navigation("AuthorizedPeople");
+
                     b.Navigation("Photos");
                 });
 #pragma warning restore 612, 618

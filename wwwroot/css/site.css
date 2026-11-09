@@ -1411,6 +1411,132 @@ body { background: var(--paper); }
 .venue-list-card-link:focus-visible { outline: 3px solid rgba(30,107,88,.5); outline-offset: -3px; }
 .venue-detail-favorite-form { position: absolute; top: 18px; right: 18px; z-index: 5; margin: 0; }
 .venue-detail-favorite-form .favorite-button { width: 48px; height: 48px; font-size: 1.65rem; }
+
+/* Shared public profile header and album slider */
+.detail-profile-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 10px 0 25px; border-bottom: 1px solid var(--line); }
+.detail-profile-title { min-width: 0; }
+.detail-profile-category { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 99px; background: var(--mint); color: var(--green-dark); font-size: .74rem; font-weight: 700; }
+.detail-profile-title h1 { margin: 12px 0 10px; color: var(--ink); font-size: clamp(2rem,4vw,3rem); font-weight: 800; line-height: 1.1; }
+.detail-profile-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 23px; color: #61736b; font-size: .9rem; }
+.detail-profile-meta > span, .detail-profile-meta > a { display: inline-flex; align-items: center; gap: 7px; }
+.detail-profile-meta > a { color: var(--ink); font-weight: 700; }
+.detail-profile-meta > a:hover { color: var(--green); }
+.detail-meta-rating { color: var(--ink); font-weight: 700; }
+.detail-meta-rating > span { color: #d69b37; }
+.detail-meta-rating small { color: var(--muted); font-size: .82rem; font-weight: 500; }
+.detail-meta-muted { color: var(--muted); }
+.detail-profile-meta .detail-whatsapp { color: #18895b; }
+.detail-favorite-form { flex: 0 0 auto; margin: 0; }
+.detail-favorite-button { display: grid; place-items: center; width: 48px; height: 48px; border: 1px solid var(--line); border-radius: 50%; background: #fff; color: #bb4465; box-shadow: 0 6px 20px rgba(23,45,42,.09); font-size: 1.65rem; line-height: 1; transition: transform .18s ease,background .18s ease; }
+.detail-favorite-button:hover { transform: translateY(-2px); background: #fff6f8; }
+.detail-photo-slider { overflow: hidden; margin-top: 24px; border: 1px solid var(--line); border-radius: 20px; background: #fff; box-shadow: 0 10px 32px rgba(27,55,44,.06); }
+.detail-slide-stage { position: relative; display: grid; place-items: center; height: clamp(300px,52vw,590px); overflow: hidden; isolation: isolate; background: radial-gradient(ellipse at center,#fff 0,#edf0ed 72%,#e5e9e5 100%); }
+.detail-slide-stage::before { position: absolute; z-index: -1; inset: -25px; background: var(--slide-backdrop,linear-gradient(135deg,#e8eee9,#f4eee4)); background-position: center; background-size: cover; content: ''; filter: blur(24px) brightness(.65); transform: scale(1.08); }
+.detail-slide { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity .28s ease; }
+.detail-slide.is-active { opacity: 1; }
+.detail-slide-arrow { position: absolute; top: 50%; display: grid; place-items: center; width: 48px; height: 58px; border: 0; border-radius: 14px; background: rgba(23,45,42,.48); color: #fff; font-size: 2.5rem; line-height: 1; transform: translateY(-50%); transition: background .18s ease; }
+.detail-slide-arrow:hover { background: rgba(23,45,42,.76); }
+.detail-slide-prev { left: 18px; }
+.detail-slide-next { right: 18px; }
+.detail-slide-count { position: absolute; bottom: 16px; left: 17px; padding: 7px 11px; border-radius: 8px; background: rgba(23,45,42,.72); color: #fff; font-size: .78rem; font-variant-numeric: tabular-nums; }
+.detail-slide-empty { display: grid; min-height: 300px; place-content: center; justify-items: center; gap: 8px; background: linear-gradient(135deg,#e9f2eb,#f5eee2); color: var(--ink); }
+.detail-slide-empty > span { color: var(--green); font-size: 2rem; }
+.detail-slide-empty small { color: var(--muted); }
+.public-business-layout { margin-top: 22px; }
+@media (max-width: 767.98px) {
+  .detail-profile-heading { align-items: flex-start; gap: 14px; padding-bottom: 20px; }
+  .detail-profile-title h1 { font-size: clamp(1.8rem,8vw,2.5rem); }
+  .detail-profile-meta { gap: 9px 15px; font-size: .82rem; }
+  .detail-favorite-button { width: 43px; height: 43px; }
+  .detail-photo-slider { margin-top: 17px; border-radius: 15px; }
+  .detail-slide-stage { height: min(108vw,440px); }
+  .detail-slide-arrow { width: 39px; height: 48px; }
+  .detail-slide-prev { left: 10px; }
+  .detail-slide-next { right: 10px; }
+  .detail-slide-empty { min-height: 230px; }
+}
+
+/* MIORA marketplace navigation */
+.site-header { overflow: visible; background: rgba(255,255,255,.97); box-shadow: 0 5px 18px rgba(27,45,37,.06); }
+.site-topbar { border-bottom: 1px solid #f0f0ed; }
+.site-topbar-inner { display: flex; min-height: 82px; align-items: center; gap: clamp(18px,4vw,52px); }
+.site-topbar .navbar-brand { flex: 0 0 auto; color: var(--green); font-size: 1.55rem; font-weight: 850; letter-spacing: -.07em; }
+.site-topbar .brand-mark { width: 39px; height: 39px; border-radius: 12px; background: var(--green); box-shadow: 0 7px 18px rgba(36,107,87,.2); }
+.site-search-form { display: flex; min-width: 220px; max-width: 625px; height: 48px; flex: 1 1 500px; align-items: center; gap: 11px; padding: 4px 5px 4px 15px; border: 1px solid #dedfdd; border-radius: 8px; background: #fff; color: #68716d; }
+.site-search-form > span { font-size: 1.45rem; line-height: 1; }
+.site-search-form input { min-width: 0; flex: 1; border: 0; outline: 0; background: transparent; color: var(--ink); font-size: .9rem; }
+.site-search-form button { height: 38px; padding: 0 17px; border: 0; border-radius: 6px; background: #f4f5f3; color: #3b4842; font-size: .81rem; font-weight: 750; }
+.site-search-form button:hover { background: #edf3ee; color: var(--green); }
+.site-top-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 11px; margin-left: auto; }
+.site-top-actions .btn { min-height: 42px; padding: .58rem 1rem; font-size: .78rem; }
+.site-icon-link, .site-account-link { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 44px; height: 44px; padding: 0 10px; border: 1px solid #e5e7e4; border-radius: 99px; background: #fff; color: #25332e; font-size: 1.35rem; line-height: 1; }
+.site-icon-link:hover, .site-account-link:hover { border-color: #d7b5c4; background: #fff8fb; color: #c52668; }
+.site-account-link { padding: 0 13px 0 6px; font-size: .82rem; font-weight: 700; }
+.site-account-icon { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 50%; background: #f4f5f3; font-size: 1rem; }
+.site-logout-form { margin: 0; }
+.site-logout-form .site-icon-link { font-size: 1.15rem; }
+.site-subnav { border-bottom: 1px solid #e8e9e6; background: rgba(255,255,255,.97); }
+.site-subnav-inner { min-height: 50px; }
+.site-subnav .navbar-nav { display: flex; min-height: 50px; flex-direction: row; align-items: center; justify-content: space-between; gap: 13px; }
+.site-subnav .nav-item { flex: 0 0 auto; }
+.site-subnav .nav-link { display: inline-flex; align-items: center; gap: 8px; padding: .65rem .35rem !important; border-radius: 0; color: #525b57; font-size: .85rem; font-weight: 650; white-space: nowrap; }
+.site-subnav .nav-link:hover { background: transparent; color: #d42e73; }
+.site-subnav .nav-link > span { color: #7d8882; font-size: 1.08rem; }
+.site-subnav .navbar-nav > .nav-item:first-child .nav-link { padding-left: 0 !important; }
+.site-subnav .navbar-nav > .nav-item:last-child .nav-link { padding-right: 0 !important; }
+
+/* Photo-led homepage */
+.explore-hero { max-width: none; min-height: clamp(560px,68vw,735px); margin: 0; border-radius: 0; background: #162e28 url('/images/miora-home-wedding.png') center 46% / cover no-repeat; }
+.explore-hero-shade { background: linear-gradient(90deg,rgba(14,31,27,.91) 0%,rgba(20,39,34,.71) 42%,rgba(20,39,34,.12) 100%),linear-gradient(0deg,rgba(14,28,24,.55),transparent 42%); }
+.explore-hero-content { width: min(100%,850px); padding-top: 76px; padding-bottom: 92px; }
+.explore-hero h1 { max-width: 760px; }
+.explore-home-body { max-width: 1320px; padding-top: 5px; }
+
+/* Page-level section navigation mirrors the profile information hierarchy */
+#detail-photos, #venue-photos, #detail-about, #detail-team, #detail-campaigns, #detail-pricing, #detail-packages, #detail-venues, #detail-contact, #detail-reviews, #venue-capacity, #venue-features, #venue-team, #venue-pricing, #venue-contact, #venue-reviews { scroll-margin-top: 195px; }
+
+/* Authorized people avatars */
+.authorized-people-list { display: grid; gap: 10px; }
+.authorized-person-card { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 15px; border: 1px solid var(--line); border-radius: 15px; background: #fff; }
+.authorized-person-info { display: flex; min-width: 0; align-items: center; gap: 11px; }
+.authorized-person-info > div:last-child { min-width: 0; }
+.authorized-person-photo, .authorized-person-avatar { display: grid; width: 42px; height: 42px; flex: 0 0 42px; place-items: center; overflow: hidden; border: 2px solid #fff; border-radius: 50%; background: #edf4ef; color: var(--green); box-shadow: 0 0 0 1px #e2e9e3; object-fit: cover; font-size: 1rem; font-weight: 800; }
+.authorized-person-info h3 { margin: 0 0 2px; color: var(--ink); font: 750 .88rem 'Manrope',sans-serif; letter-spacing: -.02em; }
+.authorized-person-info span { color: var(--muted); font-size: .73rem; }
+.authorized-person-info p { margin: 2px 0 0; color: var(--muted); font-size: .72rem; }
+.authorized-person-actions { display: flex; flex: 0 0 auto; gap: 7px; }
+.authorized-person-actions .btn { min-height: 36px; padding: .45rem .78rem; font-size: .74rem; }
+.venue-reviews-panel { padding: clamp(22px,3.5vw,31px); border: 1px solid var(--line); border-radius: 20px; background: #fff; }
+
+@media (max-width: 991.98px) {
+  .site-topbar-inner { min-height: 72px; gap: 16px; }
+  .site-topbar .navbar-brand { font-size: 1.3rem; }
+  .site-subnav .site-subnav-inner { max-width: none; overflow-x: auto; }
+  .site-subnav .navbar-nav { justify-content: flex-start; gap: 25px; min-width: max-content; }
+}
+@media (max-width: 600px) {
+  .site-topbar-inner { min-height: 66px; flex-wrap: wrap; gap: 9px; padding-top: 9px; padding-bottom: 9px; }
+  .site-topbar .navbar-brand { gap: 7px; font-size: 1.18rem; }
+  .site-topbar .brand-mark { width: 33px; height: 33px; }
+  .site-top-actions { gap: 6px; }
+  .site-top-actions .btn { min-height: 36px; padding: .45rem .62rem; font-size: .68rem; }
+  .site-login-button { display: none; }
+  .site-icon-link, .site-account-link { min-width: 38px; height: 38px; padding: 0 7px; font-size: 1.15rem; }
+  .site-account-link { gap: 5px; font-size: .72rem; }
+  .site-account-icon { width: 27px; height: 27px; }
+  .site-search-form { order: 3; min-width: 100%; height: 40px; flex-basis: 100%; }
+  .site-search-form button { height: 32px; }
+  .site-subnav .site-subnav-inner { padding-right: 16px; padding-left: 16px; }
+  .site-subnav .navbar-nav { min-height: 44px; gap: 21px; }
+  .site-subnav .nav-link { min-height: 43px; font-size: .77rem; }
+  .explore-hero { min-height: 620px; align-items: center; background-position: 56% center; }
+  .explore-hero-shade { background: linear-gradient(90deg,rgba(14,31,27,.84),rgba(20,39,34,.38)),linear-gradient(0deg,rgba(14,28,24,.5),transparent 50%); }
+  .explore-hero-content { padding: 50px 22px 92px; }
+  .explore-hero-foot { flex-wrap: wrap; }
+  #detail-photos, #venue-photos, #detail-about, #detail-team, #detail-campaigns, #detail-pricing, #detail-packages, #detail-venues, #detail-contact, #detail-reviews, #venue-capacity, #venue-features, #venue-team, #venue-pricing, #venue-contact, #venue-reviews { scroll-margin-top: 205px; }
+  .authorized-person-card { align-items: flex-start; flex-direction: column; }
+  .authorized-person-actions { margin-left: 53px; }
+}
 .explore-venue-card .explore-favorite-form { top: 12px; right: 12px; }
 
 .autocomplete-wrapper {
@@ -1442,4 +1568,48 @@ body { background: var(--paper); }
 
 .autocomplete-option:hover {
     background: #edf5f0;
+}
+
+.authorized-person-actions form { margin: 0; }
+.venue-detail-sidebar .public-business-contact { position: static; top: auto; background: #fff; }
+.business-price-summary { background: #f0f4ee; }
+.business-price-more { display: flex; justify-content: space-between; gap: 10px; padding-top: 13px; margin-top: 8px; border-top: 1px solid #dce5dc; color: var(--green); font-size: .78rem; font-weight: 750; }
+.business-price-more:hover { color: var(--green-dark); }
+.business-public-reviews { margin-bottom: 35px; }
+.business-reviews-heading { margin-bottom: 18px; }
+.business-reviews-heading h2 { margin: 5px 0 0; font-size: 1.28rem; font-weight: 750; }
+.business-public-reviews .business-rating-section { max-width: 760px; padding: 18px; margin: 0 0 22px; border: 1px solid var(--line); border-radius: 16px; background: #f8faf7; }
+.business-public-reviews .business-rating-section h3 { margin: 6px 0; font-size: 1.02rem; }
+.business-public-reviews .business-rating-section > p { color: var(--muted); font-size: .82rem; }
+.business-public-reviews .business-reviews-section { margin-top: 0 !important; }
+.business-public-reviews .business-review-card { padding: 16px 18px; border: 1px solid var(--line); border-radius: 15px; background: #fff; }
+.business-public-reviews .business-reviews-section > p { color: var(--muted); }
+.review-moderation-page { max-width: 1120px; margin: 42px auto 76px; padding: 0 24px; }
+.review-moderation-heading { display: flex; align-items: center; justify-content: space-between; gap: 22px; margin-bottom: 32px; }
+.review-moderation-heading h1 { margin: 7px 0 8px; font-size: clamp(2rem,4vw,2.8rem); font-weight: 800; }
+.review-moderation-heading p { margin: 0; color: var(--muted); }
+.review-moderation-total { display: grid; min-width: 136px; padding: 16px 20px; border: 1px solid #ead9de; border-radius: 17px; background: #fff7f8; text-align: center; }
+.review-moderation-total strong { color: #b32d62; font: 800 1.8rem 'Manrope',sans-serif; }
+.review-moderation-total span { color: #7c6770; font-size: .73rem; }
+.moderation-review-section { margin-top: 28px; }
+.moderation-review-section > header { display: flex; align-items: end; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
+.moderation-review-section > header h2 { margin: 5px 0 0; font-size: 1.27rem; font-weight: 750; }
+.moderation-review-section > header > span { padding: 6px 10px; border-radius: 99px; background: #f0f3f0; color: #64746b; font-size: .72rem; font-weight: 700; }
+.moderation-review-card { padding: 19px 21px; margin-bottom: 12px; border: 1px solid var(--line); border-radius: 16px; background: #fff; box-shadow: 0 6px 20px rgba(27,55,44,.035); }
+.moderation-review-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+.moderation-review-card-top > div { display: grid; gap: 4px; }
+.moderation-review-card-top strong { color: var(--ink); font-size: .91rem; }
+.moderation-review-card-top > div span { color: var(--muted); font-size: .76rem; }
+.moderation-review-rating { color: #a56f17; font-size: .82rem; font-weight: 750; white-space: nowrap; }
+.moderation-review-card time { display: block; margin-top: 9px; color: #8b948f; font-size: .72rem; }
+.moderation-review-card > p { margin: 12px 0 17px; color: #41534a; line-height: 1.6; white-space: pre-line; }
+.moderation-review-actions { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 13px; border-top: 1px solid #edf0ed; }
+.moderation-review-actions form { margin: 0; }
+.moderation-review-actions .btn { min-height: 36px; padding: .48rem .88rem; font-size: .76rem; }
+.moderation-review-actions form:first-child .btn { --bs-btn-bg: #1e7853; --bs-btn-border-color: #1e7853; --bs-btn-hover-bg: #195f43; --bs-btn-hover-border-color: #195f43; }
+@media (max-width: 600px) {
+  .review-moderation-page { margin-top: 30px; padding: 0 16px; }
+  .review-moderation-heading { align-items: flex-start; flex-direction: column; }
+  .review-moderation-total { min-width: 0; grid-template-columns: auto auto; align-items: baseline; gap: 9px; text-align: left; }
+  .moderation-review-section > header { align-items: flex-start; flex-direction: column; }
 }

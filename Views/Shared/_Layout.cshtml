@@ -14,45 +14,61 @@
 
 <body>
     <header class="site-header">
-        <nav class="navbar navbar-light navbar-expand-lg site-nav">
-            <div class="container">
+        <div class="site-topbar">
+            <div class="container site-topbar-inner">
                 <a class="navbar-brand" asp-controller="Home" asp-action="Index">
                     <span class="brand-mark" aria-hidden="true">M</span> MIORA
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
-                        aria-controls="mainNav" aria-expanded="false" aria-label="Menüyü aç">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="mainNav">
-                    <ul class="navbar-nav ms-auto">
-                        @if (User.Identity?.IsAuthenticated == true)
+                @if (User.Identity?.IsAuthenticated != true || (!User.IsInRole("Admin") && !User.IsInRole("Business")))
+                {
+                    <form asp-controller="Home" asp-action="Index" method="get" class="site-search-form">
+                        <label class="visually-hidden" for="siteSearch">Mekân veya işletme ara</label>
+                        <span aria-hidden="true">⌕</span>
+                        <input id="siteSearch" type="search" name="searchTerm" value="@ViewBag.SearchTerm"
+                               placeholder="Mekân veya işletme ara" />
+                        <button type="submit" aria-label="Ara">Ara</button>
+                    </form>
+                }
+                <div class="site-top-actions">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        if (!User.IsInRole("Admin") && User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value != "Business")
                         {
-                            @await Component.InvokeAsync("AccountNavigation")
+                            <a class="site-icon-link" asp-controller="BusinessFavorites" asp-action="Index" aria-label="Favorilerim" title="Favorilerim">♡</a>
                         }
-                        else
-                        {
-                            <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Ana sayfa</a></li>
-                            <li class="nav-item"><a class="nav-link" href="/#kesfet">Keşfet</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Venues" asp-action="Index">Mekânlar</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Businesses" asp-action="Index">İşletmeler</a></li>
-                        }
-                    </ul>
-                    <div class="nav-actions">
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <form asp-controller="Account" asp-action="Logout" method="post">
-                                <button type="submit" class="btn btn-outline-primary">Çıkış yap</button>
-                            </form>
-                        }
-                        else
-                        {
-                            <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Login"
-                               asp-route-audience="customer">Giriş Yap / Kayıt Ol</a>
-                            <a class="btn btn-primary" asp-controller="Account" asp-action="Login"
-                               asp-route-audience="business">İşletmeler İçin</a>
-                        }
-                    </div>
+                        <a class="site-account-link" asp-controller="@(User.IsInRole("Admin") ? "Admin" : "Profile")" asp-action="Index">
+                            <span class="site-account-icon" aria-hidden="true">♙</span><span>Hesabım</span>
+                        </a>
+                        <form asp-controller="Account" asp-action="Logout" method="post" class="site-logout-form">
+                            <button type="submit" class="site-icon-link" aria-label="Çıkış yap" title="Çıkış yap">↗</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a class="site-icon-link" asp-controller="Account" asp-action="Login" asp-route-audience="customer" aria-label="Giriş yap">♡</a>
+                        <a class="btn btn-outline-primary site-login-button" asp-controller="Account" asp-action="Login"
+                           asp-route-audience="customer">Giriş Yap / Kayıt Ol</a>
+                        <a class="btn btn-primary site-business-button" asp-controller="Account" asp-action="Login"
+                           asp-route-audience="business">İşletmeler İçin</a>
+                    }
                 </div>
+            </div>
+        </div>
+        <nav class="site-subnav" aria-label="Ana menü">
+            <div class="container site-subnav-inner">
+                <ul class="navbar-nav">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        @await Component.InvokeAsync("AccountNavigation")
+                    }
+                    else
+                    {
+                        <li class="nav-item"><a class="nav-link" asp-controller="Venues" asp-action="Index">Mekânlar</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Businesses" asp-action="Index">İşletmeler</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/#kesfet">Keşfet</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/#isletmeler">Hizmet Verenler</a></li>
+                    }
+                </ul>
             </div>
         </nav>
     </header>

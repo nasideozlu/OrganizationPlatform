@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OrganizationPlatform.Data;
 using OrganizationPlatform.Models;
+using OrganizationPlatform.Helpers;
 
 namespace OrganizationPlatform.Controllers;
 
@@ -65,14 +66,20 @@ public class BusinessRatingsController : Controller
                 new { id = businessProfileId });
         }
 
+        var cleanedComment = string.IsNullOrWhiteSpace(comment)
+    ? null
+    : comment.Trim();
+
         var businessRating = new BusinessRating
         {
             ApplicationUserId = user.Id,
             BusinessProfileId = businessProfileId,
             Rating = rating,
-            Comment = string.IsNullOrWhiteSpace(comment)
-                ? null
-                : comment.Trim()
+            Comment = cleanedComment,
+
+            ReviewStatus = ReviewModerationHelper.ContainsRestrictedWord(cleanedComment)
+    ? ReviewStatus.Pending
+    : ReviewStatus.Approved
         };
 
         _context.BusinessRatings.Add(businessRating);
@@ -83,5 +90,71 @@ public class BusinessRatingsController : Controller
             "Details",
             "Businesses",
             new { id = businessProfileId });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Reply(int businessRatingId, string reply)
+    {
+        var user = await _userManager.GetUserAsync(User);
+
+        if (user == null)
+        {
+            return Forbid();
+        }
+
+        var businessRating = await _context.BusinessRatings
+            .FirstOrDefaultAsync(rating => rating.Id == businessRatingId);
+
+        if (businessRating == null)
+        {
+            return NotFound();
+        }
+
+        var business = await _context.BusinessProfiles
+            .FirstOrDefaultAsync(profile =>
+                profile.Id == businessRating.BusinessProfileId);
+
+        if (business == null)
+        {
+            return NotFound();
+        }
+
+        // Yalnızca yorumun ait olduğu işletmenin sahibi cevap verebilir.
+        if (business.ApplicationUserId != user.Id)
+        {
+            return Forbid();
+        }
+
+        if (businessRating.ReviewStatus != ReviewStatus.Approved ||
+    string.IsNullOrWhiteSpace(reply))
+        {
+            return RedirectToAction(
+                "Details",
+                "Businesses",
+                new { id = businessRating.BusinessProfileId });
+        }
+
+        var cleanedReply = reply.Trim();
+
+        if (ReviewModerationHelper.ContainsRestrictedWord(cleanedReply))
+        {
+            TempData["Error"] = "Yanıtınız uygunsuz ifadeler içeriyor. Lütfen düzenleyin.";
+
+            return RedirectToAction(
+                "Details",
+                "Businesses",
+                new { id = businessRating.BusinessProfileId });
+        }
+
+        businessRating.BusinessReply = cleanedReply;
+        businessRating.BusinessReplyAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction(
+            "Details",
+            "Businesses",
+            new { id = businessRating.BusinessProfileId });
     }
 }
