@@ -1,6 +1,8 @@
-
-namespace OrganizationPlatform.Models;
+using OrganizationPlatform.Models;
 using OrganizationPlatform.Services;
+
+namespace OrganizationPlatform.ViewModels;
+
 
 public class BusinessFilterViewModel
 {

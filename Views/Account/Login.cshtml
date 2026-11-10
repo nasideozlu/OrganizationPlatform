@@ -1,4 +1,4 @@
-@model OrganizationPlatform.Models.LoginViewModel
+@model OrganizationPlatform.ViewModels.LoginViewModel
 @{
     var isBusiness = (string?)ViewBag.Audience == "business";
     ViewData["Title"] = isBusiness ? "İşletme girişi" : "Müşteri girişi";

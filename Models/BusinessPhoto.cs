@@ -12,4 +12,6 @@ public class BusinessPhoto
     public required BusinessProfile BusinessProfile { get; set; }
 
     public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
+    public ReviewStatus ApprovalStatus { get; set; } = ReviewStatus.Pending;
+    public string? RejectionReason { get; set; }
 }

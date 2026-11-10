@@ -1,3 +1,4 @@
+@using OrganizationPlatform.Models
 @model List<OrganizationPlatform.Models.Venue>
 @{
     ViewData["Title"] = "Mekânlarım";
@@ -45,6 +46,34 @@
                     <div class="venue-manage-body">
                         <span class="catalog-location">@venue.City · @venue.District</span>
                         <h2>@venue.Name</h2>
+
+@if (venue.ApprovalStatus == ReviewStatus.Pending)
+{
+    <span class="badge bg-warning text-dark">
+        Onay Bekliyor
+    </span>
+}
+else if (venue.ApprovalStatus == ReviewStatus.Approved)
+{
+    <span class="badge bg-success">
+        Onaylandı
+    </span>
+}
+else if (venue.ApprovalStatus == ReviewStatus.Rejected)
+{
+    <span class="badge bg-danger">
+        Reddedildi
+    </span>
+
+    @if (!string.IsNullOrWhiteSpace(venue.RejectionReason))
+    {
+        <div class="alert alert-danger mt-2">
+            <strong>Ret gerekçesi:</strong>
+            <p class="mb-0">@venue.RejectionReason</p>
+        </div>
+    }
+}
+
                         <p>@(string.IsNullOrWhiteSpace(venue.Address) ? venue.Neighborhood : venue.Address)</p>
                         <div class="venue-manage-meta"><span>▧ @venue.Photos.Count fotoğraf</span><span>⌖
                             @venue.Neighborhood</span></div>

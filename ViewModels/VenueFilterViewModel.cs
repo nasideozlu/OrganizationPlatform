@@ -1,6 +1,7 @@
 using OrganizationPlatform.Services;
+using OrganizationPlatform.Models;
 
-namespace OrganizationPlatform.Models;
+namespace OrganizationPlatform.ViewModels;
 
 public class VenueFilterViewModel
 {

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using OrganizationPlatform.Data;
 using OrganizationPlatform.Models;
+using OrganizationPlatform.ViewModels;
 
 namespace OrganizationPlatform.Controllers;
 
@@ -46,22 +47,29 @@ public class HomeController : Controller
         }
 
         var venues = await _context.Venues
-            .Include(venue => venue.Photos)
-            .OrderBy(venue => venue.City)
-            .ThenBy(venue => venue.Name)
-            .ToListAsync();
+    .Where(venue =>
+        venue.ApprovalStatus == ReviewStatus.Approved &&
+        venue.BusinessProfile.ApprovalStatus == ReviewStatus.Approved)
+    .Include(venue => venue.Photos
+        .Where(photo => photo.ApprovalStatus == ReviewStatus.Approved))
+    .OrderBy(venue => venue.City)
+    .ThenBy(venue => venue.Name)
+    .ToListAsync();
 
         var businesses = await _context.BusinessProfiles
-            .Include(business => business.Category)
-            .Include(business => business.Photos)
-            .Include(business => business.Campaigns.Where(campaign =>
-                campaign.IsActive &&
-                campaign.StartDate <= DateTime.Today &&
-                campaign.EndDate >= DateTime.Today))
-            .Where(business => business.Category.Name != "Düğün Mekanı")
-            .OrderBy(business => business.Category.Name)
-            .ThenBy(business => business.Name)
-            .ToListAsync();
+    .Where(business =>
+        business.ApprovalStatus == ReviewStatus.Approved)
+    .Include(business => business.Category)
+    .Include(business => business.Photos
+        .Where(photo => photo.ApprovalStatus == ReviewStatus.Approved))
+    .Include(business => business.Campaigns.Where(campaign =>
+        campaign.IsActive &&
+        campaign.StartDate <= DateTime.Today &&
+        campaign.EndDate >= DateTime.Today))
+    .Where(business => business.Category.Name != "Düğün Mekanı")
+    .OrderBy(business => business.Category.Name)
+    .ThenBy(business => business.Name)
+    .ToListAsync();
 
         var favoriteBusinessIds = new HashSet<int>();
         var favoriteVenueIds = new HashSet<int>();

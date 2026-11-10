@@ -1,7 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
+using OrganizationPlatform.Models;
 
-namespace OrganizationPlatform.Models;
+namespace OrganizationPlatform.ViewModels;
 
 public class CreateVenueViewModel
 {

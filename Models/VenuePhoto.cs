@@ -12,4 +12,6 @@ public class VenuePhoto
     public required Venue Venue { get; set; }
 
     public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
+    public ReviewStatus ApprovalStatus { get; set; } = ReviewStatus.Pending;
+    public string? RejectionReason { get; set; }
 }

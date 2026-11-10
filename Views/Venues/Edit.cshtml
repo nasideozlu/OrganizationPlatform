@@ -1,4 +1,5 @@
-@model OrganizationPlatform.Models.CreateVenueViewModel
+@using OrganizationPlatform.Models
+@model OrganizationPlatform.ViewModels.CreateVenueViewModel
 @{
     ViewData["Title"] = "Mekânı düzenle";
     var features = ViewBag.PhysicalFeatures as List<OrganizationPlatform.Models.PhysicalFeature> ?? new();
@@ -146,6 +147,40 @@
                                                                             <article class="existing-photo-card"><a href="@photo.FilePath" target="_blank"
                                                                                                                     rel="noopener noreferrer"><img src="@photo.FilePath" alt="Mekân fotoğrafı"
                                                                                                                loading="lazy" /></a>
+                                                                                            
+                                                                                <div class="mt-2">
+
+                                                                                    @if (photo.ApprovalStatus == ReviewStatus.Pending)
+                                                                                    {
+                                                                                        <span class="badge bg-warning text-dark">
+                                                                                            Onay Bekliyor
+                                                                                        </span>
+                                                                                    }
+                                                                                    else if (photo.ApprovalStatus == ReviewStatus.Approved)
+                                                                                    {
+                                                                                        <span class="badge bg-success">
+                                                                                            Onaylandı
+                                                                                        </span>
+                                                                                    }
+                                                                                    else if (photo.ApprovalStatus == ReviewStatus.Rejected)
+                                                                                    {
+                                                                                        <span class="badge bg-danger">
+                                                                                            Reddedildi
+                                                                                        </span>
+
+                                                                                        @if (!string.IsNullOrWhiteSpace(photo.RejectionReason))
+                                                                                        {
+                                                                                            <p class="text-danger small mt-2 mb-0">
+                                                                                                <strong>Ret gerekçesi:</strong>
+                                                                                                @photo.RejectionReason
+                                                                                            </p>
+                                                                                        }
+                                                                                    }
+
+                                                                                </div>
+
+
+                                                                                                
                                                                                 <form asp-controller="Venues" asp-action="DeleteVenuePhoto" asp-route-id="@photo.Id"
                                                                                       method="post" onsubmit="return confirm('Bu fotoğrafı silmek istediğine emin misin?');">
                                                                                     @Html.AntiForgeryToken()<button type="submit"

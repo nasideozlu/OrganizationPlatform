@@ -109,8 +109,10 @@ public class BusinessesController : Controller
         var query = _context.BusinessProfiles
             .AsNoTracking()
             .Include(business => business.Category)
-            .Include(business => business.Photos)
+            .Include(business => business.Photos
+                .Where(photo => photo.ApprovalStatus == ReviewStatus.Approved))
             .Where(business => business.Category.Name != "Düğün Mekanı")
+            .Where(business => business.ApprovalStatus == ReviewStatus.Approved)
             .AsQueryable();
 
         // İşletme adı veya açıklama araması.
@@ -286,9 +288,13 @@ public class BusinessesController : Controller
         var query = _context.Venues
             .AsNoTracking()
             .Include(venue => venue.BusinessProfile)
-            .Include(venue => venue.Photos)
+            .Include(venue => venue.Photos
+                .Where(photo => photo.ApprovalStatus == ReviewStatus.Approved))
             .Include(venue => venue.PhysicalFeatures)
-            .ThenInclude(feature => feature.Category)
+                .ThenInclude(feature => feature.Category)
+            .Where(venue =>
+                venue.ApprovalStatus == ReviewStatus.Approved &&
+                venue.BusinessProfile.ApprovalStatus == ReviewStatus.Approved)
             .AsQueryable();
 
         // İl filtresi
@@ -373,7 +379,8 @@ public class BusinessesController : Controller
 
         var business = await _context.BusinessProfiles
             .Include(b => b.Category)
-            .Include(b => b.Photos)
+            .Include(b => b.Photos
+                .Where(photo => photo.ApprovalStatus == ReviewStatus.Approved))
             .Include(b => b.ApplicationUser)
             .Include(b => b.AuthorizedPeople)
             .Include(b => b.Pricings.Where(p => p.IsActive))
@@ -386,11 +393,15 @@ public class BusinessesController : Controller
                 c.StartDate <= today &&
                 c.EndDate >= today))
                 .ThenInclude(c => c.BusinessPackage)
-            .Include(b => b.Venues)
-                .ThenInclude(venue => venue.Photos)
+            .Include(b => b.Venues
+                .Where(venue =>
+                    venue.ApprovalStatus == ReviewStatus.Approved))
+                .ThenInclude(venue => venue.Photos
+                    .Where(photo => photo.ApprovalStatus == ReviewStatus.Approved))
             .FirstOrDefaultAsync(b => b.Id == id);
 
-        if (business == null)
+        if (business == null ||
+            business.ApprovalStatus != ReviewStatus.Approved)
         {
             return NotFound();
         }

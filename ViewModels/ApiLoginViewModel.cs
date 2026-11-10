@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace OrganizationPlatform.Models;
-
+namespace OrganizationPlatform.ViewModels;
 public class ApiLoginViewModel
 {
     [Required]

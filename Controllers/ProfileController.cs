@@ -492,7 +492,8 @@ public class ProfileController : Controller
                 {
                     FilePath = filePath,
                     BusinessProfileId = profile.Id,
-                    BusinessProfile = profile
+                    BusinessProfile = profile,
+                    ApprovalStatus = ReviewStatus.Pending
                 };
 
                 _context.BusinessPhotos.Add(businessPhoto);

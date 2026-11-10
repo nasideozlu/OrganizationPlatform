@@ -19,6 +19,8 @@ public class Venue
     public int BusinessProfileId { get; set; }
     
     public required BusinessProfile BusinessProfile { get; set; }
+    public ReviewStatus ApprovalStatus { get; set; } = ReviewStatus.Pending;
+    public string? RejectionReason { get; set; }
     public List<AuthorizedPerson> AuthorizedPeople { get; set; } = new();
 
     public List<PhysicalFeature> PhysicalFeatures { get; set; } = new List<PhysicalFeature>();

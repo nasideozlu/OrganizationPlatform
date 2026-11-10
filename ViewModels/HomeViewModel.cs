@@ -1,4 +1,6 @@
-namespace OrganizationPlatform.Models;
+using OrganizationPlatform.Models;
+
+namespace OrganizationPlatform.ViewModels;
 
 public class HomeViewModel
 {

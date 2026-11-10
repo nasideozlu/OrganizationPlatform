@@ -206,6 +206,14 @@ textarea.form-control { min-height: 120px; }
 .business-category { color: #c2d9c9; font-size: .7rem; font-weight: 700; }
 .business-profile-top h2 { margin: 3px 0; font-size: 1.45rem; font-weight: 700; }
 .business-profile-top p { margin: 0; color: #c5d4ce; font-size: .82rem; }
+.business-dashboard-gallery { width: 100%; margin: 22px 0 19px; border-color: rgba(255,255,255,.24); box-shadow: 0 12px 28px rgba(8,29,24,.2); }
+.business-dashboard-gallery .detail-slide-stage { height: clamp(290px, 36vw, 460px); background: #173b34; }
+.business-dashboard-gallery .detail-slide { object-fit: contain; }
+.business-dashboard-gallery .detail-slide-arrow { background: rgba(23,45,42,.62); }
+@media (max-width: 767.98px) {
+  .business-dashboard-gallery { margin: 18px 0 15px; }
+  .business-dashboard-gallery .detail-slide-stage { height: min(100vw, 390px); }
+}
 .business-edit-link { display: grid; place-items: center; flex: 0 0 37px; height: 37px; margin-left: auto; border: 1px solid rgba(255,255,255,.2); border-radius: 50%; color: #fff; }
 .business-profile-description { flex: 1; max-width: 580px; padding: 27px 0 19px; color: #d3e0da; font-size: .91rem; line-height: 1.7; }
 .business-profile-contact { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-top: 17px; border-top: 1px solid rgba(255,255,255,.16); color: #e0e9e3; font-size: .76rem; }
@@ -1607,9 +1615,75 @@ body { background: var(--paper); }
 .moderation-review-actions form { margin: 0; }
 .moderation-review-actions .btn { min-height: 36px; padding: .48rem .88rem; font-size: .76rem; }
 .moderation-review-actions form:first-child .btn { --bs-btn-bg: #1e7853; --bs-btn-border-color: #1e7853; --bs-btn-hover-bg: #195f43; --bs-btn-hover-border-color: #195f43; }
+.approval-queue-heading { margin-bottom: 27px; }
+.approval-queue-heading h1 { margin: 4px 0 7px; font: 800 clamp(1.9rem,4vw,2.7rem)/1.12 'Manrope',sans-serif; letter-spacing: -.05em; }
+.approval-queue-heading p { margin: 0; color: var(--muted); }
+.approval-total { display: grid; min-width: 136px; padding: 14px 18px; border: 1px solid #e8eae6; border-radius: 16px; background: #fff; text-align: center; }
+.approval-total strong { color: var(--green); font: 800 1.8rem 'Manrope',sans-serif; }
+.approval-total span { color: var(--muted); font-size: .73rem; }
+.approval-queue-grid { display: grid; gap: 17px; }
+.approval-queue-section { min-width: 0; padding: 21px; border: 1px solid var(--line); border-radius: 19px; background: #fff; box-shadow: 0 8px 24px rgba(27,55,44,.035); }
+.approval-queue-section > header, .approval-detail-card > header { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
+.approval-queue-section > header h2, .approval-detail-card > header h2 { display: flex; align-items: center; gap: 9px; margin: 5px 0 0; font-size: 1.14rem; font-weight: 750; }
+.approval-queue-section > header h2 small { display: grid; min-width: 25px; height: 25px; place-items: center; padding: 0 6px; border-radius: 99px; background: var(--mint); color: var(--green); font: 700 .7rem 'DM Sans',sans-serif; }
+.approval-queue-card { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 0; border-top: 1px solid #eef0ed; }
+.approval-queue-card > div { display: grid; min-width: 0; gap: 4px; }
+.approval-queue-card strong, .approval-photo-card strong { overflow: hidden; color: var(--ink); font-size: .86rem; text-overflow: ellipsis; white-space: nowrap; }
+.approval-queue-card > div span { color: var(--muted); font-size: .75rem; }
+.approval-queue-card .btn { flex: 0 0 auto; min-height: 35px; padding: .42rem .75rem; font-size: .74rem; }
+.approval-empty { padding: 15px; border-radius: 12px; background: #f7f9f6; color: var(--muted); font-size: .82rem; }
+.approval-photo-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(190px,1fr)); gap: 12px; }
+.approval-photo-card { overflow: hidden; border: 1px solid var(--line); border-radius: 13px; background: #fff; }
+.approval-photo-card > img { display: block; width: 100%; height: 135px; object-fit: cover; background: #f3f5f1; }
+.approval-photo-card > div { display: grid; gap: 7px; padding: 11px; }
+.approval-photo-card small { color: var(--muted); font-size: .72rem; }
+.approval-photo-card .btn { justify-self: start; min-height: 34px; padding: .4rem .72rem; font-size: .73rem; }
+.approval-review-page { margin-top: 32px; }
+.approval-review-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin: 15px 0 22px; }
+.approval-review-heading h1 { margin: 6px 0; color: var(--ink); font: 800 clamp(1.8rem,4vw,2.6rem)/1.12 'Manrope',sans-serif; letter-spacing: -.05em; }
+.approval-review-heading p { margin: 0; color: var(--muted); }
+.approval-status-pill { flex: 0 0 auto; padding: 8px 12px; border: 1px solid #eadbbc; border-radius: 99px; background: #fbf5e9; color: #87662d; font-size: .75rem; font-weight: 750; }
+.approval-review-layout { display: grid; grid-template-columns: minmax(0,1.5fr) minmax(280px,.72fr); gap: 17px; align-items: start; }
+.approval-review-main { display: grid; min-width: 0; gap: 15px; }
+.approval-detail-card, .approval-decision-card { padding: clamp(20px,3vw,27px); border: 1px solid var(--line); border-radius: 19px; background: #fff; box-shadow: 0 8px 24px rgba(27,55,44,.035); }
+.approval-detail-card > header { margin-bottom: 15px; }
+.approval-detail-card > header h2 { margin-top: 5px; }
+.approval-detail-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; margin: 0; }
+.approval-detail-grid > div { min-width: 0; padding: 12px 13px; border-radius: 12px; background: #f7f9f6; }
+.approval-detail-grid dt { margin-bottom: 4px; color: var(--muted); font-size: .7rem; font-weight: 600; }
+.approval-detail-grid dd { margin: 0; color: var(--ink); font-size: .82rem; font-weight: 650; overflow-wrap: anywhere; }
+.approval-detail-wide { grid-column: 1/-1; }
+.approval-review-gallery { display: grid; grid-template-columns: repeat(auto-fill,minmax(135px,1fr)); gap: 10px; }
+.approval-review-gallery img { width: 100%; height: 125px; border-radius: 11px; background: #f3f5f1; object-fit: cover; }
+.approval-feature-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.approval-feature-list span { padding: 7px 10px; border: 1px solid #dce6dd; border-radius: 99px; background: #f7faf6; color: #496358; font-size: .74rem; font-weight: 650; }
+.approval-count { display: grid; min-width: 30px; height: 30px; place-items: center; padding: 0 7px; border-radius: 50%; background: var(--mint); color: var(--green); font-size: .75rem; font-weight: 800; }
+.approval-decision-card { position: sticky; top: 150px; }
+.approval-decision-card h2 { margin: 6px 0 8px; font-size: 1.2rem; font-weight: 750; }
+.approval-decision-card > p { margin-bottom: 19px; color: var(--muted); font-size: .8rem; line-height: 1.55; }
+.approval-decision-card .form-label { font-size: .78rem; font-weight: 700; }
+.approval-decision-card .form-label small { color: var(--muted); font-size: .68rem; font-weight: 500; }
+.approval-decision-card textarea { margin-bottom: 13px; border-radius: 12px; }
+.approval-decision-card form { display: grid; gap: 9px; }
+.approval-decision-card .btn { min-height: 42px; }
+.approval-photo-review-layout { display: grid; grid-template-columns: minmax(0,1.5fr) minmax(280px,.72fr); gap: 17px; align-items: start; }
+.approval-photo-preview { display: grid; min-height: 400px; place-items: center; overflow: hidden; padding: 18px; margin: 0; border: 1px solid var(--line); border-radius: 19px; background: #f3f5f1; }
+.approval-photo-preview img { display: block; max-width: 100%; max-height: min(70vh,720px); border-radius: 12px; object-fit: contain; }
+.site-logout-button { white-space: nowrap; }
 @media (max-width: 600px) {
   .review-moderation-page { margin-top: 30px; padding: 0 16px; }
   .review-moderation-heading { align-items: flex-start; flex-direction: column; }
   .review-moderation-total { min-width: 0; grid-template-columns: auto auto; align-items: baseline; gap: 9px; text-align: left; }
   .moderation-review-section > header { align-items: flex-start; flex-direction: column; }
+  .approval-review-page { margin-top: 24px; }
+  .approval-queue-heading, .approval-review-heading { align-items: flex-start; flex-direction: column; }
+  .approval-review-layout, .approval-photo-review-layout { grid-template-columns: 1fr; }
+  .approval-decision-card { position: static; }
+  .approval-detail-grid { grid-template-columns: 1fr; }
+  .approval-detail-wide { grid-column: auto; }
+  .approval-queue-section { padding: 16px; }
+  .approval-queue-card { align-items: flex-start; }
+  .approval-queue-card > div { flex: 1; }
+  .approval-photo-preview { min-height: 260px; }
+  .site-logout-button { min-height: 36px !important; padding: .42rem .65rem !important; font-size: .68rem !important; }
 }
