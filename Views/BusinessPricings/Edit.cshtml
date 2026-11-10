@@ -1,0 +1,80 @@
+
+@model OrganizationPlatform.Models.BusinessPricing
+
+@{
+    ViewData["Title"] = "Fiyat Düzenle";
+}
+
+<section class="management-form-page">
+    <div class="eyebrow"><span class="eyebrow-dot"></span> İŞLETMEM · FİYAT LİSTESİ</div>
+    <h1>Hizmet fiyatını düzenle</h1>
+    <p class="management-form-intro">Bilgileri güncellediğinde işletme profilindeki fiyat da yenilenir.</p>
+
+    <form asp-action="Edit" asp-route-id="@Model.Id" method="post" class="management-form">
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger mb-3"></div>
+
+        <div class="mb-3">
+            <label for="serviceName" class="form-label">
+                Hizmet adı
+            </label>
+            <input id="serviceName"
+                   name="serviceName"
+                   value="@Model.ServiceName"
+                   class="form-control"
+                   required
+                   maxlength="150" />
+            <span class="text-danger">
+                @Html.ValidationMessage("serviceName")
+            </span>
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="form-label">
+                Açıklama
+            </label>
+            <textarea id="description"
+                      name="description"
+                      class="form-control"
+                      rows="3"
+                      maxlength="1000">@Model.Description</textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="amount" class="form-label">
+                Fiyat (TL)
+            </label>
+            <input id="amount"
+                   name="amount"
+                   type="number"
+                   value="@Model.Amount.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                   class="form-control"
+                   min="0"
+                   step="0.01"
+                   required />
+            <span class="text-danger">
+                @Html.ValidationMessage("amount")
+            </span>
+        </div>
+
+        <div class="mb-3">
+            <label for="pricingType" class="form-label">
+                Fiyat türü
+            </label>
+            <select id="pricingType"
+                    name="pricingType"
+                    class="form-select"
+                    required>
+                <option value="1" selected="@(Model.PricingType == OrganizationPlatform.Models.BusinessPricingType.Fixed)">Sabit fiyat</option>
+                <option value="2" selected="@(Model.PricingType == OrganizationPlatform.Models.BusinessPricingType.StartingFrom)">Başlangıç fiyatı</option>
+                <option value="3" selected="@(Model.PricingType == OrganizationPlatform.Models.BusinessPricingType.PerPerson)">Kişi başı</option>
+                <option value="4" selected="@(Model.PricingType == OrganizationPlatform.Models.BusinessPricingType.PerHour)">Saatlik</option>
+            </select>
+        </div>
+
+        <div class="management-form-actions"><button type="submit" class="btn btn-primary">Değişiklikleri kaydet</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Vazgeç</a></div>
+    </form>
+</section>

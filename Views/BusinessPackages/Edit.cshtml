@@ -1,0 +1,128 @@
+@model OrganizationPlatform.Models.BusinessPackage
+
+@{
+    ViewData["Title"] = "Paket Düzenle";
+}
+
+<section class="management-form-page">
+    <div class="eyebrow"><span class="eyebrow-dot"></span> İŞLETMEM · HİZMET PAKETLERİ</div>
+    <h1>Paketi düzenle</h1>
+    <p class="management-form-intro">Paket içeriğini ve fiyatını güncel tutarak müşterilere net bilgi ver.</p>
+
+    <form asp-action="Edit" asp-route-id="@Model.Id" method="post" class="management-form">
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="mb-3">
+            <label for="name" class="form-label">Paket adı</label>
+            <input id="name" name="name" value="@Model.Name" class="form-control" required maxlength="150" />
+            <span class="text-danger">
+                @Html.ValidationMessage("name")
+            </span>
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="form-label">Açıklama</label>
+            <textarea id="description" name="description" class="form-control" rows="3"
+                      maxlength="1000">@Model.Description</textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="amount" class="form-label">Paket fiyatı (TL)</label>
+            <input id="amount" name="amount" type="number"
+                   value="@Model.Amount.ToString(System.Globalization.CultureInfo.InvariantCulture)" class="form-control"
+                   min="0" step="0.01" required />
+            <span class="text-danger">
+                @Html.ValidationMessage("amount")
+            </span>
+        </div>
+        @if (ViewBag.IsWeddingVenue == true)
+        {
+            <div class="mb-3">
+                <label class="form-label">Paketin geçerli olacağı mekânlar</label>
+
+                <p class="text-muted small">
+                    Bu paketin sunulacağı mekânları seçebilirsin.
+                </p>
+
+                @foreach (var venue in (List<OrganizationPlatform.Models.Venue>)ViewBag.Venues)
+                {
+                    var isSelected = Model.Venues.Any(selected => selected.Id == venue.Id);
+
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="venueIds" value="@venue.Id" id="venue_@venue.Id"
+                               checked="@isSelected" />
+
+                        <label class="form-check-label" for="venue_@venue.Id">
+                            @venue.Name
+                            <small class="text-muted">
+                                (@venue.City / @venue.District)
+                            </small>
+                        </label>
+                    </div>
+                }
+            </div>
+        }
+
+        <div class="mb-3">
+            <label class="form-label">Paket içerikleri</label>
+
+            <div id="packageItems">
+                @foreach (var item in Model.Items)
+                {
+                    <div class="input-group mb-2">
+                        <input name="items" value="@item.Name" class="form-control" required />
+
+                        <button type="button" class="btn btn-outline-danger" onclick="removeItem(this)">
+                            Sil
+                        </button>
+                    </div>
+                }
+            </div>
+
+            <button type="button" class="btn btn-outline-primary btn-sm" onclick="addItem()">
+                + İçerik Ekle
+            </button>
+
+            <span class="text-danger">
+                @Html.ValidationMessage("items")
+            </span>
+        </div>
+
+        <div class="management-form-actions"><button type="submit" class="btn btn-primary">Değişiklikleri
+            kaydet</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Vazgeç</a>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <script>
+        function addItem() {
+            const container = document.getElementById("packageItems");
+
+            const div = document.createElement("div");
+            div.className = "input-group mb-2";
+
+            div.innerHTML = `
+                    <input name="items"
+                           class="form-control"
+                           placeholder="Paket içeriği"
+                           required />
+
+                    <button type="button"
+                            class="btn btn-outline-danger"
+                            onclick="removeItem(this)">
+                        Sil
+                    </button>
+                `;
+
+            container.appendChild(div);
+        }
+
+        function removeItem(button) {
+            button.closest(".input-group").remove();
+        }
+    </script>
+}

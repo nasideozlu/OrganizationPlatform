@@ -1,0 +1,207 @@
+
+@model OrganizationPlatform.ViewModels.FavoritesViewModel
+
+@{
+    ViewData["Title"] = "Favorilerim";
+}
+
+<section class="management-page favorites-page">
+    <header class="management-heading">
+        <div>
+            <div class="eyebrow">
+                <span class="eyebrow-dot"></span>
+                MÜŞTERİ PANELİ · LİSTEM
+            </div>
+            <h1>Favorilerin</h1>
+            <p>Beğendiğin mekânları ve hizmet verenleri sakla; tekliflerine dilediğin zaman geri dön.</p>
+        </div>
+
+        <a asp-controller="Home"
+           asp-action="Index"
+           asp-fragment="kesfet"
+           class="btn btn-primary">
+            Keşfe dön <span aria-hidden="true">↗</span>
+        </a>
+    </header>
+
+    @if (!Model.BusinessFavorites.Any() && !Model.VenueFavorites.Any())
+    {
+        <div class="management-empty favorites-empty">
+            <span class="favorites-empty-icon" aria-hidden="true">♡</span>
+            <h2>Listen henüz boş</h2>
+            <p>Beğendiğin işletmeleri ve mekânları kalp simgesine dokunarak favorilerine ekleyebilirsin.</p>
+            <a asp-controller="Home"
+               asp-action="Index"
+               asp-fragment="kesfet"
+               class="btn btn-primary">
+                Keşfe başla
+            </a>
+        </div>
+    }
+    else
+    {
+        @if (Model.BusinessFavorites.Any())
+        {
+            <div class="favorites-section">
+                <header class="favorites-section-heading"><div><span class="dashboard-kicker">KAYDETTİKLERİN</span><h2>İşletmeler <small>@Model.BusinessFavorites.Count</small></h2></div><a asp-controller="Businesses" asp-action="Index">İşletmeleri keşfet ↗</a></header>
+
+                <div class="management-card-grid favorite-business-grid">
+                    @foreach (var favorite in Model.BusinessFavorites)
+                    {
+                        var business = favorite.BusinessProfile;
+                        var cover = business.Photos
+                            .OrderByDescending(photo => photo.UploadedAt)
+                            .FirstOrDefault();
+
+                        <article class="favorite-business-card">
+                            <a class="favorite-business-image"
+                               asp-controller="Businesses"
+                               asp-action="Details"
+                               asp-route-id="@business.Id"
+                               aria-label="@business.Name detaylarını görüntüle">
+                                @if (cover != null)
+                                {
+                                    <img src="@cover.FilePath"
+                                         alt="@business.Name"
+                                         loading="lazy" />
+                                }
+                                else
+                                {
+                                    <span aria-hidden="true">✳</span>
+                                }
+
+                                <span class="favorite-category">
+                                    @business.Category.Name
+                                </span>
+                            </a>
+
+                            <div class="favorite-business-body">
+                                <div class="favorite-location">
+                                    ⌖ @business.City@(string.IsNullOrWhiteSpace(business.District) ? "" : $", {business.District}")
+                                </div>
+
+                                <h2>
+                                    <a asp-controller="Businesses"
+                                       asp-action="Details"
+                                       asp-route-id="@business.Id">
+                                        @business.Name
+                                    </a>
+                                </h2>
+
+                                <div class="favorite-business-actions">
+                                    <a asp-controller="Businesses"
+                                       asp-action="Details"
+                                       asp-route-id="@business.Id"
+                                       class="btn btn-primary">
+                                        Profili görüntüle <span aria-hidden="true">↗</span>
+                                    </a>
+
+                                    <form asp-controller="BusinessFavorites"
+                                          asp-action="ToggleFavorite"
+                                          method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden"
+                                               name="businessProfileId"
+                                               value="@business.Id" />
+                                        <input type="hidden"
+                                               name="returnUrl"
+                                               value="@Url.Action("Index", "BusinessFavorites")" />
+
+                                        <button type="submit"
+                                                class="favorite-remove-button"
+                                                aria-label="@business.Name favorilerden çıkar"
+                                                title="Favorilerden çıkar">
+                                            ♥
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </div>
+            </div>
+        }
+
+        @if (Model.VenueFavorites.Any())
+        {
+            <div class="favorites-section">
+                <header class="favorites-section-heading"><div><span class="dashboard-kicker">KAYDETTİKLERİN</span><h2>Mekânlar <small>@Model.VenueFavorites.Count</small></h2></div><a asp-controller="Venues" asp-action="Index">Mekânları keşfet ↗</a></header>
+
+                <div class="management-card-grid favorite-business-grid">
+                    @foreach (var favorite in Model.VenueFavorites)
+                    {
+                        var venue = favorite.Venue;
+                        var cover = venue.Photos
+                            .OrderByDescending(photo => photo.UploadedAt)
+                            .FirstOrDefault();
+
+                        <article class="favorite-business-card">
+                            <a class="favorite-business-image"
+                               asp-controller="Venues"
+                               asp-action="Details"
+                               asp-route-id="@venue.Id"
+                               aria-label="@venue.Name detaylarını görüntüle">
+                                @if (cover != null)
+                                {
+                                    <img src="@cover.FilePath"
+                                         alt="@venue.Name"
+                                         loading="lazy" />
+                                }
+                                else
+                                {
+                                    <span aria-hidden="true">⌖</span>
+                                }
+
+                                <span class="favorite-category">
+                                    @venue.Capacity kişi
+                                </span>
+                            </a>
+
+                            <div class="favorite-business-body">
+                                <div class="favorite-location">
+                                    ⌖ @venue.City@(string.IsNullOrWhiteSpace(venue.District) ? "" : $", {venue.District}")
+                                </div>
+
+                                <h2>
+                                    <a asp-controller="Venues"
+                                       asp-action="Details"
+                                       asp-route-id="@venue.Id">
+                                        @venue.Name
+                                    </a>
+                                </h2>
+
+                                <div class="favorite-business-actions">
+                                    <a asp-controller="Venues"
+                                       asp-action="Details"
+                                       asp-route-id="@venue.Id"
+                                       class="btn btn-primary">
+                                        Mekânı görüntüle <span aria-hidden="true">↗</span>
+                                    </a>
+
+                                    <form asp-controller="BusinessFavorites"
+                                          asp-action="ToggleVenueFavorite"
+                                          method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden"
+                                               name="venueId"
+                                               value="@venue.Id" />
+                                        <input type="hidden"
+                                               name="returnUrl"
+                                               value="@Url.Action("Index", "BusinessFavorites")" />
+
+                                        <button type="submit"
+                                                class="favorite-remove-button"
+                                                aria-label="@venue.Name favorilerden çıkar"
+                                                title="Favorilerden çıkar">
+                                            ♥
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </div>
+            </div>
+        }
+    }
+</section>

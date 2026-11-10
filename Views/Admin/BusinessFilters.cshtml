@@ -1,0 +1,106 @@
+@model List<OrganizationPlatform.Models.BusinessFilterDefinition>
+
+@{
+    ViewData["Title"] = "İşletme Filtreleri";
+}
+
+<section class="management-page admin-page">
+
+    <header class="admin-welcome">
+        <div>
+            <div class="eyebrow">
+                <span class="eyebrow-dot"></span>
+                MIORA YÖNETİMİ
+            </div>
+
+            <h1>İşletme filtreleri</h1>
+            <p>İşletme kategorilerine özel arama filtrelerini ve seçeneklerini yönet.</p>
+        </div>
+
+        <span class="admin-welcome-icon" aria-hidden="true">⚑</span>
+    </header>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success" role="status">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @TempData["Error"]
+        </div>
+    }
+
+    <div class="management-heading admin-list-heading">
+        <div>
+            <div class="eyebrow">
+                <span class="eyebrow-dot"></span>
+                FİLTRE KATALOĞU
+            </div>
+            <h2>Tanımlı filtreler</h2>
+            <p>@Model.Count filtre tanımlı</p>
+        </div>
+        <a asp-controller="Admin" asp-action="CreateBusinessFilter" class="btn btn-primary">
+            Filtre ekle <span aria-hidden="true">＋</span>
+        </a>
+    </div>
+
+    <div class="management-list">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Kategori</th>
+                        <th>Filtre adı</th>
+                        <th>Veri türü</th>
+                        <th>Seçenek sayısı</th>
+                        <th>Durum</th>
+                        <th class="text-end">İşlemler</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var filter in Model)
+                    {
+                        <tr>
+                            <td>@filter.BusinessCategory.Name</td>
+                            <td>
+                                <strong>@filter.Name</strong>
+                            </td>
+                            <td>@filter.DataType</td>
+                            <td>@filter.Options.Count</td>
+                            <td>
+                                @if (filter.IsActive)
+                                {
+                                    <span class="badge bg-success">Aktif</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Pasif</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a asp-controller="Admin" asp-action="EditBusinessFilter" asp-route-id="@filter.Id"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Düzenle
+                                </a>
+                                <a asp-controller="Admin" asp-action="ManageFilterOptions" asp-route-id="@filter.Id"
+                                   class="btn btn-sm btn-outline-secondary">
+                                    Seçenekler
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <a asp-controller="Admin" asp-action="Index" class="btn btn-outline-secondary mt-3">
+        Yönetim merkezine dön
+    </a>
+
+</section>

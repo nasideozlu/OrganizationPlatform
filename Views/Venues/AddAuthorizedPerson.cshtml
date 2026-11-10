@@ -1,0 +1,78 @@
+@model OrganizationPlatform.ViewModels.AuthorizedPersonViewModel
+@using OrganizationPlatform.Models
+
+@{
+    ViewData["Title"] = "Yetkili Kişi Ekle";
+}
+
+<section class="listing-page">
+    <div class="listing-heading">
+        <div>
+            <div class="eyebrow">Mekân yönetimi</div>
+            <h1>Yetkili kişi ekle</h1>
+            <p>@ViewBag.VenueName için yeni yetkili bilgilerini gir.</p>
+        </div>
+    </div>
+
+    <div class="public-business-panel">
+        <form asp-controller="Venues" asp-action="AddAuthorizedPerson" asp-route-venueId="@ViewBag.VenueId"
+              method="post" enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="FirstName" class="form-label">Ad</label>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="LastName" class="form-label">Soyad</label>
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Role" class="form-label">Yetki türü</label>
+                <select asp-for="Role" asp-items="Html.GetEnumSelectList<AuthorizedPersonRole>()" class="form-select">
+                    <option value="">Yetki türü seçin</option>
+                </select>
+                <span asp-validation-for="Role" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="PhoneNumber" class="form-label">Telefon</label>
+                <input asp-for="PhoneNumber" class="form-control" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label">E-posta</label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Photo" class="form-label">Fotoğraf</label>
+                <input asp-for="Photo" type="file" accept=".jpg,.jpeg,.png,.webp" class="form-control" />
+                <span asp-validation-for="Photo" class="text-danger"></span>
+                <small class="text-muted">En fazla 5 MB.</small>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Yetkili kişiyi kaydet
+            </button>
+
+            <a asp-controller="Venues" asp-action="AuthorizedPeople" asp-route-venueId="@ViewBag.VenueId"
+               class="btn btn-outline-secondary">
+                Vazgeç
+            </a>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

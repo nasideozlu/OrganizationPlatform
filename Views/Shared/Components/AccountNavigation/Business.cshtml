@@ -1,0 +1,8 @@
+<li class="nav-item"><a class="nav-link" asp-controller="Profile" asp-action="Index">İşletme paneli</a></li>
+<li class="nav-item"><a class="nav-link" asp-controller="BusinessPricings" asp-action="Index">Fiyatlarım</a></li>
+<li class="nav-item"><a class="nav-link" asp-controller="BusinessPackages" asp-action="Index">Paketlerim</a></li>
+<li class="nav-item"><a class="nav-link" asp-controller="BusinessCampaigns" asp-action="Index">Kampanyalarım</a></li>
+@if (ViewBag.IsVenueBusiness == true)
+{
+    <li class="nav-item"><a class="nav-link" asp-controller="Venues" asp-action="MyVenues">Mekânlarım</a></li>
+}

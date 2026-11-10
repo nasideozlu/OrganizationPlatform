@@ -1,0 +1,118 @@
+@using OrganizationPlatform.Models
+
+@{
+    ViewData["Title"] = "Yeni İşletme Filtresi";
+}
+
+<section class="management-page admin-page">
+
+    <header class="admin-welcome">
+        <div>
+            <div class="eyebrow">
+                <span class="eyebrow-dot"></span>
+                MIORA YÖNETİMİ
+            </div>
+            <h1>Yeni filtre oluştur</h1>
+            <p>İşletme kategorisine özel yeni bir arama filtresi tanımla.</p>
+        </div>
+    </header>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <div class="management-list p-4">
+
+        <form asp-controller="Admin"
+              asp-action="CreateBusinessFilter"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label class="form-label">İşletme kategorisi</label>
+                <select name="businessCategoryId"
+                        class="form-select"
+                        required>
+                    <option value="">Kategori seçin</option>
+                    @foreach (var category in ViewBag.BusinessCategories)
+                    {
+                        <option value="@category.Id">@category.Name</option>
+                    }
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Filtre adı</label>
+                <input type="text"
+                       name="name"
+                       class="form-control"
+                       placeholder="Örn. Çekim Türü"
+                       required />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Filtre kodu</label>
+                <input type="text"
+                       name="code"
+                       class="form-control"
+                       placeholder="Örn. shooting-type"
+                       required />
+                <small class="text-muted">
+                    Her kategori içinde benzersiz olmalıdır.
+                </small>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Veri türü</label>
+                <select name="dataType" class="form-select" required>
+                    <option value="1">Çoklu seçim</option>
+                    <option value="2">Sayısal değer</option>
+                    <option value="3">Metin</option>
+                    <option value="4">Evet / Hayır</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Birim</label>
+                <input type="text"
+                       name="unit"
+                       class="form-control"
+                       placeholder="Örn. gün, kişi, adet" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Görüntülenme sırası</label>
+                <input type="number"
+                       name="sortOrder"
+                       class="form-control"
+                       value="1"
+                       min="0" />
+            </div>
+
+            <div class="form-check mb-4">
+                <input type="checkbox"
+                       name="isRequired"
+                       value="true"
+                       class="form-check-input"
+                       id="isRequired" />
+                <label class="form-check-label" for="isRequired">
+                    Bu filtre zorunlu olsun
+                </label>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    Filtreyi kaydet
+                </button>
+
+                <a asp-action="BusinessFilters"
+                   class="btn btn-outline-secondary">
+                    Vazgeç
+                </a>
+            </div>
+
+        </form>
+    </div>
+</section>

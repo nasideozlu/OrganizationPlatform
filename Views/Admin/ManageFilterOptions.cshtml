@@ -1,0 +1,89 @@
+@model OrganizationPlatform.Models.BusinessFilterDefinition
+
+@{
+    ViewData["Title"] = "Filtre Seçenekleri";
+}
+
+<section class="management-page admin-page">
+
+    <header class="admin-welcome">
+        <div>
+            <div class="eyebrow">MIORA YÖNETİMİ</div>
+            <h1>@Model.Name</h1>
+            <p>@Model.BusinessCategory.Name kategorisinin filtre seçenekleri.</p>
+        </div>
+    </header>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <div class="management-heading admin-list-heading">
+        <div>
+            <h2>Filtre seçenekleri</h2>
+            <p>@Model.Options.Count seçenek tanımlı</p>
+        </div>
+
+        <a asp-action="CreateFilterOption"
+           asp-route-filterId="@Model.Id"
+           class="btn btn-primary">
+            Seçenek ekle ＋
+        </a>
+    </div>
+
+    <div class="management-list">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Seçenek adı</th>
+                        <th>Değer</th>
+                        <th>Sıra</th>
+                        <th>Durum</th>
+                        <th class="text-end">İşlemler</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var option in Model.Options.OrderBy(o => o.SortOrder))
+                    {
+                        <tr>
+                            <td><strong>@option.Name</strong></td>
+                            <td>@option.Value</td>
+                            <td>@option.SortOrder</td>
+                            <td>
+                                @if (option.IsActive)
+                                {
+                                    <span class="badge bg-success">Aktif</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Pasif</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a asp-action="EditFilterOption"
+                                   asp-route-id="@option.Id"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Düzenle
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <a asp-action="BusinessFilters"
+       class="btn btn-outline-secondary mt-3">
+        Filtrelere dön
+    </a>
+
+</section>

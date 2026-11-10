@@ -1,0 +1,56 @@
+@model List<OrganizationPlatform.Models.BusinessPackage>
+@{
+    ViewData["Title"] = "Paketlerim";
+}
+
+<section class="management-page">
+    <header class="management-heading">
+        <div><div class="eyebrow"><span class="eyebrow-dot"></span> İŞLETMEM · TEKLİFLER</div><h1>Hizmet paketlerin</h1><p>Birlikte sunduğun hizmetleri anlaşılır paketler halinde müşterilerinle paylaş.</p></div>
+        <a asp-action="Create" class="btn btn-primary">Paket oluştur <span aria-hidden="true">＋</span></a>
+    </header>
+    @if (TempData["Success"] is string success)
+    {
+        <div class="alert alert-success" role="status">@success</div>
+    }
+    @if (Model.Count == 0)
+    {
+        <div class="management-empty"><h2>Henüz paket oluşturmadın</h2><p>Hizmetlerini tek bir teklifte birleştirerek müşterilerin için seçim yapmayı kolaylaştır.</p><a asp-action="Create" class="btn btn-primary">İlk paketini oluştur</a></div>
+    }
+    else
+    {
+        <div class="management-card-grid">
+            @foreach (var package in Model)
+            {
+                <article class="management-card">
+                    <div class="d-flex justify-content-between align-items-start gap-2"><h2>@package.Name</h2><span class="status-pill @(package.IsActive ? "" : "is-inactive")">@(package.IsActive ? "Yayında" : "Pasif")</span></div>
+                    <div class="management-card-price">@package.Amount.ToString("N2") TL</div>
+                    @if (!string.IsNullOrWhiteSpace(package.Description))
+                    {
+                        <p>@package.Description</p>
+                    }
+                    <h3>Paket içeriği</h3>
+                    <ul class="package-manage-items">
+                        @foreach (var item in package.Items)
+                        {
+                            <li><span aria-hidden="true">✓</span> @item.Name</li>
+                        }
+                    </ul>
+                    @if (package.Venues.Any())
+                    {
+                        <div class="package-venue-list">
+                            <h3>Bağlı mekânlar</h3>
+                            <div>@foreach (var venue in package.Venues.OrderBy(venue => venue.Name)) { <span>⌖ @venue.Name</span> }</div>
+                        </div>
+                    }
+                    <div class="management-card-actions">
+                        <a asp-action="Edit" asp-route-id="@package.Id" class="btn btn-sm btn-outline-primary">Düzenle</a>
+                        <form asp-action="ToggleStatus" asp-route-id="@package.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">@(package.IsActive ? "Yayından kaldır" : "Yeniden yayınla")</button>
+                        </form>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>

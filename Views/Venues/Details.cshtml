@@ -1,93 +1,426 @@
 @model OrganizationPlatform.Models.Venue
 @{
     ViewData["Title"] = Model.Name;
-    var cover = Model.Photos.OrderByDescending(photo => photo.UploadedAt).FirstOrDefault();
+    var photos = Model.Photos.OrderByDescending(photo => photo.UploadedAt).ToList();
+    var phoneNumber = !string.IsNullOrWhiteSpace(Model.PhoneNumber)
+    ? Model.PhoneNumber
+    : !string.IsNullOrWhiteSpace(Model.BusinessProfile.PhoneNumber)
+        ? Model.BusinessProfile.PhoneNumber
+        : Model.BusinessProfile.ApplicationUser.PhoneNumber;
+
+    var email = !string.IsNullOrWhiteSpace(Model.Email)
+        ? Model.Email
+        : Model.BusinessProfile.ApplicationUser.Email;
+    
+    var instagramUrl = !string.IsNullOrWhiteSpace(Model.InstagramUrl)
+    ? Model.InstagramUrl
+    : Model.BusinessProfile.InstagramUrl;
+
+    var venueAddress = string.Join(", ", new[]
+    {
+    Model.Address,
+    Model.Neighborhood,
+    Model.District,
+    Model.City
+}.Where(value => !string.IsNullOrWhiteSpace(value)));
+
+    if (string.IsNullOrWhiteSpace(Model.Address))
+    {
+        venueAddress = string.Join(", ", new[]
+        {
+        Model.BusinessProfile.Address,
+        Model.Neighborhood,
+        Model.District,
+        Model.City
+    }.Where(value => !string.IsNullOrWhiteSpace(value)));
+    }
+
+    var mapsUrl = !string.IsNullOrWhiteSpace(venueAddress)
+        ? $"https://www.google.com/maps/search/?api=1&query={Uri.EscapeDataString(venueAddress)}"
+        : null;
+
+    var phoneDigits = System.Text.RegularExpressions.Regex.Replace(
+        phoneNumber ?? "", "[^0-9]", "");
+    var authorizedPeople = Model.BusinessProfile.AuthorizedPeople
+    .Concat(Model.AuthorizedPeople)
+    .ToList();
 }
 <section class="venue-detail-page">
     <a asp-controller="Venues" asp-action="Index" class="business-back-link">← Tüm mekânlara dön</a>
 
-    <div class="venue-detail-hero">
-        @if (cover != null)
-        {
-            <img class="venue-detail-cover" src="@cover.FilePath" alt="@Model.Name mekân fotoğrafı" />
-        }
-        else
-        {
-            <div class="venue-detail-cover venue-detail-cover-empty" aria-hidden="true">⌖</div>
-        }
-        <div class="venue-detail-shade"></div>
-        <div class="venue-detail-title">
-            <span class="business-detail-category">@Model.BusinessProfile.Category.Name</span>
+    <header class="detail-profile-heading">
+        <div class="detail-profile-title">
+            <span class="detail-profile-category">@Model.BusinessProfile.Category.Name · Mekân</span>
             <h1>@Model.Name</h1>
-            <p><span aria-hidden="true">⌖</span> @Model.City, @Model.District, @Model.Neighborhood</p>
-        </div>
-    </div>
-
-    <div class="venue-detail-content">
-        <div class="venue-detail-main">
-            <section class="venue-detail-panel">
-                <span class="dashboard-kicker">MEKÂNI TANI</span>
-                <h2>Mekân hakkında</h2>
-                <p class="business-about-copy">@(string.IsNullOrWhiteSpace(Model.Description) ? "Bu mekân için henüz açıklama eklenmemiş." : Model.Description)</p>
-                <div class="venue-facts-grid">
-                    <div class="venue-fact"><span class="detail-icon">♙</span><div><small>Kapasite</small><strong>@Model.Capacity kişi</strong></div></div>
-                    <div class="venue-fact"><span class="detail-icon">⌖</span><div><small>Konum</small><strong>@Model.District, @Model.City</strong></div></div>
-                    @if (!string.IsNullOrWhiteSpace(Model.Address))
+            <div class="detail-profile-meta">
+                <span><span aria-hidden="true">⌖</span> @Model.City@(string.IsNullOrWhiteSpace(Model.District) ? "" :
+                                                                                                                                                                                                                                                                                        $", {Model.District}")@(string.IsNullOrWhiteSpace(Model.Neighborhood) ? "" : $",                    {Model.Neighborhood}")</span>
+                    <span><span aria-hidden="true">♙</span> @Model.Capacity kişi kapasite</span>
+                    @if (!string.IsNullOrWhiteSpace(phoneNumber))
                     {
-                        <div class="venue-fact venue-fact-wide"><span class="detail-icon">⌂</span><div><small>Açık adres</small><strong>@Model.Address</strong></div></div>
+                        <a href="tel:@phoneNumber"><span aria-hidden="true">☎</span> @phoneNumber</a>
+                        <a href="https://wa.me/@phoneDigits" target="_blank" rel="noopener noreferrer"
+                           class="detail-whatsapp">WhatsApp</a>
                     }
                 </div>
-            </section>
+            </div>
+            @if (ViewBag.CanFavorite == true)
+            {
+                <form asp-controller="BusinessFavorites" asp-action="ToggleVenueFavorite" method="post"
+                      class="detail-favorite-form">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="venueId" value="@Model.Id" />
+                    <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                    <button type="submit" class="detail-favorite-button"
+                            aria-label="@(ViewBag.IsFavorite == true ? "Favorilerden çıkar" : "Favorilere ekle")"
+                            title="@(ViewBag.IsFavorite == true ? "Favorilerden çıkar" : "Favorilere ekle")">@(ViewBag.IsFavorite ==
+                            true ? "♥" : "♡")</button>
+                    </form>
+                }
+            </header>
 
-            <section class="venue-detail-panel">
-                <div class="detail-panel-heading"><div><span class="dashboard-kicker">MEKÂN FOTOĞRAFLARI</span><h2>Fotoğraf galerisi</h2></div><span class="business-venue-count">@Model.Photos.Count</span></div>
-                @if (Model.Photos.Any())
+            <section class="detail-photo-slider" id="venue-photos" data-photo-slider aria-label="@Model.Name fotoğraf albümü">
+                @if (photos.Count > 0)
                 {
-                    <div class="venue-photo-grid">
-                        @foreach (var photo in Model.Photos.OrderByDescending(photo => photo.UploadedAt))
+                    <div class="detail-slide-stage">
+                        @for (var i = 0; i < photos.Count; i++)
                         {
-                            <a href="@photo.FilePath" target="_blank" rel="noopener noreferrer"><img src="@photo.FilePath" alt="@Model.Name mekân fotoğrafı" loading="lazy" /></a>
+                            <img class="detail-slide @(i == 0 ? "is-active" : "")" src="@photos[i].FilePath"
+                                 alt="@Model.Name fotoğrafı @(i + 1)" loading="@(i == 0 ? "eager" : "lazy")" data-slide-index="@i" />
                         }
+                        @if (photos.Count > 1)
+                        {
+                            <button class="detail-slide-arrow detail-slide-prev" type="button" data-slide-prev
+                                    aria-label="Önceki fotoğraf">‹</button>
+                            <button class="detail-slide-arrow detail-slide-next" type="button" data-slide-next
+                                    aria-label="Sonraki fotoğraf">›</button>
+                        }
+                        <span class="detail-slide-count" aria-live="polite"><span data-slide-current>1</span> / @photos.Count</span>
                     </div>
                 }
                 else
                 {
-                    <p class="text-secondary mb-0">Bu mekân için henüz fotoğraf eklenmemiş.</p>
-                }
-            </section>
+                    <div class="detail-slide-empty"><span aria-hidden="true">⌖</span><strong>Fotoğraf albümü
+                        hazırlanıyor</strong><small>Bu mekân yakında fotoğraflarını paylaşacak.</small></div>
+                    }
+                </section>
 
-            <section class="venue-detail-panel">
-                <span class="dashboard-kicker">ÖZELLİKLER</span><h2>Fiziksel özellikler</h2>
-                @if (Model.PhysicalFeatures.Any())
-                {
-                    <div class="venue-feature-chips">@foreach (var feature in Model.PhysicalFeatures) { <span>@feature.Name</span> }</div>
-                }
+                <div class="venue-detail-content">
+                    <div class="venue-detail-main">
+                        <section class="venue-detail-panel" id="venue-capacity">
+                            <span class="dashboard-kicker">MEKÂNI TANI</span>
+                            <h2>Mekân hakkında</h2>
+                            <p class="business-about-copy">@(string.IsNullOrWhiteSpace(Model.Description) ? "Bu mekân için henüz açıklama eklenmemiş." : Model.Description)</p>
+                            <div class="venue-facts-grid">
+                                <div class="venue-fact"><span class="detail-icon">♙</span>
+                                    <div><small>Kapasite</small><strong>@Model.Capacity kişi</strong></div>
+                                </div>
+                                <div class="venue-fact"><span class="detail-icon">⌖</span>
+                                    <div><small>Konum</small><strong>@Model.District, @Model.City</strong></div>
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(Model.Address))
+                                {
+                                    <div class="venue-fact venue-fact-wide"><span class="detail-icon">⌂</span>
+                                        <div><small>Açık adres</small><strong>@Model.Address</strong></div>
+                                    </div>
+                                }
+                            </div>
+                        </section>
+
+                    <section class="venue-detail-panel" id="venue-features">
+                            <span class="dashboard-kicker">ÖZELLİKLER</span>
+                            <h2>Fiziksel özellikler</h2>
+                            @if (Model.PhysicalFeatures.Any())
+                            {
+                                <div class="venue-feature-chips">@foreach (var feature in Model.PhysicalFeatures) {
+                                    <span>@feature.Name</span>
+                                }
+                            </div>
+                        }
                 else
-                {
-                    <p class="text-secondary mb-0">Henüz fiziksel özellik bilgisi eklenmemiş.</p>
-                }
-            </section>
-        </div>
+                        {
+                            <p class="text-secondary mb-0">Henüz fiziksel özellik bilgisi eklenmemiş.</p>
+                        }
+                    </section>
+                    @if (Model.BusinessProfile.Category.Name == "Düğün Mekanı"
+    && authorizedPeople.Any())
+                    {
+                        <section class="venue-detail-panel" id="venue-team">
+                            <div class="detail-panel-heading">
+                                <div>
+                                    <span class="dashboard-kicker">EKİBİMİZ</span>
+                                    <h2>Ekiple Tanışın</h2>
+                                </div>
+                                <span class="business-venue-count">
+                                    @authorizedPeople.Count
+                                </span>
+                            </div>
 
-        <aside class="venue-detail-sidebar">
-            <div class="venue-price-card">
-                <span class="dashboard-kicker">FİYAT BİLGİSİ</span><h2>Kişi başı fiyat</h2>
-                @if (Model.MealIncludedPrice.HasValue)
-                {
-                    <div class="venue-price-row"><span>Yemekli</span><strong>@Model.MealIncludedPrice.Value.ToString("N0") ₺</strong></div>
-                }
-                @if (Model.MealExcludedPrice.HasValue)
-                {
-                    <div class="venue-price-row"><span>Yemeksiz</span><strong>@Model.MealExcludedPrice.Value.ToString("N0") ₺</strong></div>
-                }
-                @if (!Model.MealIncludedPrice.HasValue && !Model.MealExcludedPrice.HasValue)
-                {
-                    <p class="text-secondary mb-0">Henüz fiyat bilgisi paylaşılmamış.</p>
-                }
-            </div>
-            <a class="venue-provider-card" asp-controller="Businesses" asp-action="Details" asp-route-id="@Model.BusinessProfileId">
-                <span class="dashboard-kicker">İŞLETME</span><strong>@Model.BusinessProfile.Name</strong><span>@Model.BusinessProfile.Category.Name · @Model.BusinessProfile.City</span><b>İşletme profilini gör <span aria-hidden="true">↗</span></b>
-            </a>
-        </aside>
-    </div>
-</section>
+                            <div class="authorized-people-list">
+                                @foreach (var person in authorizedPeople)
+                                {
+                                    var phone = !string.IsNullOrWhiteSpace(person.PhoneNumber)
+                                        ? person.PhoneNumber
+                                        : !string.IsNullOrWhiteSpace(Model.PhoneNumber)
+                                            ? Model.PhoneNumber
+                                            : Model.BusinessProfile.ApplicationUser.PhoneNumber;
+
+                                    var personEmail = !string.IsNullOrWhiteSpace(person.Email)
+                                        ? person.Email
+                                        : !string.IsNullOrWhiteSpace(Model.Email)
+                                            ? Model.Email
+                                            : Model.BusinessProfile.ApplicationUser.Email;
+
+                                    var roleName = person.Role switch
+                                    {
+                                        AuthorizedPersonRole.BusinessOwner => "İşletme Sahibi",
+                                        AuthorizedPersonRole.CompanyRepresentative => "Firma Yetkilisi",
+                                        _ => "Yetkili"
+                                    };
+
+                                    <article class="authorized-person-card">
+                                        <div class="authorized-person-info">
+                                            @if (!string.IsNullOrWhiteSpace(person.PhotoPath))
+                                            {
+                                                <img src="@person.PhotoPath" alt="@person.FirstName @person.LastName"
+                                                     class="authorized-person-photo" />
+                                            }
+                                            else
+                                            {
+                                                <div class="authorized-person-avatar">
+                                                    @(string.IsNullOrWhiteSpace(person.FirstName)
+                                                        ? "?"
+                                                        : person.FirstName.Substring(0, 1).ToUpper())
+                                                </div>
+                                            }
+
+                                            <div>
+                                                <h3>@person.FirstName @person.LastName</h3>
+                                                <span>@roleName</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="authorized-person-actions">
+                                            @if (!string.IsNullOrWhiteSpace(phone))
+                                            {
+                                                <a href="tel:@phone" class="btn btn-outline-primary">
+                                                    Ara
+                                                </a>
+                                            }
+
+                                            @if (!string.IsNullOrWhiteSpace(personEmail))
+                                            {
+                                                <a href="mailto:@personEmail" class="btn btn-primary">
+                                                    Mesaj At
+                                                </a>
+                                            }
+                                        </div>
+                                    </article>
+                                }
+                            </div>
+                        </section>
+                    }
+                </div>
+
+                <aside class="venue-detail-sidebar">
+                    <div class="venue-price-card" id="venue-pricing">
+                        <span class="dashboard-kicker">FİYAT BİLGİSİ</span>
+                        <h2>Kişi başı fiyat</h2>
+                        @if (Model.MealIncludedPrice.HasValue)
+                        {
+                            <div class="venue-price-row"><span>Yemekli</span><strong>@Model.MealIncludedPrice.Value.ToString("N0")
+                                ₺</strong></div>
+                            }
+                            @if (Model.MealExcludedPrice.HasValue)
+                            {
+                                <div class="venue-price-row"><span>Yemeksiz</span><strong>@Model.MealExcludedPrice.Value.ToString("N0")
+                                    ₺</strong></div>
+                                }
+                                @if (!Model.MealIncludedPrice.HasValue && !Model.MealExcludedPrice.HasValue)
+                                {
+                                    <p class="text-secondary mb-0">Henüz fiyat bilgisi paylaşılmamış.</p>
+                                }
+                            </div>
+                            <a class="venue-provider-card" asp-controller="Businesses" asp-action="Details"
+                               asp-route-id="@Model.BusinessProfileId">
+                                <span
+                                class="dashboard-kicker">İŞLETME</span><strong>@Model.BusinessProfile.Name</strong><span>@Model.BusinessProfile.Category.Name
+                                · @Model.BusinessProfile.City</span><b>İşletme profilini gör <span aria-hidden="true">↗</span></b>
+                            </a>
+                            <div class="venue-price-card" id="venue-contact">
+                                <span class="dashboard-kicker">İLETİŞİM</span>
+                                <h2>Mekânla iletişime geç</h2>
+
+                                @if (!string.IsNullOrWhiteSpace(phoneNumber))
+                                {
+                                    <div class="venue-price-row">
+                                        <span>Telefon</span>
+                                        <a href="tel:@phoneNumber">@phoneNumber</a>
+                                    </div>
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(instagramUrl))
+                                {
+                                    <a href="@instagramUrl" target="_blank" rel="noopener noreferrer">
+                                        <i class="bi bi-instagram"></i>
+                                        Instagram'da Görüntüle
+                                    </a>
+                                }
+                            
+
+                                @if (!string.IsNullOrWhiteSpace(venueAddress))
+                                {
+                                    <div class="venue-price-row">
+                                        <span>Adres</span>
+                                        <strong>@venueAddress</strong>
+                                    </div>
+
+                                    <a href="@mapsUrl" target="_blank" rel="noopener noreferrer" class="btn btn-primary w-100 mt-3">
+                                        Yol Tarifi Al
+                                    </a>
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(email))
+                                {
+                                    <div class="venue-price-row">
+                                        <span>E-posta</span>
+                                        <a href="mailto:@email">@email</a>
+                                    </div>
+                                }
+
+                                @if (string.IsNullOrWhiteSpace(phoneNumber)
+                                    && string.IsNullOrWhiteSpace(email)
+                                    && string.IsNullOrWhiteSpace(Model.BusinessProfile.InstagramUrl)
+                                    && string.IsNullOrWhiteSpace(venueAddress))
+                                {
+                                    <p class="text-secondary mb-0">
+                                        Henüz iletişim bilgisi paylaşılmamış.
+                                    </p>
+                                }
+                            </div>
+                        </aside>
+                    </div>
+
+                    <!-- Mekan Yorumları -->
+                    <section class="venue-reviews-panel mt-5" id="venue-reviews">
+                        <h3 class="mb-3">Müşteri Yorumları</h3>
+
+                        <div class="mb-4">
+                            <strong>Ortalama Puan:</strong>
+                            @(((double)ViewBag.AverageRating).ToString("0.0")) / 5
+
+                            <span class="text-muted">
+                                (@ViewBag.RatingCount yorum)
+                            </span>
+                        </div>
+                        @if (User.Identity?.IsAuthenticated == true && ViewBag.CanFavorite == true)
+                        {
+                            @if (ViewBag.HasRated == true)
+                            {
+                                <div class="alert alert-success mb-4">
+                                    Bu mekânı zaten değerlendirdin. Katkın için teşekkürler!
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="card mb-4">
+                                    <div class="card-body">
+                                        <h4>Mekânı değerlendir</h4>
+
+                                        <form asp-controller="VenueRatings" asp-action="Create" method="post">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden" name="venueId" value="@Model.Id" />
+
+                                            <div class="mb-3">
+                                                <label for="rating" class="form-label">Puanınız</label>
+
+                                                <select name="rating" id="rating" class="form-select" required>
+                                                    <option value="">Puan seçin</option>
+                                                    <option value="5">5 - Çok iyi</option>
+                                                    <option value="4">4 - İyi</option>
+                                                    <option value="3">3 - Orta</option>
+                                                    <option value="2">2 - Kötü</option>
+                                                    <option value="1">1 - Çok kötü</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="comment" class="form-label">Yorumunuz</label>
+                                                <textarea name="comment" id="comment" class="form-control" rows="4" maxlength="1000"
+                                                          placeholder="Mekân hakkındaki deneyiminizi paylaşın..."></textarea>
+                                            </div>
+
+                                            <button type="submit" class="btn btn-primary">
+                                                Yorumu gönder
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            }
+                        }
+
+                        @if (ViewBag.Ratings.Count > 0)
+                        {
+                            foreach (var rating in ViewBag.Ratings)
+                            {
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <strong>@rating.CustomerName</strong>
+                                            <span>@rating.Rating / 5</span>
+                                        </div>
+
+                                        <small class="text-muted">
+                                            @rating.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy")
+                                        </small>
+
+                                        @if (!string.IsNullOrWhiteSpace(rating.Comment))
+                                        {
+                                            <p class="mt-2 mb-2">@rating.Comment</p>
+                                        }
+
+                                        @if (!string.IsNullOrWhiteSpace(rating.BusinessReply))
+                                        {
+                                            <div class="border-start border-3 ps-3 mt-3">
+                                                <strong>@Model.BusinessProfile.Name</strong>
+                                                <small class="text-muted"> · İşletme yanıtı</small>
+
+                                                <p class="mt-1 mb-1">@rating.BusinessReply</p>
+                                            </div>
+                                        }
+
+                                        @if (User.Identity?.IsAuthenticated == true &&
+                                            Model.BusinessProfile.ApplicationUserId ==
+                                            User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+                                        {
+                                            <form asp-controller="VenueRatings" asp-action="Reply" method="post" class="mt-3">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden" name="venueRatingId" value="@rating.Id" />
+
+                                                <div class="mb-2">
+                                                    <textarea name="reply" class="form-control" rows="2" maxlength="1000"
+                                                              placeholder="Müşteri yorumunu yanıtlayın..." required>@rating.BusinessReply</textarea>
+                                                </div>
+
+                                                <button type="submit" class="btn btn-outline-primary btn-sm">
+                                                    @(string.IsNullOrWhiteSpace(rating.BusinessReply)
+                                                        ? "Yanıtla"
+                                                        : "Yanıtı güncelle")
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-muted">Henüz bu mekâna yorum yapılmamış.</p>
+                        }
+                    </section>
+                    
+                </section>

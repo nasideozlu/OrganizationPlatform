@@ -21,4 +21,26 @@ public class BusinessFilterViewModel
     public List<LocationItem> Provinces { get; set; } = new();
 
     public List<LocationItem> Districts { get; set; } = new();
+    public List<BusinessFilterSearchItemViewModel> FilterItems { get; set; } = new();
+}
+
+public class BusinessFilterSearchItemViewModel
+{
+    public int DefinitionId { get; set; }
+
+    public string Name { get; set; } = string.Empty;
+
+    public BusinessFilterDataType DataType { get; set; }
+
+    public string? Unit { get; set; }
+
+    public List<BusinessFilterOption> Options { get; set; } = new();
+
+    public List<int> SelectedOptionIds { get; set; } = new();
+
+    public decimal? NumericValue { get; set; }
+
+    public string? TextValue { get; set; }
+
+    public bool? BooleanValue { get; set; }
 }
