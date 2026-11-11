@@ -1,4 +1,4 @@
-@model OrganizationPlatform.Models.HomeViewModel
+@model OrganizationPlatform.ViewModels.HomeViewModel
 @{
     ViewData["Title"] = "Keşfet";
     var isCustomerHome = ViewBag.IsCustomerHome == true;
@@ -35,13 +35,6 @@
             }
             <p>Mekânını bul, sana uygun ekibi keşfet ve seçenekleri kendi gözlerinle karşılaştır.</p>
 
-            <div class="explore-search">
-                <span class="explore-search-icon" aria-hidden="true">⌕</span>
-                <label class="visually-hidden" for="homeCatalogSearch">Mekân veya işletme ara</label>
-                <input id="homeCatalogSearch" type="search" value="@ViewBag.SearchTerm" placeholder="Mekân, hizmet veya şehir ara"
-                       autocomplete="off" />
-                <a href="#kesfet" class="btn btn-primary">Keşfet <span aria-hidden="true">↗</span></a>
-            </div>
             <div class="explore-hero-links">
                 <a href="#mekanlar">Mekânlara göz at <span aria-hidden="true">↓</span></a>
                 <a href="#isletmeler">Hizmet verenleri keşfet <span aria-hidden="true">↓</span></a>
@@ -70,9 +63,6 @@
                     <span id="homeCatalogCount" role="status" aria-live="polite">@totalFeaturedCount seçenek gösteriliyor</span>
                     <span>@Model.Venues.Count mekân · @Model.Businesses.Count işletme</span>
                 </div>
-                <div id="homeNoSearchResults" class="home-search-empty" hidden>Aramana uygun seçenek bulamadık. Başka bir kelime
-                    deneyebilirsin.</div>
-
                     <section class="explore-section" id="mekanlar" aria-labelledby="home-venues-title" data-discovery-section>
                         <header class="explore-section-heading">
                             <div><span class="explore-section-kicker">MEKÂNLAR</span>
@@ -257,32 +247,3 @@
                                 </div>
                             </div>
 
-                            @section Scripts {
-                                <script>
-                                    const homeCatalogSearch = document.getElementById('homeCatalogSearch');
-                                    const homeCatalogCards = [...document.querySelectorAll('[data-discovery-card]')];
-                                    const homeCatalogSections = [...document.querySelectorAll('[data-discovery-section]')];
-                                    const homeCatalogCount = document.getElementById('homeCatalogCount');
-                                    const homeNoSearchResults = document.getElementById('homeNoSearchResults');
-
-                                    homeCatalogSearch?.addEventListener('input', () => {
-                                        const query = homeCatalogSearch.value.trim().toLocaleLowerCase('tr-TR');
-                                        let visibleCount = 0;
-                                        homeCatalogCards.forEach(card => {
-                                            const matches = (card.dataset.search || '').toLocaleLowerCase('tr-TR').includes(query);
-                                            card.hidden = !matches;
-                                            if (matches) visibleCount++;
-                                        });
-                                        homeCatalogSections.forEach(section => {
-                                            if (section.querySelector('[data-discovery-card]')) {
-                                                section.hidden = !section.querySelector('[data-discovery-card]:not([hidden])');
-                                            }
-                                        });
-                                        homeCatalogCount.textContent = visibleCount + ' seçenek gösteriliyor';
-                                        homeNoSearchResults.hidden = visibleCount !== 0 || query.length === 0;
-                                    });
-                                    if (homeCatalogSearch?.value.trim()) {
-                                        homeCatalogSearch.dispatchEvent(new Event('input'));
-                                    }
-                                </script>
-                            }

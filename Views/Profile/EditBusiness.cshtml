@@ -1,4 +1,5 @@
-@model OrganizationPlatform.Models.BusinessProfileEditViewModel
+@using OrganizationPlatform.Models
+@model OrganizationPlatform.ViewModels.BusinessProfileEditViewModel
 @{
     ViewData["Title"] = "İşletme profilini düzenle";
     var provinces = ViewBag.Provinces as List<OrganizationPlatform.Services.LocationItem> ?? new();
@@ -174,6 +175,36 @@
                                     <article class="existing-photo-card"><a href="@photo.FilePath" target="_blank"
                                                                             rel="noopener noreferrer"><img src="@photo.FilePath" alt="İşletme fotoğrafı"
                                                                        loading="lazy" /></a>
+                                        <div class="mt-2">
+
+                                            @if (photo.ApprovalStatus == ReviewStatus.Pending)
+                                            {
+                                                <span class="badge bg-warning text-dark">
+                                                    Onay Bekliyor
+                                                </span>
+                                            }
+                                            else if (photo.ApprovalStatus == ReviewStatus.Approved)
+                                            {
+                                                <span class="badge bg-success">
+                                                    Onaylandı
+                                                </span>
+                                            }
+                                            else if (photo.ApprovalStatus == ReviewStatus.Rejected)
+                                            {
+                                                <span class="badge bg-danger">
+                                                    Reddedildi
+                                                </span>
+
+                                                @if (!string.IsNullOrWhiteSpace(photo.RejectionReason))
+                                                {
+                                                    <p class="text-danger small mt-2 mb-0">
+                                                        <strong>Ret gerekçesi:</strong>
+                                                        @photo.RejectionReason
+                                                    </p>
+                                                }
+                                            }
+
+                                        </div>
                                         <form asp-controller="Profile" asp-action="DeleteBusinessPhoto" method="post"
                                               onsubmit="return confirm('Bu fotoğrafı silmek istediğine emin misin?');">
                                             @Html.AntiForgeryToken()<input type="hidden" name="id" value="@photo.Id" /><button

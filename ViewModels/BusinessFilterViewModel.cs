@@ -1,6 +1,8 @@
-
-namespace OrganizationPlatform.Models;
+using OrganizationPlatform.Models;
 using OrganizationPlatform.Services;
+
+namespace OrganizationPlatform.ViewModels;
+
 
 public class BusinessFilterViewModel
 {
@@ -13,6 +15,8 @@ public class BusinessFilterViewModel
     public string? City { get; set; }
 
     public string? District { get; set; }
+
+    public string? SortBy { get; set; }
 
     public List<BusinessProfile> Businesses { get; set; } = new();
 

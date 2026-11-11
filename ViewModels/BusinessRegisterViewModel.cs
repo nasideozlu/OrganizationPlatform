@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using OrganizationPlatform.Models;
 
-namespace OrganizationPlatform.Models;
+namespace OrganizationPlatform.ViewModels;
 
 public class BusinessRegisterViewModel
 {

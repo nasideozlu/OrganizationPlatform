@@ -109,8 +109,10 @@ public class BusinessesController : Controller
         var query = _context.BusinessProfiles
             .AsNoTracking()
             .Include(business => business.Category)
-            .Include(business => business.Photos)
+            .Include(business => business.Photos
+                .Where(photo => photo.ApprovalStatus == ReviewStatus.Approved))
             .Where(business => business.Category.Name != "Düğün Mekanı")
+            .Where(business => business.ApprovalStatus == ReviewStatus.Approved)
             .AsQueryable();
 
         // İşletme adı veya açıklama araması.
@@ -223,10 +225,30 @@ public class BusinessesController : Controller
             }
         }
 
-        // Filtrelenmiş işletmeleri getir.
-        filter.Businesses = await query
-            .OrderBy(business => business.Name)
-            .ToListAsync();
+        // Filtrelenmiş işletmeleri seçilen sıraya göre getir.
+        query = filter.SortBy switch
+        {
+            "name_desc" => query
+                .OrderByDescending(business => business.Name),
+            "price_asc" => query
+                .OrderByDescending(business => business.Pricings.Any(pricing => pricing.IsActive))
+                .ThenBy(business => business.Pricings
+                    .Where(pricing => pricing.IsActive)
+                    .Min(pricing => (decimal?)pricing.Amount) ?? decimal.MaxValue)
+                .ThenBy(business => business.Name),
+            "price_desc" => query
+                .OrderByDescending(business => business.Pricings.Any(pricing => pricing.IsActive))
+                .ThenByDescending(business => business.Pricings
+                    .Where(pricing => pricing.IsActive)
+                    .Max(pricing => (decimal?)pricing.Amount) ?? decimal.MinValue)
+                .ThenBy(business => business.Name),
+            "name_asc" => query
+                .OrderBy(business => business.Name),
+            _ => query
+                .OrderBy(business => business.Name)
+        };
+
+        filter.Businesses = await query.ToListAsync();
 
         // Favori işlemleri.
         var favoriteBusinessIds = new HashSet<int>();
@@ -286,9 +308,13 @@ public class BusinessesController : Controller
         var query = _context.Venues
             .AsNoTracking()
             .Include(venue => venue.BusinessProfile)
-            .Include(venue => venue.Photos)
+            .Include(venue => venue.Photos
+                .Where(photo => photo.ApprovalStatus == ReviewStatus.Approved))
             .Include(venue => venue.PhysicalFeatures)
-            .ThenInclude(feature => feature.Category)
+                .ThenInclude(feature => feature.Category)
+            .Where(venue =>
+                venue.ApprovalStatus == ReviewStatus.Approved &&
+                venue.BusinessProfile.ApprovalStatus == ReviewStatus.Approved)
             .AsQueryable();
 
         // İl filtresi
@@ -373,7 +399,8 @@ public class BusinessesController : Controller
 
         var business = await _context.BusinessProfiles
             .Include(b => b.Category)
-            .Include(b => b.Photos)
+            .Include(b => b.Photos
+                .Where(photo => photo.ApprovalStatus == ReviewStatus.Approved))
             .Include(b => b.ApplicationUser)
             .Include(b => b.AuthorizedPeople)
             .Include(b => b.Pricings.Where(p => p.IsActive))
@@ -386,11 +413,15 @@ public class BusinessesController : Controller
                 c.StartDate <= today &&
                 c.EndDate >= today))
                 .ThenInclude(c => c.BusinessPackage)
-            .Include(b => b.Venues)
-                .ThenInclude(venue => venue.Photos)
+            .Include(b => b.Venues
+                .Where(venue =>
+                    venue.ApprovalStatus == ReviewStatus.Approved))
+                .ThenInclude(venue => venue.Photos
+                    .Where(photo => photo.ApprovalStatus == ReviewStatus.Approved))
             .FirstOrDefaultAsync(b => b.Id == id);
 
-        if (business == null)
+        if (business == null ||
+            business.ApprovalStatus != ReviewStatus.Approved)
         {
             return NotFound();
         }

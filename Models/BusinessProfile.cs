@@ -23,6 +23,8 @@ public class BusinessProfile
 
     public required ApplicationUser ApplicationUser { get; set; }
 
+    public ReviewStatus ApprovalStatus { get; set; } = ReviewStatus.Pending;
+    public string? RejectionReason { get; set; }
     public List<Venue> Venues { get; set; } = new();
     public List<AuthorizedPerson> AuthorizedPeople { get; set; } = new();
 

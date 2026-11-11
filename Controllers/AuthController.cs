@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using OrganizationPlatform.Models;
+using OrganizationPlatform.ViewModels;
 
 namespace OrganizationPlatform.Controllers;
 

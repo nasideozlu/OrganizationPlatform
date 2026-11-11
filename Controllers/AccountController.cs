@@ -5,6 +5,7 @@ using OrganizationPlatform.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using OrganizationPlatform.Services;
+using OrganizationPlatform.ViewModels;
 
 namespace OrganizationPlatform.Controllers;
 
@@ -218,7 +219,8 @@ public class AccountController : Controller
             CategoryId = model.CategoryId,
             Category = category,
             ApplicationUserId = user.Id,
-            ApplicationUser = user
+            ApplicationUser = user,
+            ApprovalStatus = ReviewStatus.Pending
         };
 
         _context.BusinessProfiles.Add(businessProfile);

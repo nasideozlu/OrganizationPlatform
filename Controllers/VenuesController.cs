@@ -58,8 +58,11 @@ public class VenuesController : Controller
         }
 
         var query = _context.Venues
-            .AsNoTracking()
-            .AsQueryable();
+    .AsNoTracking()
+    .Where(venue =>
+        venue.ApprovalStatus == ReviewStatus.Approved &&
+        venue.BusinessProfile.ApprovalStatus == ReviewStatus.Approved)
+    .AsQueryable();
 
 
         if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
@@ -191,9 +194,10 @@ public class VenuesController : Controller
         };
 
         filter.Venues = await query
-            .Include(venue => venue.Photos)
-            .Include(venue => venue.PhysicalFeatures)
-            .ToListAsync();
+    .Include(venue => venue.Photos
+        .Where(photo => photo.ApprovalStatus == ReviewStatus.Approved))
+    .Include(venue => venue.PhysicalFeatures)
+    .ToListAsync();
 
 
         // 7. Fiziksel özellik kategorilerini yükle
@@ -223,18 +227,33 @@ public class VenuesController : Controller
     public async Task<IActionResult> Details(int id)
     {
         var venue = await _context.Venues
-            .Include(v => v.BusinessProfile)
-                .ThenInclude(b => b.Category)
-            .Include(v => v.BusinessProfile)
-                .ThenInclude(b => b.ApplicationUser)
-            .Include(v => v.Photos)
-            .Include(v => v.PhysicalFeatures)
-            .Include(v => v.AuthorizedPeople)
-            .Include(v => v.BusinessProfile)
-                .ThenInclude(b => b.AuthorizedPeople)
-            .FirstOrDefaultAsync(v => v.Id == id);
+    .Include(v => v.BusinessProfile)
+        .ThenInclude(b => b.Category)
+    .Include(v => v.BusinessProfile)
+        .ThenInclude(b => b.ApplicationUser)
+    .Include(v => v.Photos
+        .Where(photo => photo.ApprovalStatus == ReviewStatus.Approved))
+    .Include(v => v.PhysicalFeatures)
+    .Include(v => v.AuthorizedPeople)
+    .Include(v => v.BusinessProfile)
+        .ThenInclude(b => b.AuthorizedPeople)
+    .FirstOrDefaultAsync(v => v.Id == id);
 
         if (venue == null)
+        {
+            return NotFound();
+        }
+        var currentUser = await _userManager.GetUserAsync(User);
+
+        var isOwner = currentUser != null &&
+            venue.BusinessProfile.ApplicationUserId == currentUser.Id;
+
+        if (venue.ApprovalStatus != ReviewStatus.Approved && !isOwner)
+        {
+            return NotFound();
+        }
+
+        if (venue.BusinessProfile.ApprovalStatus != ReviewStatus.Approved && !isOwner)
         {
             return NotFound();
         }
@@ -269,7 +288,6 @@ public class VenuesController : Controller
         ViewBag.IsFavorite = false;
         ViewBag.HasRated = false;
 
-        var currentUser = await _userManager.GetUserAsync(User);
 
         if (currentUser?.AccountType == AccountType.Customer)
         {
@@ -466,6 +484,7 @@ public class VenuesController : Controller
             Description = model.Description,
             BusinessProfileId = businessProfile.Id,
             BusinessProfile = businessProfile,
+            ApprovalStatus = ReviewStatus.Pending,
             PhysicalFeatures = selectedFeatures,
             MealIncludedPrice = model.MealIncludedPrice,
             MealExcludedPrice = model.MealExcludedPrice,
@@ -490,7 +509,8 @@ public class VenuesController : Controller
             {
                 FilePath = filePath,
                 VenueId = venue.Id,
-                Venue = venue
+                Venue = venue,
+                ApprovalStatus = ReviewStatus.Pending
             };
 
             _context.VenuePhotos.Add(venuePhoto);

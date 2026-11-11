@@ -29,6 +29,329 @@ public class AdminController : Controller
     }
 
     [HttpGet]
+    public async Task<IActionResult> ContentApprovals()
+    {
+        var viewModel = new AdminContentApprovalViewModel();
+
+        viewModel.Businesses = await _context.BusinessProfiles
+            .AsNoTracking()
+            .Include(business => business.Category)
+            .Where(business =>
+                business.ApprovalStatus == ReviewStatus.Pending)
+            .OrderBy(business => business.Name)
+            .Select(business => new BusinessApprovalItemViewModel
+            {
+                Id = business.Id,
+                Name = business.Name,
+                CategoryName = business.Category.Name,
+                City = business.City,
+                District = business.District
+            })
+            .ToListAsync();
+        viewModel.BusinessPhotos = await _context.BusinessPhotos
+    .AsNoTracking()
+    .Include(photo => photo.BusinessProfile)
+    .Where(photo =>
+        photo.ApprovalStatus == ReviewStatus.Pending)
+    .OrderBy(photo => photo.BusinessProfile.Name)
+    .Select(photo => new BusinessPhotoApprovalItemViewModel
+    {
+        Id = photo.Id,
+        FilePath = photo.FilePath,
+        BusinessName = photo.BusinessProfile.Name,
+        BusinessProfileId = photo.BusinessProfileId
+    })
+    .ToListAsync();
+
+        viewModel.Venues = await _context.Venues
+        .AsNoTracking()
+        .Include(venue => venue.BusinessProfile)
+        .Where(venue => venue.ApprovalStatus == ReviewStatus.Pending)
+        .OrderBy(venue => venue.Name)
+        .Select(venue => new VenueApprovalItemViewModel
+        {
+            Id = venue.Id,
+            Name = venue.Name,
+            BusinessName = venue.BusinessProfile.Name,
+            City = venue.City,
+            District = venue.District,
+            Capacity = venue.Capacity
+        })
+        .ToListAsync();
+
+        viewModel.VenuePhotos = await _context.VenuePhotos
+    .AsNoTracking()
+    .Include(photo => photo.Venue)
+        .ThenInclude(venue => venue.BusinessProfile)
+    .Where(photo => photo.ApprovalStatus == ReviewStatus.Pending)
+    .OrderBy(photo => photo.Venue.Name)
+    .Select(photo => new VenuePhotoApprovalItemViewModel
+    {
+        Id = photo.Id,
+        FilePath = photo.FilePath,
+        VenueName = photo.Venue.Name,
+        BusinessName = photo.Venue.BusinessProfile.Name,
+        VenueId = photo.VenueId
+    })
+    .ToListAsync();
+
+        return View(viewModel);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ReviewBusiness(int id)
+    {
+        var business = await _context.BusinessProfiles
+            .AsNoTracking()
+            .Include(business => business.Category)
+            .Include(business => business.Photos)
+            .Include(business => business.ApplicationUser)
+            .FirstOrDefaultAsync(business => business.Id == id);
+
+        if (business == null)
+        {
+            return NotFound();
+        }
+
+        if (business.ApprovalStatus != ReviewStatus.Pending)
+        {
+            return RedirectToAction(nameof(ContentApprovals));
+        }
+
+        return View(business);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ReviewBusinessPhoto(int id)
+    {
+        var photo = await _context.BusinessPhotos
+            .Include(photo => photo.BusinessProfile)
+            .FirstOrDefaultAsync(photo => photo.Id == id);
+
+        if (photo == null)
+        {
+            return NotFound();
+        }
+
+        if (photo.ApprovalStatus != ReviewStatus.Pending)
+        {
+            return RedirectToAction(nameof(ContentApprovals));
+        }
+
+        return View(photo);
+    }
+
+    [HttpGet]
+public async Task<IActionResult> ReviewVenuePhoto(int id)
+{
+    var photo = await _context.VenuePhotos
+        .Include(photo => photo.Venue)
+            .ThenInclude(venue => venue.BusinessProfile)
+        .FirstOrDefaultAsync(photo => photo.Id == id);
+
+    if (photo == null)
+        return NotFound();
+
+    if (photo.ApprovalStatus != ReviewStatus.Pending)
+        return RedirectToAction(nameof(ContentApprovals));
+
+    return View(photo);
+}
+
+    [HttpGet]
+    public async Task<IActionResult> ReviewVenue(int id)
+    {
+        var venue = await _context.Venues
+            .AsNoTracking()
+            .Include(venue => venue.BusinessProfile)
+            .Include(venue => venue.Photos)
+            .Include(venue => venue.PhysicalFeatures)
+                .ThenInclude(feature => feature.Category)
+            .FirstOrDefaultAsync(venue => venue.Id == id);
+
+        if (venue == null)
+            return NotFound();
+
+        if (venue.ApprovalStatus != ReviewStatus.Pending)
+            return RedirectToAction(nameof(ContentApprovals));
+
+        return View(venue);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateBusinessPhotoApprovalStatus(
+        int id,
+        ReviewStatus status,
+        string? rejectionReason)
+    {
+        if (status != ReviewStatus.Approved &&
+            status != ReviewStatus.Rejected)
+        {
+            return BadRequest();
+        }
+
+        var photo = await _context.BusinessPhotos
+            .FirstOrDefaultAsync(photo => photo.Id == id);
+
+        if (photo == null)
+        {
+            return NotFound();
+        }
+
+        if (photo.ApprovalStatus != ReviewStatus.Pending)
+        {
+            return BadRequest();
+        }
+
+        if (status == ReviewStatus.Rejected &&
+            string.IsNullOrWhiteSpace(rejectionReason))
+        {
+            TempData["Error"] = "Ret gerekçesi zorunludur.";
+            return RedirectToAction(nameof(ReviewBusinessPhoto), new { id });
+        }
+
+        photo.ApprovalStatus = status;
+        photo.RejectionReason = status == ReviewStatus.Rejected
+            ? rejectionReason!.Trim()
+            : null;
+
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = status == ReviewStatus.Approved
+            ? "İşletme fotoğrafı onaylandı."
+            : "İşletme fotoğrafı reddedildi.";
+
+        return RedirectToAction(nameof(ContentApprovals));
+    }
+
+    [HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> UpdateVenuePhotoApprovalStatus(
+    int id, ReviewStatus status, string? rejectionReason)
+{
+    if (status != ReviewStatus.Approved && status != ReviewStatus.Rejected)
+        return BadRequest();
+
+    var photo = await _context.VenuePhotos
+        .FirstOrDefaultAsync(photo => photo.Id == id);
+
+    if (photo == null)
+        return NotFound();
+
+    if (photo.ApprovalStatus != ReviewStatus.Pending)
+        return BadRequest();
+
+    if (status == ReviewStatus.Rejected &&
+        string.IsNullOrWhiteSpace(rejectionReason))
+    {
+        TempData["Error"] = "Ret gerekçesi zorunludur.";
+        return RedirectToAction(nameof(ReviewVenuePhoto), new { id });
+    }
+
+    photo.ApprovalStatus = status;
+
+    photo.RejectionReason = status == ReviewStatus.Rejected
+        ? rejectionReason!.Trim()
+        : null;
+
+    await _context.SaveChangesAsync();
+
+    TempData["Success"] = status == ReviewStatus.Approved
+        ? "Mekân fotoğrafı başarıyla onaylandı."
+        : "Mekân fotoğrafı reddedildi.";
+
+    return RedirectToAction(nameof(ContentApprovals));
+}
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateBusinessApprovalStatus(
+    int id,
+    ReviewStatus status,
+    string? rejectionReason)
+    {
+        if (status != ReviewStatus.Approved &&
+            status != ReviewStatus.Rejected)
+        {
+            return BadRequest();
+        }
+
+        var business = await _context.BusinessProfiles
+            .FirstOrDefaultAsync(business => business.Id == id);
+
+        if (business == null)
+        {
+            return NotFound();
+        }
+
+        if (business.ApprovalStatus != ReviewStatus.Pending)
+        {
+            return BadRequest();
+        }
+
+        if (status == ReviewStatus.Rejected &&
+            string.IsNullOrWhiteSpace(rejectionReason))
+        {
+            TempData["Error"] = "Ret gerekçesi zorunludur.";
+            return RedirectToAction(nameof(ReviewBusiness), new { id });
+        }
+
+        business.ApprovalStatus = status;
+
+        business.RejectionReason = status == ReviewStatus.Rejected
+            ? rejectionReason!.Trim()
+            : null;
+
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = status == ReviewStatus.Approved
+            ? "İşletme başarıyla onaylandı."
+            : "İşletme reddedildi.";
+
+        return RedirectToAction(nameof(ContentApprovals));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateVenueApprovalStatus(
+    int id, ReviewStatus status, string? rejectionReason)
+    {
+        if (status != ReviewStatus.Approved && status != ReviewStatus.Rejected)
+            return BadRequest();
+
+        var venue = await _context.Venues
+            .FirstOrDefaultAsync(venue => venue.Id == id);
+
+        if (venue == null)
+            return NotFound();
+
+        if (venue.ApprovalStatus != ReviewStatus.Pending)
+            return BadRequest();
+
+        if (status == ReviewStatus.Rejected &&
+            string.IsNullOrWhiteSpace(rejectionReason))
+        {
+            TempData["Error"] = "Ret gerekçesi zorunludur.";
+            return RedirectToAction(nameof(ReviewVenue), new { id });
+        }
+
+        venue.ApprovalStatus = status;
+
+        venue.RejectionReason = status == ReviewStatus.Rejected
+            ? rejectionReason!.Trim()
+            : null;
+
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = status == ReviewStatus.Approved
+            ? "Mekân başarıyla onaylandı."
+            : "Mekân reddedildi.";
+
+        return RedirectToAction(nameof(ContentApprovals));
+    }
+
+    [HttpGet]
     public async Task<IActionResult> ReviewModeration()
     {
         var viewModel = new AdminReviewViewModel();

@@ -11,6 +11,9 @@
     var coverPhoto = Model.Photos
         .OrderByDescending(photo => photo.UploadedAt)
         .FirstOrDefault();
+    var businessPhotos = Model.Photos
+        .OrderByDescending(photo => photo.UploadedAt)
+        .ToList();
 
     var hasPhoto = coverPhoto != null;
 
@@ -159,16 +162,7 @@
 
             <div class="business-profile-top">
 
-                @if (coverPhoto != null)
-                {
-                    <img class="business-avatar-photo" src="@coverPhoto.FilePath" alt="@Model.Name işletme fotoğrafı" />
-                }
-                else
-                {
-                    <div class="business-avatar" aria-hidden="true">
-                        ✳
-                    </div>
-                }
+                <div class="business-avatar" aria-hidden="true">✳</div>
 
                 <div>
                     <span class="business-category">
@@ -176,17 +170,62 @@
                     </span>
 
                     <h2>@Model.Name</h2>
+                    @if (Model.ApprovalStatus == ReviewStatus.Pending)
+                    {
+                        <span class="badge bg-warning text-dark">
+                            İşletmen yönetici onayı bekliyor
+                        </span>
+                    }
+                    else if (Model.ApprovalStatus == ReviewStatus.Approved)
+                    {
+                        <span class="badge bg-success">
+                            İşletmen onaylandı
+                        </span>
+                    }
+                    else if (Model.ApprovalStatus == ReviewStatus.Rejected)
+{
+    <span class="badge bg-danger">
+        İşletme başvurun reddedildi
+    </span>
+
+    @if (!string.IsNullOrWhiteSpace(Model.RejectionReason))
+    {
+        <div class="alert alert-danger mt-2">
+            <strong>Ret gerekçesi:</strong>
+            <p class="mb-0">@Model.RejectionReason</p>
+        </div>
+    }
+}
 
                     <p>
 <span aria-hidden="true">⌖</span>
 
 @Model.City@(hasDistrict
                             ? $", {Model.District}"
-                                                                                                                                : "")
+                                                                                                                                                    : "")
                     </p>
                 </div>
 
             </div>
+
+            @if (businessPhotos.Count > 0)
+            {
+                <section class="detail-photo-slider business-dashboard-gallery" data-photo-slider aria-label="@Model.Name işletme fotoğrafları">
+                    <div class="detail-slide-stage">
+                        @for (var photoIndex = 0; photoIndex < businessPhotos.Count; photoIndex++)
+                        {
+                            <img class="detail-slide @(photoIndex == 0 ? "is-active" : "")" src="@businessPhotos[photoIndex].FilePath"
+                                 alt="@Model.Name işletme fotoğrafı @(photoIndex + 1)" data-slide-index="@photoIndex" aria-hidden="@(photoIndex != 0)" />
+                        }
+                        @if (businessPhotos.Count > 1)
+                        {
+                            <button type="button" class="detail-slide-arrow detail-slide-prev" data-slide-prev aria-label="Önceki fotoğraf">‹</button>
+                            <button type="button" class="detail-slide-arrow detail-slide-next" data-slide-next aria-label="Sonraki fotoğraf">›</button>
+                        }
+                        <span class="detail-slide-count"><span data-slide-current>1</span> / @businessPhotos.Count</span>
+                    </div>
+                </section>
+            }
 
 
             <p class="business-profile-description">

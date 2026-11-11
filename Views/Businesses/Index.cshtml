@@ -1,4 +1,4 @@
-@model OrganizationPlatform.Models.BusinessFilterViewModel
+@model OrganizationPlatform.ViewModels.BusinessFilterViewModel
 @{
     ViewData["Title"] = "İşletmeleri Keşfet";
 }
@@ -16,7 +16,7 @@
                 <h2>Filtreler</h2>
                 <a asp-controller="Businesses" asp-action="Index">Temizle</a>
             </div>
-            <form asp-controller="Businesses" asp-action="Index" method="get">
+            <form id="businessFilterForm" asp-controller="Businesses" asp-action="Index" method="get">
                 
                 <div class="filter-group">
                     <label for="CategoryId">İşletme türü</label>
@@ -65,7 +65,11 @@
                             var filter = Model.FilterItems[i];
 
                             <div class="filter-group">
-                                <label>@filter.Name</label>
+
+                                @if (filter.DataType != BusinessFilterDataType.MultiSelect)
+                                {
+                                    <label>@filter.Name</label>
+                                }
 
                                 <input type="hidden" name="FilterItems[@i].DefinitionId" value="@filter.DefinitionId" />
 
@@ -73,18 +77,26 @@
                                 {
                                     case BusinessFilterDataType.MultiSelect:
 
-                                        @foreach (var option in filter.Options)
-                                        {
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" name="FilterItems[@i].SelectedOptionIds"
-                                                       value="@option.Id" id="search_filter_@(i)_@(option.Id)"
-                                                       checked="@filter.SelectedOptionIds.Contains(option.Id)" />
+                                        <details class="filter-accordion">
+                                            <summary>@filter.Name</summary>
 
-                                                <label class="form-check-label" for="search_filter_@(i)_@(option.Id)">
-                                                    @option.Name
-                                                </label>
+                                            <div class="filter-accordion-content">
+                                                @foreach (var option in filter.Options)
+                                                {
+                                                    <div class="form-check">
+                                                        <input type="checkbox" class="form-check-input"
+                                                               name="FilterItems[@i].SelectedOptionIds" value="@option.Id"
+                                                               id="search_filter_@(i)_@(option.Id)"
+                                                               checked="@filter.SelectedOptionIds.Contains(option.Id)" />
+
+                                                        <label class="form-check-label" for="search_filter_@(i)_@(option.Id)">
+                                                            @option.Name
+                                                        </label>
+                                                    </div>
+                                                }
                                             </div>
-                                        }
+                                        </details>
+
                                         break;
 
                                     case BusinessFilterDataType.Number:
@@ -119,7 +131,20 @@
         <main class="business-results">
             <div class="venue-results-heading">
                 <h2>İşletmeler</h2>
-                <span>@Model.Businesses.Count sonuç</span>
+                <div class="business-results-controls">
+                    <span>@Model.Businesses.Count sonuç</span>
+                    <div class="venue-sort-form business-sort-form">
+                        <label for="BusinessSortBy">Sırala:</label>
+                        <select id="BusinessSortBy" name="SortBy" form="businessFilterForm" class="form-select"
+                                onchange="this.form.requestSubmit()">
+                            <option value="" selected="@(string.IsNullOrEmpty(Model.SortBy))">Önerilen</option>
+                            <option value="name_asc" selected="@(Model.SortBy == "name_asc")">İsim: A’dan Z’ye</option>
+                            <option value="name_desc" selected="@(Model.SortBy == "name_desc")">İsim: Z’den A’ya</option>
+                            <option value="price_asc" selected="@(Model.SortBy == "price_asc")">Fiyat: düşükten yükseğe</option>
+                            <option value="price_desc" selected="@(Model.SortBy == "price_desc")">Fiyat: yüksekten düşüğe</option>
+                        </select>
+                    </div>
+                </div>
             </div>
             @if (Model.Businesses.Count == 0)
             {
@@ -175,8 +200,8 @@
                                     @if (!string.IsNullOrWhiteSpace(business.Description))
                                     {
                                         <p class="catalog-description">@(business.Description.Length > 110 ?
-                                                                                                                                                                                                                                                                                                                                                                                                                                            business.Description[..110]
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                + "..." : business.Description)</p>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    business.Description[..110]
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        + "..." : business.Description)</p>
                                         }
                                         <span class="catalog-card-action">İşletmeyi incele <span aria-hidden="true">↗</span></span>
                                     </div>
@@ -211,25 +236,25 @@
             }
 
             const provinces = [
-                                    @foreach (var province in Model.Provinces)
+                                                    @foreach (var province in Model.Provinces)
                 {
                     <text>
                             {
                                 id: @province.Id,
                             name: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(province.Name))
-                                                                    },
+                                                                                                    },
                     </text>
-                                    }
-                                ];
+                                                    }
+                                                ];
 
             const districts = [
-                                    @foreach (var district in Model.Districts)
+                                                    @foreach (var district in Model.Districts)
                 {
                     <text>
-                                                                    @Html.Raw(System.Text.Json.JsonSerializer.Serialize(district.Name)),
+                                                                                                    @Html.Raw(System.Text.Json.JsonSerializer.Serialize(district.Name)),
                     </text>
-                                    }
-                                ];
+                                                    }
+                                                ];
 
             function setupAutocomplete(input, suggestionBox, items, onSelect) {
                 if (!input || !suggestionBox) return;
