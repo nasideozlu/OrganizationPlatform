@@ -96,24 +96,26 @@
                 </div>
 
                 @foreach (var category in Model.FeatureCategories)
-                {
-                    <fieldset class="filter-group feature-filter-group">
-                        <legend>@category.Name</legend>
+{
+    <details class="filter-accordion">
+        <summary>@category.Name</summary>
 
-                        @foreach (var feature in category.PhysicalFeatures
-                            .OrderBy(feature => feature.Name))
-                        {
-                            <label class="feature-filter-option">
-                                <input type="checkbox"
-                                       name="SelectedFeatureIds"
-                                       value="@feature.Id"
-                                       checked="@Model.SelectedFeatureIds.Contains(feature.Id)" />
-                                <span>@feature.Name</span>
-                            </label>
-                        }
-                    </fieldset>
-                }
+        <div class="filter-accordion-content">
+            @foreach (var feature in category.PhysicalFeatures
+                .OrderBy(feature => feature.Name))
+            {
+                <label class="feature-filter-option">
+                    <input type="checkbox"
+                           name="SelectedFeatureIds"
+                           value="@feature.Id"
+                           checked="@Model.SelectedFeatureIds.Contains(feature.Id)" />
 
+                    <span>@feature.Name</span>
+                </label>
+            }
+        </div>
+    </details>
+}
                 <button type="submit" class="btn btn-primary filter-submit">
                     Mekânları listele
                 </button>
@@ -123,43 +125,6 @@
         <div class="venue-results">
             
 <div class="venue-results-heading">
-
-<form method="get"
-      asp-controller="Venues"
-      asp-action="Index"
-      class="venue-search-form">
-
-    <input type="hidden" name="City" value="@Model.City" />
-    <input type="hidden" name="ProvinceId" value="@Model.ProvinceId" />
-    <input type="hidden" name="District" value="@Model.District" />
-    <input type="hidden" name="MinPrice" value="@Model.MinPrice" />
-    <input type="hidden" name="MaxPrice" value="@Model.MaxPrice" />
-    <input type="hidden" name="MinCapacity" value="@Model.MinCapacity" />
-    <input type="hidden" name="PriceType" value="@Model.PriceType" />
-    <input type="hidden" name="SortBy" value="@Model.SortBy" />
-
-    @foreach (var featureId in Model.SelectedFeatureIds)
-    {
-        <input type="hidden" name="SelectedFeatureIds"
-               value="@featureId" />
-    }
-
-    <label for="SearchTerm">Mekân ara</label>
-
-    <div class="venue-search-input">
-        <input id="SearchTerm"
-               name="SearchTerm"
-               type="search"
-               value="@Model.SearchTerm"
-               class="form-control"
-               placeholder="Mekân adı, il, ilçe veya mahalle"
-               autocomplete="off" />
-
-        <button type="submit" class="btn btn-primary">
-            Ara
-        </button>
-    </div>
-</form>
 
     <div>
         <h2>Mekânları keşfet</h2>

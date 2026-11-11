@@ -16,6 +16,8 @@ public class BusinessFilterViewModel
 
     public string? District { get; set; }
 
+    public string? SortBy { get; set; }
+
     public List<BusinessProfile> Businesses { get; set; } = new();
 
     public List<BusinessCategory> Categories { get; set; } = new();

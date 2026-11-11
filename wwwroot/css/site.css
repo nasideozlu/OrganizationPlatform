@@ -863,6 +863,15 @@ body { background: var(--paper); }
     font-size: .92rem;
     margin-bottom: 8px;
 }
+.business-results-controls { display: flex; align-items: center; gap: 18px; }
+.business-sort-form { display: flex; align-items: center; gap: 10px; margin: 0; }
+.business-sort-form label { margin: 0; color: var(--ink); font-weight: 650; white-space: nowrap; }
+.business-sort-form select { min-width: 220px; min-height: 48px; border: 1px solid #d9e4dd; border-radius: 12px; background-color: #fff; font-size: .95rem; }
+@media (max-width: 600px) {
+  .business-results-controls { width: 100%; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+  .business-sort-form { width: 100%; }
+  .business-sort-form select { min-width: 0; flex: 1; }
+}
 
 /* İşletme keşfi */
 .business-listing-page { max-width: 1220px; }
@@ -1485,7 +1494,7 @@ body { background: var(--paper); }
 .site-logout-form .site-icon-link { font-size: 1.15rem; }
 .site-subnav { border-bottom: 1px solid #e8e9e6; background: rgba(255,255,255,.97); }
 .site-subnav-inner { min-height: 50px; }
-.site-subnav .navbar-nav { display: flex; min-height: 50px; flex-direction: row; align-items: center; justify-content: space-between; gap: 13px; }
+.site-subnav .navbar-nav { display: flex; min-height: 50px; flex-direction: row; align-items: center; justify-content: center; gap: 44px; }
 .site-subnav .nav-item { flex: 0 0 auto; }
 .site-subnav .nav-link { display: inline-flex; align-items: center; gap: 8px; padding: .65rem .35rem !important; border-radius: 0; color: #525b57; font-size: .85rem; font-weight: 650; white-space: nowrap; }
 .site-subnav .nav-link:hover { background: transparent; color: #d42e73; }
@@ -1520,7 +1529,7 @@ body { background: var(--paper); }
   .site-topbar-inner { min-height: 72px; gap: 16px; }
   .site-topbar .navbar-brand { font-size: 1.3rem; }
   .site-subnav .site-subnav-inner { max-width: none; overflow-x: auto; }
-  .site-subnav .navbar-nav { justify-content: flex-start; gap: 25px; min-width: max-content; }
+  .site-subnav .navbar-nav { justify-content: center; gap: 32px; min-width: 100%; }
 }
 @media (max-width: 600px) {
   .site-topbar-inner { min-height: 66px; flex-wrap: wrap; gap: 9px; padding-top: 9px; padding-bottom: 9px; }
@@ -1686,4 +1695,42 @@ body { background: var(--paper); }
   .approval-queue-card > div { flex: 1; }
   .approval-photo-preview { min-height: 260px; }
   .site-logout-button { min-height: 36px !important; padding: .42rem .65rem !important; font-size: .68rem !important; }
+}
+/* Kategori filtreleri açılır-kapanır alan */
+.filter-accordion {
+    border-bottom: 1px solid #e5e7eb;
+    padding: 12px 0;
+}
+
+.filter-accordion summary {
+    font-weight: 600;
+    font-size: 16px;
+    color: #20352f;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.filter-accordion summary::-webkit-details-marker {
+    display: none;
+}
+
+.filter-accordion summary::after {
+    content: "+";
+    font-size: 22px;
+    font-weight: 400;
+}
+
+.filter-accordion[open] summary::after {
+    content: "−";
+}
+
+.filter-accordion-content {
+    padding: 14px 0 4px;
+}
+
+.filter-accordion-content .form-check {
+    margin-bottom: 10px;
 }

@@ -225,10 +225,30 @@ public class BusinessesController : Controller
             }
         }
 
-        // Filtrelenmiş işletmeleri getir.
-        filter.Businesses = await query
-            .OrderBy(business => business.Name)
-            .ToListAsync();
+        // Filtrelenmiş işletmeleri seçilen sıraya göre getir.
+        query = filter.SortBy switch
+        {
+            "name_desc" => query
+                .OrderByDescending(business => business.Name),
+            "price_asc" => query
+                .OrderByDescending(business => business.Pricings.Any(pricing => pricing.IsActive))
+                .ThenBy(business => business.Pricings
+                    .Where(pricing => pricing.IsActive)
+                    .Min(pricing => (decimal?)pricing.Amount) ?? decimal.MaxValue)
+                .ThenBy(business => business.Name),
+            "price_desc" => query
+                .OrderByDescending(business => business.Pricings.Any(pricing => pricing.IsActive))
+                .ThenByDescending(business => business.Pricings
+                    .Where(pricing => pricing.IsActive)
+                    .Max(pricing => (decimal?)pricing.Amount) ?? decimal.MinValue)
+                .ThenBy(business => business.Name),
+            "name_asc" => query
+                .OrderBy(business => business.Name),
+            _ => query
+                .OrderBy(business => business.Name)
+        };
+
+        filter.Businesses = await query.ToListAsync();
 
         // Favori işlemleri.
         var favoriteBusinessIds = new HashSet<int>();
