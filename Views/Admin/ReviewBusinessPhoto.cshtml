@@ -1,0 +1,30 @@
+@model OrganizationPlatform.Models.BusinessPhoto
+@using OrganizationPlatform.Models
+
+@{
+    ViewData["Title"] = "İşletme fotoğrafını incele";
+}
+
+<section class="management-page approval-review-page approval-photo-review-page">
+    <a asp-action="ContentApprovals" class="business-back-link">← İçerik onaylarına dön</a>
+    @if (TempData["Error"] != null) { <div class="alert alert-danger" role="alert">@TempData["Error"]</div> }
+    <header class="approval-review-heading">
+        <div><span class="dashboard-kicker">İŞLETME FOTOĞRAFI</span><h1>@Model.BusinessProfile.Name</h1><p>Fotoğrafı incele ve yayın uygunluğunu değerlendir.</p></div>
+        <span class="approval-status-pill">Onay bekliyor</span>
+    </header>
+    <div class="approval-photo-review-layout">
+        <figure class="approval-photo-preview"><img src="@Model.FilePath" alt="@Model.BusinessProfile.Name işletme fotoğrafı" /></figure>
+        <aside class="approval-decision-card">
+            <span class="dashboard-kicker">YAYIN KARARI</span><h2>Fotoğrafı değerlendir</h2>
+            <p>Reddedilen içerikler için işletmeye iletilecek gerekçeyi yaz.</p>
+            <form asp-action="UpdateBusinessPhotoApprovalStatus" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+                <label for="rejectionReason" class="form-label">Ret gerekçesi <small>(ret durumunda zorunlu)</small></label>
+                <textarea id="rejectionReason" name="rejectionReason" class="form-control" rows="5" maxlength="1000" placeholder="Fotoğrafla ilgili gerekçeyi açıklayın."></textarea>
+                <button type="submit" name="status" value="@((int)ReviewStatus.Approved)" class="btn btn-primary w-100">Fotoğrafı onayla</button>
+                <button type="submit" name="status" value="@((int)ReviewStatus.Rejected)" class="btn btn-outline-danger w-100">Gerekçeyle reddet</button>
+            </form>
+        </aside>
+    </div>
+</section>

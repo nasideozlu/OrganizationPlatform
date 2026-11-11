@@ -1,0 +1,77 @@
+
+@model List<OrganizationPlatform.Models.PhysicalFeature>
+
+@{
+    ViewData["Title"] = "Mekân Özellikleri";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Mekân Özellikleri</h1>
+
+        <a asp-action="Create" class="btn btn-success">
+            Yeni Özellik Ekle
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <p>Toplam özellik: @Model.Count</p>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Özellik Adı</th>
+                    <th>Grup</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var feature in Model)
+                {
+                    <tr>
+                        <td>@feature.Id</td>
+                        <td>@feature.Name</td>
+                        <td>@feature.Category.Name</td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a asp-action="Edit"
+                                   asp-route-id="@feature.Id"
+                                   class="btn btn-sm btn-primary">
+                                    Düzenle
+                                </a>
+
+                                <form asp-action="Delete"
+                                      asp-route-id="@feature.Id"
+                                      method="post"
+                                      onsubmit="return confirm('Bu özelliği silmek istediğinize emin misiniz?');">
+                                    @Html.AntiForgeryToken()
+
+                                    <button type="submit"
+                                            class="btn btn-sm btn-danger">
+                                        Sil
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <a asp-controller="Admin" asp-action="Index"
+       class="btn btn-secondary">
+        Yönetici Paneline Dön
+    </a>
+</div>

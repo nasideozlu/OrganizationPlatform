@@ -1,0 +1,53 @@
+
+@model string
+
+@{
+    ViewData["Title"] = "Kategori Düzenle";
+}
+
+<div class="container mt-4">
+    <h1>Kategori Düzenle</h1>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    <div class="card mt-4">
+        <div class="card-body">
+            <form asp-controller="Admin"
+                  asp-action="EditCategory"
+                  asp-route-id="@ViewContext.RouteData.Values["id"]"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label for="name" class="form-label">
+                        Kategori Adı
+                    </label>
+
+                    <input type="text"
+                           id="name"
+                           name="name"
+                           value="@Model"
+                           class="form-control"
+                           maxlength="100"
+                           required>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Değişiklikleri Kaydet
+                </button>
+
+                <a asp-controller="Admin"
+                   asp-action="Index"
+                   class="btn btn-secondary">
+                    İptal
+                </a>
+            </form>
+        </div>
+    </div>
+</div>

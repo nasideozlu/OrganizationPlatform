@@ -1,0 +1,245 @@
+@using OrganizationPlatform.Models
+
+@{
+    ViewData["Title"] = "Yeni Kampanya Oluştur";
+
+    var packages = ViewBag.Packages as List<BusinessPackage>
+        ?? new List<BusinessPackage>();
+
+    var venues = ViewBag.Venues as List<Venue>
+        ?? new List<Venue>();
+
+    var isWeddingVenue = ViewBag.IsWeddingVenue == true;
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Yeni Kampanya Oluştur</h2>
+            <p class="text-muted mb-0">
+                İşletmen veya belirli bir paketin için kampanya tanımla.
+            </p>
+        </div>
+
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            Geri Dön
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form asp-action="Create" method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="All" class="text-danger mb-3">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Kampanya Adı</label>
+                    <input type="text" name="name" class="form-control" required />
+                    <span class="text-danger">
+                        @Html.ValidationMessage("name")
+                    </span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Açıklama</label>
+                    <textarea name="description" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Kampanya Türü</label>
+                    <select name="campaignType" id="campaignType" class="form-select">
+                        <option value="General">İşletme Geneli Kampanya</option>
+                        <option value="Package">Belirli Bir Pakete Özel</option>
+                    </select>
+                </div>
+                @if (isWeddingVenue)
+                {
+                    <div class="mb-3">
+                        <label class="form-label">Kampanyanın Geçerli Olacağı Mekânlar</label>
+
+                        <p class="text-muted small">
+                            Kampanyanın uygulanacağı mekânların tamamını seçebilirsin.
+                        </p>
+
+                        @if (venues.Count == 0)
+                        {
+                            <div class="alert alert-warning">
+                                Henüz mekân oluşturmadın. Kampanya oluşturabilmek için
+                                önce en az bir mekân eklemelisin.
+                            </div>
+                        }
+                        else
+                        {
+                            @foreach (var venue in venues)
+                            {
+                                var isSelected =
+                                    ((List<int>?)ViewBag.SelectedVenueIds)?.Contains(venue.Id)
+                                    ?? false;
+
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="venueIds" value="@venue.Id"
+                                           id="venue_@venue.Id" checked="@isSelected" />
+
+                                    <label class="form-check-label" for="venue_@venue.Id">
+                                        @venue.Name
+                                    </label>
+                                </div>
+                            }
+                        }
+
+                        <span class="text-danger">
+                            @Html.ValidationMessage("venueIds")
+                        </span>
+                    </div>
+                }
+
+                <div class="mb-3" id="packageSelection" style="display: none;">
+                    <label class="form-label">Paket Seç</label>
+
+                    <select name="businessPackageId" id="businessPackageId" class="form-select">
+                        <option value="">Paket seçiniz</option>
+
+                        @foreach (var package in packages)
+                        {
+                            <option value="@package.Id"
+                                    data-venue-ids="@string.Join(",", package.Venues.Select(venue => venue.Id))">
+                                @package.Name
+                            </option>
+                        }
+                    </select>
+
+                    <span class="text-danger">
+                        @Html.ValidationMessage("businessPackageId")
+                    </span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Başlangıç Tarihi</label>
+                        <input type="date" name="startDate" class="form-control" required />
+                        <span class="text-danger">
+                            @Html.ValidationMessage("startDate")
+                        </span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Bitiş Tarihi</label>
+                        <input type="date" name="endDate" class="form-control" required />
+                        <span class="text-danger">
+                            @Html.ValidationMessage("endDate")
+                        </span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">İndirim Türü</label>
+
+                        <select name="discountType" class="form-select">
+                            <option value="Percentage">Yüzde (%)</option>
+                            <option value="FixedAmount">Sabit Tutar (TL)</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">İndirim Değeri</label>
+
+                        <input type="number" name="discountValue" class="form-control" min="0.01" step="0.01"
+                               required />
+
+                        <span class="text-danger">
+                            @Html.ValidationMessage("discountValue")
+                        </span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Kampanyayı Oluştur
+                </button>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const campaignTypeSelect =
+            document.getElementById("campaignType");
+
+        const packageSelection =
+            document.getElementById("packageSelection");
+
+        const packageSelect =
+            document.getElementById("businessPackageId");
+
+        const venueCheckboxes =
+            document.querySelectorAll('input[name="venueIds"]');
+
+        function togglePackageSelection() {
+            const isPackageCampaign =
+                campaignTypeSelect.value === "Package";
+
+            packageSelection.style.display =
+                isPackageCampaign ? "block" : "none";
+
+            packageSelect.required = isPackageCampaign;
+
+            filterPackages();
+        }
+
+        function filterPackages() {
+            const selectedVenueIds = Array.from(venueCheckboxes)
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.value);
+
+            const options = Array.from(packageSelect.options);
+
+            options.forEach(option => {
+                if (!option.value) {
+                    option.hidden = false;
+                    return;
+                }
+
+                const packageVenueIds =
+                    (option.dataset.venueIds || "")
+                        .split(",")
+                        .filter(id => id !== "");
+
+                // Düğün mekânı olmayan işletmelerde filtreleme yapma.
+                if (venueCheckboxes.length === 0) {
+                    option.hidden = false;
+                    return;
+                }
+
+                const matches = selectedVenueIds.length > 0 &&
+    selectedVenueIds.every(id => packageVenueIds.includes(id));
+
+                option.hidden = !matches;
+            });
+
+            const selectedOption = packageSelect.selectedOptions[0];
+
+            if (selectedOption && selectedOption.hidden) {
+                packageSelect.value = "";
+            }
+        }
+
+        campaignTypeSelect.addEventListener(
+            "change",
+            togglePackageSelection
+        );
+
+        venueCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener("change", filterPackages);
+        });
+
+        togglePackageSelection();
+    </script>
+}
+

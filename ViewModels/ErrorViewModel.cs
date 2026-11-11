@@ -1,4 +1,4 @@
-namespace OrganizationPlatform.Models;
+namespace OrganizationPlatform.ViewModels;
 
 public class ErrorViewModel
 {

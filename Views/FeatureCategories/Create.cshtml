@@ -1,0 +1,30 @@
+
+@{
+    ViewData["Title"] = "Yeni Özellik Grubu";
+}
+
+<div class="container mt-4">
+    <h1>Yeni Özellik Grubu</h1>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <form asp-action="Create" method="post" class="mt-4">
+        @Html.AntiForgeryToken()
+
+        <div class="mb-3">
+            <label for="name" class="form-label">Grup Adı</label>
+            <input id="name"
+                   name="name"
+                   class="form-control"
+                   maxlength="100"
+                   required
+                   placeholder="Örn. Eğlence Olanakları" />
+        </div>
+
+        <button type="submit" class="btn btn-success">Kaydet</button>
+        <a asp-action="Index" class="btn btn-secondary">İptal</a>
+    </form>
+</div>

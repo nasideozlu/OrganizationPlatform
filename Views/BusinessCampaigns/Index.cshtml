@@ -1,0 +1,78 @@
+@model List<OrganizationPlatform.Models.BusinessCampaign>
+@using OrganizationPlatform.Models
+@{
+    ViewData["Title"] = "Kampanyaların";
+    var today = DateTime.Today;
+    var liveCount = Model.Count(c => c.IsActive && c.StartDate.Date <= today && c.EndDate.Date >= today);
+    var scheduledCount = Model.Count(c => c.IsActive && c.StartDate.Date > today);
+}
+
+<section class="management-page">
+    <header class="management-heading">
+        <div>
+            <div class="eyebrow"><span class="eyebrow-dot"></span> İŞLETMEM · FIRSATLAR</div>
+            <h1>Kampanyaların</h1>
+            <p>Müşterilerin ilgisini çekecek fırsatları oluştur, tarihlerini ve durumlarını buradan takip et.</p>
+        </div>
+        <a asp-action="Create" class="btn btn-primary">Kampanya oluştur <span aria-hidden="true">＋</span></a>
+    </header>
+
+    <div class="campaign-summary-grid" aria-label="Kampanya özeti">
+        <article><span>Toplam kampanya</span><strong>@Model.Count</strong></article>
+        <article><span>Şu an yayında</span><strong>@liveCount</strong></article>
+        <article><span>Yakında başlayacak</span><strong>@scheduledCount</strong></article>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="management-empty">
+            <span class="campaign-empty-icon" aria-hidden="true">%</span>
+            <h2>Henüz kampanyan yok</h2>
+            <p>İşletme geneli veya paketlerine özel bir indirim oluşturarak tekliflerini öne çıkar.</p>
+            <a asp-action="Create" class="btn btn-primary">İlk kampanyanı oluştur</a>
+        </div>
+    }
+    else
+    {
+        <div class="management-card-grid campaign-management-grid">
+            @foreach (var campaign in Model)
+            {
+                var status = !campaign.IsActive ? "Pasif" : campaign.StartDate.Date > today ? "Başlamadı" : campaign.EndDate.Date < today ? "Süresi doldu" : "Yayında";
+                var statusClass = status == "Yayında" ? "campaign-live" : status == "Başlamadı" ? "campaign-upcoming" : "campaign-inactive";
+                <article class="management-card campaign-management-card">
+                    <div class="campaign-management-top">
+                        <span class="campaign-management-icon" aria-hidden="true">%</span>
+                        <span class="status-pill @statusClass">@status</span>
+                    </div>
+                    <div class="campaign-management-type">@(campaign.CampaignType == BusinessCampaignType.General ? "İşletme geneli" : "Paket kampanyası")</div>
+                    <h2>@campaign.Name</h2>
+                    @if (!string.IsNullOrWhiteSpace(campaign.Description))
+                    {
+                        <p>@campaign.Description</p>
+                    }
+                    <div class="campaign-management-discount">
+                        <strong>@(campaign.DiscountType == DiscountType.Percentage ? $"%{campaign.DiscountValue:N0}" : $"{campaign.DiscountValue:N2} TL")</strong>
+                        <span>indirim</span>
+                    </div>
+                    @if (campaign.CampaignType == BusinessCampaignType.Package && campaign.BusinessPackage != null)
+                    {
+                        var price = campaign.DiscountType == DiscountType.Percentage
+                            ? campaign.BusinessPackage.Amount * (1 - campaign.DiscountValue / 100)
+                            : campaign.BusinessPackage.Amount - campaign.DiscountValue;
+                        <div class="campaign-management-package"><span>Kampanyalı paket</span><strong>@campaign.BusinessPackage.Name</strong>
+                            <small><s>@campaign.BusinessPackage.Amount.ToString("N2") TL</s> <b>@Math.Max(0, price).ToString("N2") TL</b></small>
+                        </div>
+                    }
+                    <div class="campaign-management-dates"><span aria-hidden="true">◷</span> @campaign.StartDate.ToString("dd.MM.yyyy") – @campaign.EndDate.ToString("dd.MM.yyyy")</div>
+                    <div class="management-card-actions">
+                        <a asp-action="Edit" asp-route-id="@campaign.Id" class="btn btn-sm btn-outline-primary">Düzenle</a>
+                        <form asp-action="ToggleStatus" asp-route-id="@campaign.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">@(campaign.IsActive ? "Pasife al" : "Yeniden yayınla")</button>
+                        </form>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>

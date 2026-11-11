@@ -1,0 +1,49 @@
+
+@using OrganizationPlatform.Models
+
+@{
+    ViewData["Title"] = "Yeni Mekân Özelliği";
+    var categories = ViewBag.FeatureCategories as List<FeatureCategory>
+        ?? new List<FeatureCategory>();
+}
+
+<div class="container mt-4">
+    <h1>Yeni Mekân Özelliği</h1>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <form asp-action="Create" method="post" class="mt-4">
+        @Html.AntiForgeryToken()
+
+        <div class="mb-3">
+            <label for="name" class="form-label">Özellik Adı</label>
+            <input id="name"
+                   name="name"
+                   class="form-control"
+                   maxlength="100"
+                   required
+                   placeholder="Örn. Jakuzi" />
+        </div>
+
+        <div class="mb-3">
+            <label for="categoryId" class="form-label">Özellik Grubu</label>
+            <select id="categoryId"
+                    name="categoryId"
+                    class="form-select"
+                    required>
+                <option value="">Grup seçin</option>
+                @foreach (var category in categories)
+                {
+                    <option value="@category.Id">@category.Name</option>
+                }
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-success">Kaydet</button>
+        <a asp-action="Index" class="btn btn-secondary">İptal</a>
+    </form>
+</div>
+

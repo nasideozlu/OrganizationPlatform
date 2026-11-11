@@ -1,0 +1,443 @@
+@model OrganizationPlatform.Models.BusinessProfile
+@using OrganizationPlatform.ViewModels
+
+@{
+    ViewData["Title"] = "İşletme panelim";
+
+    var hasDescription = !string.IsNullOrWhiteSpace(Model.Description);
+    var hasPhone = !string.IsNullOrWhiteSpace(Model.ApplicationUser.PhoneNumber);
+    var hasDistrict = !string.IsNullOrWhiteSpace(Model.District);
+
+    var coverPhoto = Model.Photos
+        .OrderByDescending(photo => photo.UploadedAt)
+        .FirstOrDefault();
+    var businessPhotos = Model.Photos
+        .OrderByDescending(photo => photo.UploadedAt)
+        .ToList();
+
+    var hasPhoto = coverPhoto != null;
+
+    var completedItems =
+        4 +
+        (hasDescription ? 1 : 0) +
+        (hasPhone ? 1 : 0) +
+        (hasDistrict ? 1 : 0) +
+        (hasPhoto ? 1 : 0);
+
+    var completion = completedItems * 100 / 8;
+
+    var managesVenues = Model.Category.Name == "Düğün Mekanı";
+}
+
+<section class="dashboard-page business-dashboard">
+
+    <header class="dashboard-welcome business-welcome">
+        <div>
+            <div class="eyebrow">
+                <span class="eyebrow-dot"></span>
+                İŞLETMENE ÖZEL PANEL
+            </div>
+
+            <h1>Merhaba, @Model.Name</h1>
+
+            <p>
+                İşletme bilgilerini, fiyatlarını ve paketlerini tek yerden yönet.
+            </p>
+        </div>
+
+        <a asp-controller="Businesses" asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-primary">
+            Müşteri görünümünü aç
+            <span aria-hidden="true">↗</span>
+        </a>
+    </header>
+
+
+    <div class="business-tool-grid">
+
+        <a class="business-tool-card" asp-controller="Profile" asp-action="EditBusiness">
+
+            <span class="business-tool-icon">✎</span>
+
+            <span class="business-tool-copy">
+                <strong>İşletme profilin</strong>
+                <small>
+                    Fotoğraf, açıklama ve iletişim bilgilerini güncelle.
+                </small>
+            </span>
+
+            <span class="business-tool-arrow">↗</span>
+        </a>
+
+
+        <a class="business-tool-card" asp-controller="BusinessPricings" asp-action="Index">
+
+            <span class="business-tool-icon">₺</span>
+
+            <span class="business-tool-copy">
+                <strong>Hizmet fiyatların</strong>
+
+                <small>
+                    @ViewBag.PricingCount kayıtlı fiyat ·
+                    Hizmetlerini ve ücretlerini yönet.
+                </small>
+            </span>
+
+            <span class="business-tool-arrow">↗</span>
+        </a>
+
+
+        <a class="business-tool-card" asp-controller="BusinessPackages" asp-action="Index">
+
+            <span class="business-tool-icon">▤</span>
+
+            <span class="business-tool-copy">
+                <strong>Hizmet paketlerin</strong>
+
+                <small>
+                    @ViewBag.PackageCount paket ·
+                    Bir arada sunduğun hizmetleri düzenle.
+                </small>
+            </span>
+
+            <span class="business-tool-arrow">↗</span>
+        </a>
+
+
+        <a class="business-tool-card" asp-controller="BusinessCampaigns" asp-action="Index">
+
+            <span class="business-tool-icon">%</span>
+
+            <span class="business-tool-copy">
+                <strong>Kampanyaların</strong>
+
+                <small>
+                    İşletme ve paket kampanyalarını oluştur ve yönet.
+                </small>
+            </span>
+
+            <span class="business-tool-arrow">↗</span>
+        </a>
+
+        <a class="business-tool-card" asp-controller="Profile" asp-action="AuthorizedPeople">
+
+            <span class="business-tool-icon">♙</span>
+
+            <span class="business-tool-copy">
+                <strong>Yetkili kişiler</strong>
+
+                <small>
+                    İşletmeni temsil eden kişileri ekle ve iletişim bilgilerini yönet.
+                </small>
+            </span>
+
+            <span class="business-tool-arrow">↗</span>
+        </a>
+
+
+        @if (managesVenues)
+        {
+            <a class="business-tool-card" asp-controller="Venues" asp-action="MyVenues">
+
+                <span class="business-tool-icon">⌂</span>
+
+                <span class="business-tool-copy">
+                    <strong>Mekân ilanların</strong>
+
+                    <small>
+                        @ViewBag.VenueCount mekân ·
+                        Kendi ilanlarını ve detaylarını yönet.
+                    </small>
+                </span>
+
+                <span class="business-tool-arrow">↗</span>
+            </a>
+        }
+
+    </div>
+
+
+    <div class="business-summary-grid">
+
+        <article class="business-profile-summary">
+
+            <div class="business-profile-top">
+
+                <div class="business-avatar" aria-hidden="true">✳</div>
+
+                <div>
+                    <span class="business-category">
+                        @Model.Category.Name
+                    </span>
+
+                    <h2>@Model.Name</h2>
+                    @if (Model.ApprovalStatus == ReviewStatus.Pending)
+                    {
+                        <span class="badge bg-warning text-dark">
+                            İşletmen yönetici onayı bekliyor
+                        </span>
+                    }
+                    else if (Model.ApprovalStatus == ReviewStatus.Approved)
+                    {
+                        <span class="badge bg-success">
+                            İşletmen onaylandı
+                        </span>
+                    }
+                    else if (Model.ApprovalStatus == ReviewStatus.Rejected)
+{
+    <span class="badge bg-danger">
+        İşletme başvurun reddedildi
+    </span>
+
+    @if (!string.IsNullOrWhiteSpace(Model.RejectionReason))
+    {
+        <div class="alert alert-danger mt-2">
+            <strong>Ret gerekçesi:</strong>
+            <p class="mb-0">@Model.RejectionReason</p>
+        </div>
+    }
+}
+
+                    <p>
+<span aria-hidden="true">⌖</span>
+
+@Model.City@(hasDistrict
+                            ? $", {Model.District}"
+                                                                                                                                                    : "")
+                    </p>
+                </div>
+
+            </div>
+
+            @if (businessPhotos.Count > 0)
+            {
+                <section class="detail-photo-slider business-dashboard-gallery" data-photo-slider aria-label="@Model.Name işletme fotoğrafları">
+                    <div class="detail-slide-stage">
+                        @for (var photoIndex = 0; photoIndex < businessPhotos.Count; photoIndex++)
+                        {
+                            <img class="detail-slide @(photoIndex == 0 ? "is-active" : "")" src="@businessPhotos[photoIndex].FilePath"
+                                 alt="@Model.Name işletme fotoğrafı @(photoIndex + 1)" data-slide-index="@photoIndex" aria-hidden="@(photoIndex != 0)" />
+                        }
+                        @if (businessPhotos.Count > 1)
+                        {
+                            <button type="button" class="detail-slide-arrow detail-slide-prev" data-slide-prev aria-label="Önceki fotoğraf">‹</button>
+                            <button type="button" class="detail-slide-arrow detail-slide-next" data-slide-next aria-label="Sonraki fotoğraf">›</button>
+                        }
+                        <span class="detail-slide-count"><span data-slide-current>1</span> / @businessPhotos.Count</span>
+                    </div>
+                </section>
+            }
+
+
+            <p class="business-profile-description">
+                @(hasDescription
+                    ? Model.Description
+                    : "İşletmeni tanıtan kısa bir açıklama ekleyerek profilini tamamla.")
+            </p>
+
+
+            <div class="business-profile-contact">
+
+                <span aria-hidden="true">✉</span>
+                @Model.ApplicationUser.Email
+
+                <span class="contact-separator">·</span>
+
+                <span aria-hidden="true">⌕</span>
+
+                @(hasPhone
+                    ? Model.ApplicationUser.PhoneNumber
+                    : "Telefon eklenmemiş")
+
+            </div>
+
+        </article>
+
+
+        <aside class="profile-health-card">
+
+            <div class="dashboard-card-head">
+
+                <div>
+                    <span class="dashboard-kicker">
+                        PROFİL DURUMU
+                    </span>
+
+                    <h2>Profilini tamamla</h2>
+                </div>
+
+                <span class="dashboard-icon" aria-hidden="true">
+                    ◉
+                </span>
+
+            </div>
+
+
+            <div class="health-progress" role="progressbar" aria-label="Profil tamamlanma durumu" aria-valuemin="0"
+                 aria-valuemax="100" aria-valuenow="@completion">
+
+                <span style="width:@completion%"></span>
+
+            </div>
+
+
+            <div class="health-score">
+
+                <strong>@completion%</strong>
+
+                <span>
+                    @completedItems / 8 bilgi tamam
+                </span>
+
+            </div>
+
+
+            <ul class="health-checklist">
+
+                <li class="is-complete">
+                    <span>✓</span>
+                    İşletme adı
+                </li>
+
+                <li class="is-complete">
+                    <span>✓</span>
+                    Kategori
+                </li>
+
+                <li class="is-complete">
+                    <span>✓</span>
+                    İl
+                </li>
+
+                <li class="@(hasDistrict ? "is-complete" : "")">
+                    <span>@(hasDistrict ? "✓" : "+")</span>
+                    İlçe
+                </li>
+
+                <li class="@(hasDescription ? "is-complete" : "")">
+                    <span>@(hasDescription ? "✓" : "+")</span>
+                    Açıklama
+                </li>
+
+                <li class="@(hasPhoto ? "is-complete" : "")">
+                    <span>@(hasPhoto ? "✓" : "+")</span>
+                    Fotoğraf
+                </li>
+
+                <li class="is-complete">
+                    <span>✓</span>
+                    E-posta
+                </li>
+
+                <li class="@(hasPhone ? "is-complete" : "")">
+                    <span>@(hasPhone ? "✓" : "+")</span>
+                    Telefon
+                </li>
+
+            </ul>
+
+
+            @if (completion < 100)
+            {
+                <a class="dashboard-text-link" asp-controller="Profile" asp-action="EditBusiness">
+
+                    Eksik bilgileri tamamla
+
+                    <span aria-hidden="true">→</span>
+
+                </a>
+            }
+            else
+            {
+                <span class="profile-ready-label">
+                    Profilin hazır ✓
+                </span>
+            }
+
+        </aside>
+
+    </div>
+    <section class="business-reviews-section mt-4">
+
+        <div class="dashboard-card-head">
+            <div>
+                <span class="dashboard-kicker">MÜŞTERİ GERİ BİLDİRİMLERİ</span>
+                <h2>İşletme değerlendirmeleri</h2>
+            </div>
+
+            <div>
+                <strong>@ViewBag.AverageRating.ToString("0.0") / 5</strong>
+                <span>★</span>
+                <p>@ViewBag.RatingCount değerlendirme</p>
+            </div>
+        </div>
+
+        @if (((List<BusinessRatingViewModel>)ViewBag.Ratings).Count == 0)
+        {
+            <p>Henüz işletmen için değerlendirme yapılmamış.</p>
+        }
+        else
+        {
+            @foreach (var rating in (List<BusinessRatingViewModel>)ViewBag.Ratings)
+            {
+                <article class="business-review-card mb-3">
+
+                    <div class="d-flex justify-content-between">
+                        <strong>@rating.CustomerName</strong>
+                        <span>@rating.Rating / 5</span>
+                    </div>
+
+                    <div class="text-warning">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            @(i <= rating.Rating ? "★" : "☆")
+                        }
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(rating.Comment))
+                    {
+                        <p class="mt-2 mb-0">@rating.Comment</p>
+                    }
+
+                    <small class="text-muted">
+                        @rating.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy")
+                    </small>
+                    @if (!string.IsNullOrWhiteSpace(rating.BusinessReply))
+                    {
+                        <div class="business-review-reply mt-3">
+                            <strong>@Model.Name yanıtladı</strong>
+                            <p class="mb-1">@rating.BusinessReply</p>
+
+                            @if (rating.BusinessReplyAt.HasValue)
+                            {
+                                <small class="text-muted">
+                                    @rating.BusinessReplyAt.Value.ToLocalTime().ToString("dd.MM.yyyy")
+                                </small>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <form asp-controller="BusinessRatings" asp-action="Reply" method="post" class="mt-3">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden" name="businessRatingId" value="@rating.Id" />
+
+                            <div class="mb-2">
+                                <label class="form-label">Müşteriye yanıtın</label>
+                                <textarea name="reply" class="form-control" rows="3" maxlength="1000"
+                                          placeholder="Müşterinin değerlendirmesine yanıt ver..." required></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-outline-primary">
+                                Yanıtı gönder
+                            </button>
+                        </form>
+                    }
+
+                </article>
+            }
+        }
+
+    </section>
+</section>

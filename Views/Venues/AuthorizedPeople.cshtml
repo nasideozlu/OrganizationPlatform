@@ -1,0 +1,104 @@
+@model List<OrganizationPlatform.Models.AuthorizedPerson>
+@using OrganizationPlatform.Models
+
+@{
+    ViewData["Title"] = "Mekân Yetkilileri";
+}
+
+<section class="listing-page">
+    <div class="listing-heading manage-heading">
+        <div>
+            <div class="eyebrow">
+                <span class="eyebrow-dot"></span>
+                Mekân yönetimi
+            </div>
+            <h1>@ViewBag.VenueName Yetkilileri</h1>
+            <p>Bu mekânda görev alan yetkili kişileri yönet.</p>
+        </div>
+
+        <a asp-controller="Venues"
+           asp-action="AddAuthorizedPerson"
+           asp-route-venueId="@ViewBag.VenueId"
+           class="btn btn-primary">
+            + Yetkili kişi ekle
+        </a>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="empty-state">
+            <h2 class="h5">Henüz yetkili kişi eklenmemiş</h2>
+            <p>Bu mekâna özel ilk yetkili kişiyi ekleyebilirsin.</p>
+        </div>
+    }
+    else
+    {
+        <div class="authorized-people-list">
+            @foreach (var person in Model)
+            {
+                var roleName = person.Role switch
+                {
+                    AuthorizedPersonRole.BusinessOwner => "İşletme Sahibi",
+                    AuthorizedPersonRole.CompanyRepresentative => "Firma Yetkilisi",
+                    _ => "Yetkili"
+                };
+
+                <article class="authorized-person-card">
+                    <div class="authorized-person-info">
+                        @if (!string.IsNullOrWhiteSpace(person.PhotoPath))
+                        {
+                            <img src="@person.PhotoPath"
+                                 alt="@person.FirstName @person.LastName"
+                                 class="authorized-person-photo" />
+                        }
+                        else
+                        {
+                            <div class="authorized-person-avatar">
+                                @(string.IsNullOrWhiteSpace(person.FirstName)
+                                    ? "?"
+                                    : person.FirstName.Substring(0, 1).ToUpper())
+                            </div>
+                        }
+
+                        <div>
+                            <h3>@person.FirstName @person.LastName</h3>
+                            <span>@roleName</span>
+                            <p>@person.PhoneNumber</p>
+                            <p>@person.Email</p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-2">
+                        <a asp-controller="Venues"
+                           asp-action="EditAuthorizedPerson"
+                           asp-route-id="@person.Id"
+                           asp-route-venueId="@ViewBag.VenueId"
+                           class="btn btn-outline-primary btn-sm">
+                            Düzenle
+                        </a>
+
+                        <form asp-controller="Venues"
+                              asp-action="DeleteAuthorizedPerson"
+                              method="post"
+                              onsubmit="return confirm('Bu yetkili kişiyi silmek istediğine emin misin?');">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@person.Id" />
+                            <input type="hidden" name="venueId" value="@ViewBag.VenueId" />
+
+                            <button type="submit"
+                                    class="btn btn-outline-danger btn-sm">
+                                Sil
+                            </button>
+                        </form>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+
+    <a asp-controller="Venues"
+       asp-action="MyVenues"
+       class="btn btn-outline-secondary mt-3">
+        Mekânlarıma dön
+    </a>
+</section>

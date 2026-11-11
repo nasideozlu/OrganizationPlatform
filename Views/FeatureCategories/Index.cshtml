@@ -1,0 +1,77 @@
+
+@model List<OrganizationPlatform.Models.FeatureCategory>
+
+@{
+    ViewData["Title"] = "Mekân Özellik Grupları";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Mekân Özellik Grupları</h1>
+
+        <a asp-action="Create" class="btn btn-success">
+            Yeni Grup Ekle
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <p>Toplam grup: @Model.Count</p>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Grup Adı</th>
+                    <th>Özellik Sayısı</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var category in Model)
+                {
+                    <tr>
+                        <td>@category.Id</td>
+                        <td>@category.Name</td>
+                        <td>@category.PhysicalFeatures.Count</td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a asp-action="Edit"
+                                   asp-route-id="@category.Id"
+                                   class="btn btn-sm btn-primary">
+                                    Düzenle
+                                </a>
+
+                                <form asp-action="Delete"
+                                      asp-route-id="@category.Id"
+                                      method="post"
+                                      onsubmit="return confirm('Bu grubu silmek istediğinize emin misiniz?');">
+                                    @Html.AntiForgeryToken()
+
+                                    <button type="submit"
+                                            class="btn btn-sm btn-danger">
+                                        Sil
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <a asp-controller="Admin" asp-action="Index"
+       class="btn btn-secondary">
+        Yönetici Paneline Dön
+    </a>
+</div>

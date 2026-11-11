@@ -1,0 +1,60 @@
+@model OrganizationPlatform.Models.BusinessProfile
+@using OrganizationPlatform.Models
+
+@{
+    ViewData["Title"] = "İşletme incelemesi";
+}
+
+<section class="management-page approval-review-page">
+    <a asp-action="ContentApprovals" class="business-back-link">← İçerik onaylarına dön</a>
+    @if (TempData["Error"] != null) { <div class="alert alert-danger" role="alert">@TempData["Error"]</div> }
+
+    <header class="approval-review-heading">
+        <div><span class="dashboard-kicker">İŞLETME PROFİLİ</span><h1>@Model.Name</h1><p>Profil bilgilerini ve görselleri kontrol ederek yayın kararını ver.</p></div>
+        <span class="approval-status-pill">Onay bekliyor</span>
+    </header>
+
+    <div class="approval-review-layout">
+        <div class="approval-review-main">
+            <section class="approval-detail-card">
+                <header><span class="dashboard-kicker">PROFİL BİLGİLERİ</span></header>
+                <dl class="approval-detail-grid">
+                    <div><dt>Kategori</dt><dd>@Model.Category?.Name</dd></div>
+                    <div><dt>Konum</dt><dd>@Model.City@(string.IsNullOrWhiteSpace(Model.District) ? "" : $", {Model.District}")</dd></div>
+                    <div><dt>Telefon</dt><dd>@(Model.PhoneNumber ?? Model.ApplicationUser?.PhoneNumber ?? "Belirtilmemiş")</dd></div>
+                    <div><dt>E-posta</dt><dd>@(Model.ApplicationUser?.Email ?? "Belirtilmemiş")</dd></div>
+                    <div class="approval-detail-wide"><dt>Adres</dt><dd>@(Model.Address ?? "Belirtilmemiş")</dd></div>
+                    <div class="approval-detail-wide"><dt>Açıklama</dt><dd>@(Model.Description ?? "Açıklama eklenmemiş.")</dd></div>
+                </dl>
+            </section>
+
+            <section class="approval-detail-card">
+                <header><div><span class="dashboard-kicker">PROFİL GALERİSİ</span><h2>İşletme fotoğrafları</h2></div><span class="approval-count">@Model.Photos.Count</span></header>
+                @if (Model.Photos.Any())
+                {
+                    <div class="approval-review-gallery">
+                        @foreach (var photo in Model.Photos)
+                        {
+                            <img src="@photo.FilePath" alt="@Model.Name işletme fotoğrafı" loading="lazy" />
+                        }
+                    </div>
+                }
+                else { <div class="approval-empty">İşletme profiline fotoğraf eklenmemiş.</div> }
+            </section>
+        </div>
+
+        <aside class="approval-decision-card">
+            <span class="dashboard-kicker">YAYIN KARARI</span>
+            <h2>Profili değerlendir</h2>
+            <p>Reddedilen içerikler için işletmeye iletilecek gerekçeyi yaz.</p>
+            <form asp-action="UpdateBusinessApprovalStatus" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+                <label for="rejectionReason" class="form-label">Ret gerekçesi <small>(ret durumunda zorunlu)</small></label>
+                <textarea id="rejectionReason" name="rejectionReason" class="form-control" rows="5" maxlength="1000" placeholder="Eksik veya düzeltilmesi gereken bilgileri açıklayın."></textarea>
+                <button type="submit" name="status" value="@((int)ReviewStatus.Approved)" class="btn btn-primary w-100">Profili onayla</button>
+                <button type="submit" name="status" value="@((int)ReviewStatus.Rejected)" class="btn btn-outline-danger w-100">Gerekçeyle reddet</button>
+            </form>
+        </aside>
+    </div>
+</section>

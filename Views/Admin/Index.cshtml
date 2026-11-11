@@ -1,0 +1,107 @@
+@model List<OrganizationPlatform.Models.BusinessCategory>
+@{
+    ViewData["Title"] = "Yönetim Merkezi";
+}
+
+<section class="management-page admin-page">
+    <header class="admin-welcome">
+        <div>
+            <div class="eyebrow"><span class="eyebrow-dot"></span> MIORA YÖNETİMİ</div>
+            <h1>Yönetim merkezi</h1>
+            <p>İşletme kategorilerini ve mekân aramalarında kullanılan seçenekleri düzenle.</p>
+        </div>
+        <span class="admin-welcome-icon" aria-hidden="true">⚙</span>
+    </header>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success" role="status">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger" role="alert">@TempData["Error"]</div>
+    }
+
+    <div class="admin-tool-grid">
+        <a class="admin-tool-card" asp-controller="Admin" asp-action="CreateCategory"><span
+            class="admin-tool-icon">▦</span><span class="admin-tool-copy"><strong>İşletme
+            kategorileri</strong><small>Kategorileri oluştur, güncelle ve katalog yapısını
+            düzenle.</small></span><span class="admin-tool-arrow">↗</span></a>
+            <a class="admin-tool-card" asp-controller="FeatureCategories" asp-action="Index"><span
+                class="admin-tool-icon admin-tool-icon-warm">◈</span><span class="admin-tool-copy"><strong>Mekân özellik
+                grupları</strong><small>Arama filtrelerinin gruplarını yönet.</small></span><span
+                class="admin-tool-arrow">↗</span></a>
+                <a class="admin-tool-card" asp-controller="PhysicalFeatures" asp-action="Index"><span
+                    class="admin-tool-icon admin-tool-icon-lilac">✳</span><span class="admin-tool-copy"><strong>Mekân
+                    özellikleri</strong><small>Otopark, manzara ve erişilebilirlik seçeneklerini
+                    düzenle.</small></span><span class="admin-tool-arrow">↗</span></a>
+                    <a class="admin-tool-card" asp-controller="Admin" asp-action="BusinessFilters">
+                        <span class="admin-tool-icon admin-tool-icon-lilac">⚑</span>
+                        <span class="admin-tool-copy">
+                            <strong>İşletme filtreleri</strong>
+                            <small>İşletme kategorilerine özel filtreleri ve seçeneklerini yönet.</small>
+                        </span>
+                        <span class="admin-tool-arrow">↗</span>
+                    </a>
+                    <a class="admin-tool-card" asp-controller="Admin" asp-action="ReviewModeration">
+                        <span class="admin-tool-icon admin-tool-icon-warm">✉</span>
+                        <span class="admin-tool-copy">
+                            <strong>Yorum moderasyonu</strong>
+                            <small>Müşteri yorumlarını incele, onayla veya reddet.</small>
+                        </span>
+                        <span class="admin-tool-arrow">↗</span>
+                    </a>
+                    <a class="admin-tool-card" asp-controller="Admin" asp-action="ContentApprovals">
+                        <span class="admin-tool-icon">✓</span>
+                        <span class="admin-tool-copy">
+                            <strong>İçerik onayları</strong>
+                            <small>Yeni işletme, mekân ve fotoğraf başvurularını incele.</small>
+                        </span>
+                        <span class="admin-tool-arrow">↗</span>
+                    </a>
+    
+                </div>
+
+                <div class="management-heading admin-list-heading">
+                    <div>
+                        <div class="eyebrow"><span class="eyebrow-dot"></span> KATALOG YAPISI</div>
+                        <h2>İşletme kategorileri</h2>
+                        <p>@Model.Count kategori tanımlı</p>
+                    </div>
+                    <a asp-controller="Admin" asp-action="CreateCategory" class="btn btn-primary">Kategori ekle <span
+                        aria-hidden="true">＋</span></a>
+                    </div>
+                    <div class="management-list">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Kategori</th>
+                                        <th class="text-end">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var category in Model)
+                                    {
+                                        <tr>
+                                            <td><span class="admin-category-name"><span class="admin-category-mark"
+                                                                                            aria-hidden="true">▦</span><strong>@category.Name</strong></span></td>
+                                                <td>
+                                                    <div class="management-actions justify-content-end">
+                                                        <a asp-controller="Admin" asp-action="EditCategory" asp-route-id="@category.Id"
+                                                           class="btn btn-sm btn-outline-primary">Düzenle</a>
+                                                        <form asp-controller="Admin" asp-action="DeleteCategory" asp-route-id="@category.Id"
+                                                              method="post"
+                                                              onsubmit="return confirm('Bu kategoriyi silmek istediğinize emin misiniz?');">
+                                                            @Html.AntiForgeryToken()
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger">Sil</button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>

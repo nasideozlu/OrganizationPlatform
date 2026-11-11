@@ -1,10 +1,249 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@model OrganizationPlatform.ViewModels.HomeViewModel
+@{
+    ViewData["Title"] = "Keşfet";
+    var isCustomerHome = ViewBag.IsCustomerHome == true;
+    var customerName = ViewBag.CustomerName as string;
+    var canFavorite = ViewBag.CanFavorite == true;
+    var favoriteBusinessIds = ViewBag.FavoriteBusinessIds as HashSet<int> ?? new HashSet<int>();
+    var featuredVenues = Model.Venues.Take(6).ToList();
+    var businessGroups = Model.Businesses
+        .GroupBy(business => business.Category.Name)
+        .Select(group => new
+        {
+            Name = group.Key,
+            CategoryId = group.First().CategoryId,
+            Businesses = group.Take(4).ToList()
+        }).ToList();
+    var featuredBusinessCount = businessGroups.Sum(group => group.Businesses.Count);
+    var totalFeaturedCount = featuredVenues.Count + featuredBusinessCount;
+    var favoriteVenueIds = ViewBag.FavoriteVenueIds as HashSet<int>
+    ?? new HashSet<int>();
 }
 
-<div class="text-center">
-    <h1 class="display-4">Hayalindeki Etkinligi Planla </h1>
-    <p>Etkinlikleri planla, sana uygun mekanlari ve fotografcilari kesfet. 
-        Davetlilerinle ozel davetiyeler ve fotograf galerileri paylas.
-    </p>
-</div>
+<div class="explore-home">
+    <section class="explore-hero">
+        <div class="explore-hero-shade"></div>
+        <div class="explore-hero-content">
+            <span class="explore-overline"><span></span> MIORA’DA KEŞFET</span>
+            @if (isCustomerHome && !string.IsNullOrWhiteSpace(customerName))
+            {
+                <h1>Merhaba @customerName,<br /><em>hayalindeki gün burada başlıyor.</em></h1>
+            }
+            else
+            {
+                <h1>Hayalindeki gün için<br /><em>doğru yerdesin.</em></h1>
+            }
+            <p>Mekânını bul, sana uygun ekibi keşfet ve seçenekleri kendi gözlerinle karşılaştır.</p>
+
+            <div class="explore-hero-links">
+                <a href="#mekanlar">Mekânlara göz at <span aria-hidden="true">↓</span></a>
+                <a href="#isletmeler">Hizmet verenleri keşfet <span aria-hidden="true">↓</span></a>
+            </div>
+        </div>
+        <div class="explore-hero-foot">
+            <span>Gerçek işletme profilleri</span><i></i><span>Fotoğraflar, fiyatlar ve aktif fırsatlar</span>
+        </div>
+    </section>
+
+    <div class="explore-home-body">
+        <section class="explore-category-bar" aria-label="Kategorilere göre keşfet">
+            <a class="explore-category-chip explore-category-chip-featured" asp-controller="Venues"
+               asp-action="Index"><span
+                aria-hidden="true">⌂</span><strong>Mekânlar</strong><small>@Model.Venues.Count</small></a>
+                @foreach (var group in businessGroups)
+                {
+                    <a class="explore-category-chip" asp-controller="Businesses" asp-action="Index"
+                       asp-route-CategoryId="@group.CategoryId"><span
+                        aria-hidden="true">✳</span><strong>@group.Name</strong><small>@Model.Businesses.Count(business =>
+                            business.CategoryId == group.CategoryId)</small></a>
+                    }
+                </section>
+
+                <div class="explore-results-meta" id="kesfet">
+                    <span id="homeCatalogCount" role="status" aria-live="polite">@totalFeaturedCount seçenek gösteriliyor</span>
+                    <span>@Model.Venues.Count mekân · @Model.Businesses.Count işletme</span>
+                </div>
+                    <section class="explore-section" id="mekanlar" aria-labelledby="home-venues-title" data-discovery-section>
+                        <header class="explore-section-heading">
+                            <div><span class="explore-section-kicker">MEKÂNLAR</span>
+                                <h2 id="home-venues-title">Günün geçeceği yeri bul.</h2>
+                                <p>Fotoğraf, konum ve kapasiteye göre mekânları karşılaştır.</p>
+                            </div>
+                            <a class="explore-all-link" asp-controller="Venues" asp-action="Index">Tüm mekânlar <span
+                                aria-hidden="true">↗</span></a>
+                            </header>
+                            @if (Model.Venues.Count == 0)
+                            {
+                                <div class="empty-state">
+                                    <div class="empty-state-icon" aria-hidden="true">⌂</div>
+                                    <h3>Henüz listelenen mekân yok</h3>
+                                    <p class="mb-0">Yeni mekânlar eklendikçe burada görebilirsin.</p>
+                                </div>
+                            }
+                            else
+                            {
+                
+                                <div class="explore-card-grid">
+                                    @foreach (var venue in featuredVenues)
+                                    {
+                                        var cover = venue.Photos
+                                            .OrderByDescending(photo => photo.UploadedAt)
+                                            .FirstOrDefault();
+
+                                        var searchText = $"{venue.Name} {venue.City} {venue.District} {venue.Capacity}";
+                                        var isVenueFavorite = favoriteVenueIds.Contains(venue.Id);
+
+                                        <article class="explore-card explore-venue-card" data-discovery-card data-search="@searchText">
+
+                                            <div class="explore-card-image">
+                                                <a class="explore-card-image-link" asp-controller="Venues" asp-action="Details"
+                                                   asp-route-id="@venue.Id" aria-label="@venue.Name mekân detaylarını gör">
+
+                                                    @if (cover != null)
+                                                    {
+                                                        <img src="@cover.FilePath" alt="@venue.Name mekân fotoğrafı" loading="lazy" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="explore-card-placeholder" aria-hidden="true">⌂</span>
+                                                    }
+
+                                                    <span class="explore-image-tag">
+                                                        @venue.Capacity kişiye kadar
+                                                    </span>
+                                                </a>
+
+                                                @if (canFavorite)
+                                                {
+                                                    <form asp-controller="BusinessFavorites" asp-action="ToggleVenueFavorite" method="post"
+                                                          class="explore-favorite-form">
+
+                                                        @Html.AntiForgeryToken()
+
+                                                        <input type="hidden" name="venueId" value="@venue.Id" />
+
+                                                        <input type="hidden" name="returnUrl"
+                                                               value="@($"{Context.Request.Path}{Context.Request.QueryString}")" />
+
+                                                        <button type="submit"
+                                                                aria-label="@(isVenueFavorite ? "Favorilerden çıkar" : "Favorilere ekle")"
+                                                                title="@(isVenueFavorite ? "Favorilerden çıkar" : "Favorilere ekle")">
+                                                            @(isVenueFavorite ? "♥" : "♡")
+                                                        </button>
+                                                    </form>
+                                                }
+                                            </div>
+
+                                            <a class="explore-card-content" asp-controller="Venues" asp-action="Details"
+                                               asp-route-id="@venue.Id">
+
+                                                <span class="explore-card-location">
+                                                    <span aria-hidden="true">⌖</span>
+                                                    @venue.City@(string.IsNullOrWhiteSpace(venue.District) ? "" : $" · {venue.District}")
+                                                </span>
+
+                                                <h3>@venue.Name</h3>
+
+                                                <span class="explore-card-link">
+                                                    Mekânı incele <span aria-hidden="true">↗</span>
+                                                </span>
+                                            </a>
+                                        </article>
+                                    }
+                                </div>
+
+                            }
+                        </section>
+
+                        <section class="explore-section" id="isletmeler" aria-labelledby="home-businesses-title">
+                            <header class="explore-section-heading">
+                                <div><span class="explore-section-kicker">HİZMET VERENLER</span>
+                                    <h2 id="home-businesses-title">Güvendiğin ekibi keşfet.</h2>
+                                    <p>İşletme profillerinde hizmetleri, fiyatları, paketleri ve fırsatları incele.</p>
+                                </div>
+                                <a class="explore-all-link" asp-controller="Businesses" asp-action="Index">Tüm işletmeler <span
+                                    aria-hidden="true">↗</span></a>
+                                </header>
+                                @if (Model.Businesses.Count == 0)
+                                {
+                                    <div class="empty-state">
+                                        <div class="empty-state-icon" aria-hidden="true">✳</div>
+                                        <h3>Henüz listelenen işletme yok</h3>
+                                        <p class="mb-0">Yeni hizmet verenler eklendikçe burada görebilirsin.</p>
+                                    </div>
+                                }
+                                else
+                                {
+                                    @foreach (var group in businessGroups)
+                                    {
+                                        <div class="explore-business-group" data-discovery-section>
+                                            <div class="explore-business-group-heading">
+                                                <h3>@group.Name</h3><a asp-controller="Businesses" asp-action="Index"
+                                                                       asp-route-CategoryId="@group.CategoryId">Tümünü gör <span aria-hidden="true">→</span></a>
+                                            </div>
+                                            <div class="explore-card-grid">
+                                                @foreach (var business in group.Businesses)
+                                                {
+                                                    var cover = business.Photos.OrderByDescending(photo => photo.UploadedAt).FirstOrDefault();
+                                                    var campaign = business.Campaigns.FirstOrDefault();
+                                                    var isFavorite = favoriteBusinessIds.Contains(business.Id);
+                                                    var searchText = $"{business.Name} {business.City} {business.District} {business.Category.Name}                  {business.Description} {campaign?.Name}";
+                                                    <article class="explore-card explore-business-card" data-discovery-card data-search="@searchText">
+                                                        <a class="explore-card-image-link" asp-controller="Businesses" asp-action="Details"
+                                                           asp-route-id="@business.Id" aria-label="@business.Name işletme detaylarını gör">
+                                                            <div class="explore-card-image">
+                                                                @if (cover != null)
+                                                                {
+                                                                    <img src="@cover.FilePath" alt="@business.Name işletme fotoğrafı" loading="lazy" />
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="explore-card-placeholder" aria-hidden="true">✳</span>
+                                                                }
+                                                                <span class="explore-image-tag">@business.Category.Name</span>
+                                                                @if (campaign != null)
+                                                                {
+                                                                    <span class="explore-campaign-tag">Aktif fırsat</span>
+                                                                }
+                                                            </div>
+                                                        </a>
+                                                        @if (canFavorite)
+                                                        {
+                                                            <form asp-controller="BusinessFavorites" asp-action="ToggleFavorite" method="post"
+                                                                  class="explore-favorite-form">
+                                                                @Html.AntiForgeryToken()
+                                                                <input type="hidden" name="businessProfileId" value="@business.Id" />
+                                                                <input type="hidden" name="returnUrl"
+                                                                       value="@($"{Context.Request.Path}{Context.Request.QueryString}")" />
+                                                                <button type="submit" aria-label="@(isFavorite ? "Favorilerden çıkar" : "Favorilere ekle")"
+                                                                        title="@(isFavorite ? "Favorilerden çıkar" : "Favorilere ekle")">@(isFavorite ? "♥" :
+                                                                        "♡")</button>
+                                                                </form>
+                                                            }
+                                                            <a class="explore-card-content" asp-controller="Businesses" asp-action="Details"
+                                                               asp-route-id="@business.Id">
+                                                                <span class="explore-card-location"><span aria-hidden="true">⌖</span>
+                                                                    @business.City@(string.IsNullOrWhiteSpace(business.District) ? "" : $" ·           {business.District}")</span>
+                                                                    <h3>@business.Name</h3>
+                                                                    <p>@(campaign?.Name ?? (string.IsNullOrWhiteSpace(business.Description) ? "Profili açıp sunduğu hizmetleri incele." : business.Description))</p>
+                                                                    <span class="explore-card-link">İşletmeyi incele <span aria-hidden="true">↗</span></span>
+                                                                </a>
+                                                            </article>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+                                    </section>
+
+                                    <section class="explore-business-cta">
+                                        <div><span class="explore-section-kicker">İŞLETMELER İÇİN</span>
+                                            <h2>Hizmetlerini MIORA’da görünür kıl.</h2>
+                                            <p>Profilini oluştur, fiyat ve paketlerini müşterilerle paylaş.</p>
+                                        </div>
+                                        <a asp-controller="Account" asp-action="Login" asp-route-audience="business"
+                                           class="btn btn-primary">İşletmeni ekle <span aria-hidden="true">↗</span></a>
+                                    </section>
+                                </div>
+                            </div>
+

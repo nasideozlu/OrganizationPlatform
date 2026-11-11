@@ -1,0 +1,54 @@
+
+@{
+    ViewData["Title"] = "Yeni Kategori";
+}
+
+<div class="container mt-4">
+    <h1>Yeni Kategori Ekle</h1>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    <div class="card mt-4">
+        <div class="card-body">
+            <form asp-controller="Admin"
+                  asp-action="CreateCategory"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label for="name" class="form-label">
+                        Kategori Adı
+                    </label>
+
+                    <input type="text"
+                           id="name"
+                           name="name"
+                           class="form-control"
+                           maxlength="100"
+                           required
+                           placeholder="Örn. Gelinlik">
+
+                    <div class="form-text">
+                        Daha önce eklenmiş bir kategori adı kullanmayın.
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success">
+                    Kaydet
+                </button>
+
+                <a asp-controller="Admin"
+                   asp-action="Index"
+                   class="btn btn-secondary">
+                    İptal
+                </a>
+            </form>
+        </div>
+    </div>
+</div>

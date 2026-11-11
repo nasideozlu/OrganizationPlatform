@@ -1,0 +1,116 @@
+@model OrganizationPlatform.ViewModels.AdminReviewViewModel
+
+@{
+    ViewData["Title"] = "Yorum Moderasyonu";
+}
+
+<section class="review-moderation-page">
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    <header class="review-moderation-heading">
+        <div><span class="dashboard-kicker">İÇERİK YÖNETİMİ</span>
+            <h1>Yorum moderasyonu</h1>
+            <p>Yayın öncesi müşteri değerlendirmelerini incele ve topluluk standartlarını koru.</p>
+        </div>
+        <div class="review-moderation-total"><strong>@(Model.BusinessReviews.Count + Model.VenueReviews.Count)</strong><span>bekleyen yorum</span></div>
+    </header>
+
+    <!-- İşletme Yorumları -->
+    <section class="moderation-review-section">
+        <header><div><span class="dashboard-kicker">HİZMET VERENLER</span><h2>İşletme yorumları</h2></div><span>@Model.BusinessReviews.Count bekliyor</span></header>
+
+        @if (Model.BusinessReviews.Count == 0)
+        {
+            <p class="text-muted">Onay bekleyen işletme yorumu bulunmuyor.</p>
+        }
+        else
+        {
+            foreach (var review in Model.BusinessReviews)
+            {
+                <article class="moderation-review-card">
+                    <div class="moderation-review-card-top"><div><strong>@review.CustomerName</strong><span>@review.TargetName</span></div><span class="moderation-review-rating">★ @review.Rating / 5</span></div>
+                    <time datetime="@review.CreatedAt.ToString("O")">@review.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy · HH:mm")</time>
+                    <p>@(string.IsNullOrWhiteSpace(review.Comment) ? "Yalnızca puan verilmiş." : review.Comment)</p>
+                    <div class="moderation-review-actions">
+                            <form asp-action="UpdateBusinessReviewStatus" asp-controller="Admin" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@review.Id" />
+                                <input type="hidden" name="status" value="Approved" />
+
+                                <button type="submit" class="btn btn-success btn-sm">
+                                    Onayla
+                                </button>
+                            </form>
+
+                            <form asp-action="UpdateBusinessReviewStatus" asp-controller="Admin" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@review.Id" />
+                                <input type="hidden" name="status" value="Rejected" />
+
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    Reddet
+                                </button>
+                            </form>
+                    </div>
+                </article>
+            }
+        }
+
+    </section>
+
+    <section class="moderation-review-section">
+        <header><div><span class="dashboard-kicker">MEKÂNLAR</span><h2>Mekân yorumları</h2></div><span>@Model.VenueReviews.Count bekliyor</span></header>
+
+        @if (Model.VenueReviews.Count == 0)
+        {
+            <p class="text-muted">Onay bekleyen mekân yorumu bulunmuyor.</p>
+        }
+        else
+        {
+            foreach (var review in Model.VenueReviews)
+            {
+                <article class="moderation-review-card">
+                    <div class="moderation-review-card-top"><div><strong>@review.CustomerName</strong><span>@review.TargetName</span></div><span class="moderation-review-rating">★ @review.Rating / 5</span></div>
+                    <time datetime="@review.CreatedAt.ToString("O")">@review.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy · HH:mm")</time>
+                    <p>@(string.IsNullOrWhiteSpace(review.Comment) ? "Yalnızca puan verilmiş." : review.Comment)</p>
+                    <div class="moderation-review-actions">
+                            <form asp-action="UpdateVenueReviewStatus" asp-controller="Admin" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@review.Id" />
+                                <input type="hidden" name="status" value="Approved" />
+
+                                <button type="submit" class="btn btn-success btn-sm">
+                                    Onayla
+                                </button>
+                            </form>
+
+                            <form asp-action="UpdateVenueReviewStatus" asp-controller="Admin" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@review.Id" />
+                                <input type="hidden" name="status" value="Rejected" />
+
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    Reddet
+                                </button>
+                            </form>
+                    </div>
+                </article>
+            }
+        }
+
+    </section>
+
+</section>

@@ -1,0 +1,21 @@
+@model OrganizationPlatform.Models.CustomerProfile
+@{ ViewData["Title"] = "Profili düzenle"; }
+<section class="form-page">
+    <div class="form-shell">
+        <aside class="form-aside"><div class="eyebrow"><span class="eyebrow-dot"></span> Hesap ayarları</div><h1>Bilgilerin hep güncel kalsın.</h1><p>Profil bilgilerini düzenle; etkinlik planın ve hesabın sana özel kalmaya devam etsin.</p></aside>
+        <div class="form-content">
+            <h2>Profili düzenle</h2><p class="form-intro">Değişikliklerini kaydetmeyi unutma.</p>
+            <form method="post" asp-controller="Profile" asp-action="EditCustomer">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="All" class="validation-summary-errors"></div>
+                <div class="form-grid">
+                    <div class="field"><label for="Name">Ad</label><input class="form-control" type="text" id="Name" name="Name" value="@Model.Name" autocomplete="given-name" required /></div>
+                    <div class="field"><label for="Surname">Soyad</label><input class="form-control" type="text" id="Surname" name="Surname" value="@Model.Surname" autocomplete="family-name" required /></div>
+                </div>
+                <div class="field"><label for="PhoneNumber">Telefon numarası</label><input class="form-control" type="tel" id="PhoneNumber" name="PhoneNumber" value="@Model.ApplicationUser?.PhoneNumber" autocomplete="tel" required /></div>
+                <button type="submit" class="btn btn-primary form-submit">Değişiklikleri kaydet</button>
+                <p class="form-bottom"><a asp-controller="Profile" asp-action="Index">Profilime dön</a></p>
+            </form>
+        </div>
+    </div>
+</section>

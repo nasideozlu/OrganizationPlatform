@@ -1,0 +1,99 @@
+@model OrganizationPlatform.ViewModels.AdminContentApprovalViewModel
+
+@{
+    ViewData["Title"] = "İçerik onayları";
+    var pendingTotal = Model.Businesses.Count + Model.BusinessPhotos.Count + Model.Venues.Count + Model.VenuePhotos.Count;
+}
+
+<section class="management-page approval-queue-page">
+    <a asp-controller="Admin" asp-action="Index" class="business-back-link">← Yönetim merkezine dön</a>
+    <header class="admin-welcome approval-queue-heading">
+        <div>
+            <div class="eyebrow"><span class="eyebrow-dot"></span> MIORA YÖNETİMİ</div>
+            <h1>İçerik onayları</h1>
+            <p>Yayına alınacak işletme, mekân ve fotoğraf içeriklerini gözden geçir.</p>
+        </div>
+        <div class="approval-total"><strong>@pendingTotal</strong><span>bekleyen içerik</span></div>
+    </header>
+
+    @if (TempData["Success"] != null) { <div class="alert alert-success" role="status">@TempData["Success"]</div> }
+    @if (TempData["Error"] != null) { <div class="alert alert-danger" role="alert">@TempData["Error"]</div> }
+
+    <div class="approval-queue-grid">
+        <section class="approval-queue-section">
+            <header><div><span class="dashboard-kicker">İŞLETME PROFİLLERİ</span><h2>İşletmeler <small>@Model.Businesses.Count</small></h2></div></header>
+            @if (!Model.Businesses.Any())
+            {
+                <div class="approval-empty">Onay bekleyen işletme bulunmuyor.</div>
+            }
+            else
+            {
+                @foreach (var business in Model.Businesses)
+                {
+                    <article class="approval-queue-card">
+                        <div><strong>@business.Name</strong><span>@business.CategoryName · @business.City@(string.IsNullOrWhiteSpace(business.District) ? "" : $", {business.District}")</span></div>
+                        <a asp-action="ReviewBusiness" asp-route-id="@business.Id" class="btn btn-outline-primary btn-sm">İncele <span aria-hidden="true">↗</span></a>
+                    </article>
+                }
+            }
+        </section>
+
+        <section class="approval-queue-section">
+            <header><div><span class="dashboard-kicker">MEKÂN PROFİLLERİ</span><h2>Mekânlar <small>@Model.Venues.Count</small></h2></div></header>
+            @if (!Model.Venues.Any())
+            {
+                <div class="approval-empty">Onay bekleyen mekân bulunmuyor.</div>
+            }
+            else
+            {
+                @foreach (var venue in Model.Venues)
+                {
+                    <article class="approval-queue-card">
+                        <div><strong>@venue.Name</strong><span>@venue.BusinessName · @venue.City@(string.IsNullOrWhiteSpace(venue.District) ? "" : $", {venue.District}") · @venue.Capacity kişi</span></div>
+                        <a asp-action="ReviewVenue" asp-route-id="@venue.Id" class="btn btn-outline-primary btn-sm">İncele <span aria-hidden="true">↗</span></a>
+                    </article>
+                }
+            }
+        </section>
+
+        <section class="approval-queue-section">
+            <header><div><span class="dashboard-kicker">İŞLETME FOTOĞRAFLARI</span><h2>İşletme görselleri <small>@Model.BusinessPhotos.Count</small></h2></div></header>
+            @if (!Model.BusinessPhotos.Any())
+            {
+                <div class="approval-empty">Onay bekleyen işletme fotoğrafı bulunmuyor.</div>
+            }
+            else
+            {
+                <div class="approval-photo-grid">
+                    @foreach (var photo in Model.BusinessPhotos)
+                    {
+                        <article class="approval-photo-card">
+                            <img src="@photo.FilePath" alt="@photo.BusinessName işletme fotoğrafı" loading="lazy" />
+                            <div><strong>@photo.BusinessName</strong><a asp-action="ReviewBusinessPhoto" asp-route-id="@photo.Id" class="btn btn-outline-primary btn-sm">İncele</a></div>
+                        </article>
+                    }
+                </div>
+            }
+        </section>
+
+        <section class="approval-queue-section">
+            <header><div><span class="dashboard-kicker">MEKÂN FOTOĞRAFLARI</span><h2>Mekân görselleri <small>@Model.VenuePhotos.Count</small></h2></div></header>
+            @if (!Model.VenuePhotos.Any())
+            {
+                <div class="approval-empty">Onay bekleyen mekân fotoğrafı bulunmuyor.</div>
+            }
+            else
+            {
+                <div class="approval-photo-grid">
+                    @foreach (var photo in Model.VenuePhotos)
+                    {
+                        <article class="approval-photo-card">
+                            <img src="@photo.FilePath" alt="@photo.VenueName mekân fotoğrafı" loading="lazy" />
+                            <div><strong>@photo.VenueName</strong><small>@photo.BusinessName</small><a asp-action="ReviewVenuePhoto" asp-route-id="@photo.Id" class="btn btn-outline-primary btn-sm">İncele</a></div>
+                        </article>
+                    }
+                </div>
+            }
+        </section>
+    </div>
+</section>
