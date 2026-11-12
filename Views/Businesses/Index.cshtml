@@ -5,13 +5,18 @@
 
 <section class="listing-page business-listing-page">
     <div class="listing-heading">
-        <div class="eyebrow"><span class="eyebrow-dot"></span> MIORA işletme rehberi</div>
+        <div class="eyebrow"><span class="eyebrow-dot"></span> AWEN işletme rehberi</div>
         <h1>Etkinliğin için doğru ekibi bul.</h1>
         <p>Kategoriye ve konuma göre işletmeleri keşfet, profillerini incele ve sana uygun olanlarla iletişime geç.</p>
     </div>
 
+    <div class="mobile-listing-controls" aria-label="Liste araçları">
+        <button type="button" class="mobile-listing-toggle" data-mobile-panel="businessFilterPanel" aria-controls="businessFilterPanel" aria-expanded="false">Filtreler</button>
+        <button type="button" class="mobile-listing-toggle" data-mobile-panel="businessSortPanel" aria-controls="businessSortPanel" aria-expanded="false">Sırala</button>
+    </div>
+
     <div class="business-discovery-layout">
-        <aside class="business-filter-panel">
+        <aside class="business-filter-panel" id="businessFilterPanel">
             <div class="filter-panel-heading">
                 <h2>Filtreler</h2>
                 <a asp-controller="Businesses" asp-action="Index">Temizle</a>
@@ -133,7 +138,7 @@
                 <h2>İşletmeler</h2>
                 <div class="business-results-controls">
                     <span>@Model.Businesses.Count sonuç</span>
-                    <div class="venue-sort-form business-sort-form">
+                    <div class="venue-sort-form business-sort-form" id="businessSortPanel">
                         <label for="BusinessSortBy">Sırala:</label>
                         <select id="BusinessSortBy" name="SortBy" form="businessFilterForm" class="form-select"
                                 onchange="this.form.requestSubmit()">
