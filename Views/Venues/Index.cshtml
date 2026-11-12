@@ -15,8 +15,13 @@
         <p>Konum, fiyat, kapasite ve özelliklere göre sana uygun mekânları keşfet.</p>
     </div>
 
+    <div class="mobile-listing-controls" aria-label="Liste araçları">
+        <button type="button" class="mobile-listing-toggle" data-mobile-panel="venueFilterPanel" aria-controls="venueFilterPanel" aria-expanded="false">Filtreler</button>
+        <button type="button" class="mobile-listing-toggle" data-mobile-panel="venueSortPanel" aria-controls="venueSortPanel" aria-expanded="false">Sırala</button>
+    </div>
+
     <div class="venue-discovery-layout">
-        <aside class="venue-filter-panel">
+        <aside class="venue-filter-panel" id="venueFilterPanel">
             <div class="filter-panel-heading">
                 <h2>Filtreler</h2>
                 <a asp-controller="Venues" asp-action="Index">Temizle</a>
@@ -134,7 +139,7 @@
     <form method="get"
           asp-controller="Venues"
           asp-action="Index"
-          class="venue-sort-form">
+          class="venue-sort-form" id="venueSortPanel">
 
         <input type="hidden" name="City" value="@Model.City" />
         <input type="hidden" name="ProvinceId" value="@Model.ProvinceId" />
