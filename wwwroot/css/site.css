@@ -1930,3 +1930,6 @@ a:hover { color: var(--espresso); }
 @media (max-width: 600px) {
   .explore-hero { background-position: 60% center; }
 }
+.explore-category-chip-featured { border-color: #eadcc5; background: #f6efe4; color: #514033; }
+.explore-category-chip > span { background: #f2e9dc; color: #80591d; }
+.explore-category-chip:hover { border-color: #d9c29a; background: #fbf7f0; color: #80591d; }
