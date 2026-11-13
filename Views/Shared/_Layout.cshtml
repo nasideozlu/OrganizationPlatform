@@ -4,8 +4,8 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#fbfaf7" />
-    <title>@ViewData["Title"] · MIORA</title>
+    <meta name="theme-color" content="#FAF7F2" />
+    <title>@ViewData["Title"] · Happy Days Planner &amp; Co.</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -17,8 +17,12 @@
         <div class="site-topbar">
             <div class="container site-topbar-inner">
                 <a class="navbar-brand" asp-controller="Home" asp-action="Index">
-                    <span class="brand-mark" aria-hidden="true">M</span> MIORA
+                    <img class="brand-logo" src="~/images/happy-days-logo.png" alt="Happy Days Planner &amp; Co." />
                 </a>
+                <button class="site-nav-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#siteNavigation"
+                        aria-controls="siteNavigation" aria-expanded="false" aria-label="Menüyü aç/kapat">
+                    <span></span><span></span><span></span>
+                </button>
                 @if (User.Identity?.IsAuthenticated != true || (!User.IsInRole("Admin") && !User.IsInRole("Business")))
                 {
                     <form asp-controller="Home" asp-action="Index" method="get" class="site-search-form">
@@ -56,17 +60,19 @@
         </div>
         <nav class="site-subnav" aria-label="Ana menü">
             <div class="container site-subnav-inner">
-                <ul class="navbar-nav">
-                    @if (User.Identity?.IsAuthenticated == true)
-                    {
-                        @await Component.InvokeAsync("AccountNavigation")
-                    }
-                    else
-                    {
-                        <li class="nav-item"><a class="nav-link" asp-controller="Venues" asp-action="Index">Mekânlar</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="Businesses" asp-action="Index">İşletmeler</a></li>
-                    }
-                </ul>
+                <div class="collapse site-nav-collapse" id="siteNavigation">
+                    <ul class="navbar-nav">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            @await Component.InvokeAsync("AccountNavigation")
+                        }
+                        else
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Venues" asp-action="Index">Mekânlar</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Businesses" asp-action="Index">İşletmeler</a></li>
+                        }
+                    </ul>
+                </div>
             </div>
         </nav>
     </header>
@@ -75,9 +81,10 @@
     </main>
     <footer class="site-footer">
         <div class="container footer-inner">
-            <a class="footer-brand" asp-controller="Home" asp-action="Index">MIORA<span
-                style="color:var(--green)">.</span></a>
-            <span>Güzel günler, güzel planlarla başlar. © 2026 MIORA</span>
+            <a class="footer-brand" asp-controller="Home" asp-action="Index">
+                <img class="footer-brand-logo" src="~/images/happy-days-logo.png" alt="Happy Days Planner &amp; Co." />
+            </a>
+            <span>Her mutlu gün, güzel bir planla başlar. © 2026 Happy Days Planner &amp; Co.</span>
             <a asp-controller="Home" asp-action="Privacy">Gizlilik</a>
         </div>
     </footer>

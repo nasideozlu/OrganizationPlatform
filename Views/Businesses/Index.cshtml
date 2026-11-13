@@ -5,13 +5,16 @@
 
 <section class="listing-page business-listing-page">
     <div class="listing-heading">
-        <div class="eyebrow"><span class="eyebrow-dot"></span> MIORA işletme rehberi</div>
+        <div class="eyebrow"><span class="eyebrow-dot"></span> HAPPY DAYS · ORGANİZASYON REHBERİ</div>
         <h1>Etkinliğin için doğru ekibi bul.</h1>
         <p>Kategoriye ve konuma göre işletmeleri keşfet, profillerini incele ve sana uygun olanlarla iletişime geç.</p>
     </div>
 
     <div class="business-discovery-layout">
         <aside class="business-filter-panel">
+            <details class="listing-filter-disclosure">
+                <summary>Filtreler</summary>
+                <div class="listing-filter-content">
             <div class="filter-panel-heading">
                 <h2>Filtreler</h2>
                 <a asp-controller="Businesses" asp-action="Index">Temizle</a>
@@ -126,6 +129,8 @@
                 }
                 <button type="submit" class="btn btn-primary w-100">Sonuçları göster</button>
             </form>
+                </div>
+            </details>
         </aside>
 
         <main class="business-results">
