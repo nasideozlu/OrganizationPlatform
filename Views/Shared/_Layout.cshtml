@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#fbfaf7" />
-    <title>@ViewData["Title"] · AWEN</title>
+    <title>@ViewData["Title"] · MIORA</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -17,15 +17,8 @@
         <div class="site-topbar">
             <div class="container site-topbar-inner">
                 <a class="navbar-brand" asp-controller="Home" asp-action="Index">
-                    <span class="awen-logo-crop" role="img" aria-label="AWEN"></span>
+                    <span class="brand-mark" aria-hidden="true">M</span> MIORA
                 </a>
-                <button class="site-nav-toggle" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#siteNavigation" aria-controls="siteNavigation" aria-expanded="false"
-                        aria-label="Menüyü aç/kapat">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
                 @if (User.Identity?.IsAuthenticated != true || (!User.IsInRole("Admin") && !User.IsInRole("Business")))
                 {
                     <form asp-controller="Home" asp-action="Index" method="get" class="site-search-form">
@@ -39,14 +32,11 @@
                 <div class="site-top-actions">
                     @if (User.Identity?.IsAuthenticated == true)
                     {
-                        if (!User.IsInRole("Admin") && User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value !=
-    "Business")
+                        if (!User.IsInRole("Admin") && User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value != "Business")
                         {
-                            <a class="site-icon-link" asp-controller="BusinessFavorites" asp-action="Index"
-                               aria-label="Favorilerim" title="Favorilerim">♡</a>
+                            <a class="site-icon-link" asp-controller="BusinessFavorites" asp-action="Index" aria-label="Favorilerim" title="Favorilerim">♡</a>
                         }
-                        <a class="site-account-link" asp-controller="@(User.IsInRole("Admin") ? "Admin" : "Profile")"
-                           asp-action="Index">
+                        <a class="site-account-link" asp-controller="@(User.IsInRole("Admin") ? "Admin" : "Profile")" asp-action="Index">
                             <span class="site-account-icon" aria-hidden="true">♙</span><span>Hesabım</span>
                         </a>
                         <form asp-controller="Account" asp-action="Logout" method="post" class="site-logout-form">
@@ -55,8 +45,7 @@
                     }
                     else
                     {
-                        <a class="site-icon-link" asp-controller="Account" asp-action="Login" asp-route-audience="customer"
-                           aria-label="Giriş yap">♡</a>
+                        <a class="site-icon-link" asp-controller="Account" asp-action="Login" asp-route-audience="customer" aria-label="Giriş yap">♡</a>
                         <a class="btn btn-outline-primary site-login-button" asp-controller="Account" asp-action="Login"
                            asp-route-audience="customer">Giriş Yap / Kayıt Ol</a>
                         <a class="btn btn-primary site-business-button" asp-controller="Account" asp-action="Login"
@@ -67,41 +56,35 @@
         </div>
         <nav class="site-subnav" aria-label="Ana menü">
             <div class="container site-subnav-inner">
-                <div class="collapse site-nav-collapse" id="siteNavigation">
-                    <ul class="navbar-nav">
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            @await Component.InvokeAsync("AccountNavigation")
-                        }
-                        else
-                        {
-                            <li class="nav-item"><a class="nav-link" asp-controller="Venues" asp-action="Index">Mekânlar</a>
-                            </li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Businesses"
-                                                        asp-action="Index">İşletmeler</a></li>
-                            }
-                        </ul>
-                    </div>
+                <ul class="navbar-nav">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        @await Component.InvokeAsync("AccountNavigation")
+                    }
+                    else
+                    {
+                        <li class="nav-item"><a class="nav-link" asp-controller="Venues" asp-action="Index">Mekânlar</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Businesses" asp-action="Index">İşletmeler</a></li>
+                    }
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <main role="main" class="page-main">
+        @RenderBody()
+    </main>
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <a class="footer-brand" asp-controller="Home" asp-action="Index">MIORA<span
+                style="color:var(--green)">.</span></a>
+            <span>Güzel günler, güzel planlarla başlar. © 2026 MIORA</span>
+            <a asp-controller="Home" asp-action="Privacy">Gizlilik</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
 
-                </div>
-            </nav>
-        </header>
-        <main role="main" class="page-main">
-            @RenderBody()
-        </main>
-        <footer class="site-footer">
-            <div class="container footer-inner">
-                <a class="footer-brand" asp-controller="Home" asp-action="Index">
-                    <span class="awen-logo-crop awen-logo-footer" role="img" aria-label="AWEN"></span>
-                </a>
-                    <span>İlham veren başlangıçlar. © 2026 AWEN</span>
-                    <a asp-controller="Home" asp-action="Privacy">Gizlilik</a>
-                </div>
-            </footer>
-            <script src="~/lib/jquery/dist/jquery.min.js"></script>
-            <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-            <script src="~/js/site.js" asp-append-version="true"></script>
-            @await RenderSectionAsync("Scripts", required: false)
-        </body>
-
-    </html>
+</html>
