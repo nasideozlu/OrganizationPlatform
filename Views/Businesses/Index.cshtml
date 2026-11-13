@@ -5,127 +5,133 @@
 
 <section class="listing-page business-listing-page">
     <div class="listing-heading">
-        <div class="eyebrow"><span class="eyebrow-dot"></span> MIORA işletme rehberi</div>
+        <div class="eyebrow"><span class="eyebrow-dot"></span> HAPPY DAYS · ORGANİZASYON REHBERİ</div>
         <h1>Etkinliğin için doğru ekibi bul.</h1>
         <p>Kategoriye ve konuma göre işletmeleri keşfet, profillerini incele ve sana uygun olanlarla iletişime geç.</p>
     </div>
 
     <div class="business-discovery-layout">
         <aside class="business-filter-panel">
-            <div class="filter-panel-heading">
-                <h2>Filtreler</h2>
-                <a asp-controller="Businesses" asp-action="Index">Temizle</a>
-            </div>
-            <form id="businessFilterForm" asp-controller="Businesses" asp-action="Index" method="get">
-                
-                <div class="filter-group">
-                    <label for="CategoryId">İşletme türü</label>
-                    <select id="CategoryId" name="CategoryId" class="form-select">
-                        <option value="">Tüm kategoriler</option>
-                        @foreach (var category in Model.Categories)
-                        {
-                            <option value="@category.Id" selected="@(Model.CategoryId == category.Id)">@category.Name
-                            </option>
-                        }
-                    </select>
-                </div>
-                
-                <div class="filter-group">
-                    <label for="provinceSearch">İl</label>
-
-                    <div class="autocomplete-wrapper">
-                        <input type="text" id="provinceSearch" class="form-control" placeholder="İl adı yaz..."
-                               autocomplete="off"
-                               value="@Model.Provinces.FirstOrDefault(p => p.Id == Model.ProvinceId)?.Name" />
-
-                        <div id="provinceSuggestions" class="autocomplete-suggestions" role="listbox"></div>
+            <details class="listing-filter-disclosure">
+                <summary>Filtreler</summary>
+                <div class="listing-filter-content">
+                    <div class="filter-panel-heading">
+                        <h2>Filtreler</h2>
+                        <a asp-controller="Businesses" asp-action="Index">Temizle</a>
                     </div>
-
-                    <input type="hidden" name="ProvinceId" id="provinceId" value="@Model.ProvinceId" />
-
-                    <div class="form-text">İl seçtiğinde ilçeler güncellenir.</div>
-                </div>
-                <div class="filter-group">
-                    <label for="District">İlçe</label>
-
-                    <div class="autocomplete-wrapper">
-                        <input type="text" id="District" name="District" class="form-control"
-                               placeholder="İlçe adı yaz..." autocomplete="off" value="@Model.District" />
-
-                        <div id="districtSuggestions" class="autocomplete-suggestions" role="listbox"></div>
-                    </div>
-                </div>
-                @if (Model.FilterItems.Any())
-                {
-                    <div class="business-category-filters">
-                        <h3>Kategori özellikleri</h3>
-
-                        @for (int i = 0; i < Model.FilterItems.Count; i++)
-                        {
-                            var filter = Model.FilterItems[i];
-
-                            <div class="filter-group">
-
-                                @if (filter.DataType != BusinessFilterDataType.MultiSelect)
+                    <form id="businessFilterForm" asp-controller="Businesses" asp-action="Index" method="get">
+                
+                        <div class="filter-group">
+                            <label for="CategoryId">İşletme türü</label>
+                            <select id="CategoryId" name="CategoryId" class="form-select">
+                                <option value="">Tüm kategoriler</option>
+                                @foreach (var category in Model.Categories)
                                 {
-                                    <label>@filter.Name</label>
+                                    <option value="@category.Id" selected="@(Model.CategoryId == category.Id)">
+                                        @category.Name
+                                    </option>
                                 }
+                            </select>
+                        </div>
+                
+                        <div class="filter-group">
+                            <label for="provinceSearch">İl</label>
 
-                                <input type="hidden" name="FilterItems[@i].DefinitionId" value="@filter.DefinitionId" />
+                            <div class="autocomplete-wrapper">
+                                <input type="text" id="provinceSearch" class="form-control" placeholder="İl adı yaz..."
+                                       autocomplete="off"
+                                       value="@Model.Provinces.FirstOrDefault(p => p.Id == Model.ProvinceId)?.Name" />
 
-                                @switch (filter.DataType)
+                                <div id="provinceSuggestions" class="autocomplete-suggestions" role="listbox"></div>
+                            </div>
+
+                            <input type="hidden" name="ProvinceId" id="provinceId" value="@Model.ProvinceId" />
+
+                            <div class="form-text">İl seçtiğinde ilçeler güncellenir.</div>
+                        </div>
+                        <div class="filter-group">
+                            <label for="District">İlçe</label>
+
+                            <div class="autocomplete-wrapper">
+                                <input type="text" id="District" name="District" class="form-control"
+                                       placeholder="İlçe adı yaz..." autocomplete="off" value="@Model.District" />
+
+                                <div id="districtSuggestions" class="autocomplete-suggestions" role="listbox"></div>
+                            </div>
+                        </div>
+                        @if (Model.FilterItems.Any())
+                        {
+                            <div class="business-category-filters">
+                                <h3>Kategori özellikleri</h3>
+
+                                @for (int i = 0; i < Model.FilterItems.Count; i++)
                                 {
-                                    case BusinessFilterDataType.MultiSelect:
+                                    var filter = Model.FilterItems[i];
 
-                                        <details class="filter-accordion">
-                                            <summary>@filter.Name</summary>
+                                    <div class="filter-group">
 
-                                            <div class="filter-accordion-content">
-                                                @foreach (var option in filter.Options)
-                                                {
-                                                    <div class="form-check">
-                                                        <input type="checkbox" class="form-check-input"
-                                                               name="FilterItems[@i].SelectedOptionIds" value="@option.Id"
-                                                               id="search_filter_@(i)_@(option.Id)"
-                                                               checked="@filter.SelectedOptionIds.Contains(option.Id)" />
+                                        @if (filter.DataType != BusinessFilterDataType.MultiSelect)
+                                        {
+                                            <label>@filter.Name</label>
+                                        }
 
-                                                        <label class="form-check-label" for="search_filter_@(i)_@(option.Id)">
-                                                            @option.Name
-                                                        </label>
+                                        <input type="hidden" name="FilterItems[@i].DefinitionId" value="@filter.DefinitionId" />
+
+                                        @switch (filter.DataType)
+                                        {
+                                            case BusinessFilterDataType.MultiSelect:
+
+                                                <details class="filter-accordion">
+                                                    <summary>@filter.Name</summary>
+
+                                                    <div class="filter-accordion-content">
+                                                        @foreach (var option in filter.Options)
+                                                        {
+                                                            <div class="form-check">
+                                                                <input type="checkbox" class="form-check-input"
+                                                                       name="FilterItems[@i].SelectedOptionIds" value="@option.Id"
+                                                                       id="search_filter_@(i)_@(option.Id)"
+                                                                       checked="@filter.SelectedOptionIds.Contains(option.Id)" />
+
+                                                                <label class="form-check-label" for="search_filter_@(i)_@(option.Id)">
+                                                                    @option.Name
+                                                                </label>
+                                                            </div>
+                                                        }
                                                     </div>
-                                                }
-                                            </div>
-                                        </details>
+                                                </details>
 
-                                        break;
+                                                break;
 
-                                    case BusinessFilterDataType.Number:
+                                            case BusinessFilterDataType.Number:
 
-                                        <input type="number" step="any" class="form-control" name="FilterItems[@i].NumericValue"
-                                               value="@filter.NumericValue" placeholder="@filter.Unit" />
-                                        break;
+                                                <input type="number" step="any" class="form-control" name="FilterItems[@i].NumericValue"
+                                                       value="@filter.NumericValue" placeholder="@filter.Unit" />
+                                                break;
 
-                                    case BusinessFilterDataType.Text:
+                                            case BusinessFilterDataType.Text:
 
-                                        <input type="text" class="form-control" name="FilterItems[@i].TextValue"
-                                               value="@filter.TextValue" placeholder="@filter.Name" />
-                                        break;
+                                                <input type="text" class="form-control" name="FilterItems[@i].TextValue"
+                                                       value="@filter.TextValue" placeholder="@filter.Name" />
+                                                break;
 
-                                    case BusinessFilterDataType.Boolean:
+                                            case BusinessFilterDataType.Boolean:
 
-                                        <select class="form-select" name="FilterItems[@i].BooleanValue">
-                                            <option value="">Fark etmez</option>
-                                            <option value="true" selected="@(filter.BooleanValue == true)">Evet</option>
-                                            <option value="false" selected="@(filter.BooleanValue == false)">Hayır</option>
-                                        </select>
-                                        break;
+                                                <select class="form-select" name="FilterItems[@i].BooleanValue">
+                                                    <option value="">Fark etmez</option>
+                                                    <option value="true" selected="@(filter.BooleanValue == true)">Evet</option>
+                                                    <option value="false" selected="@(filter.BooleanValue == false)">Hayır</option>
+                                                </select>
+                                                break;
+                                        }
+                                    </div>
                                 }
                             </div>
                         }
-                    </div>
-                }
-                <button type="submit" class="btn btn-primary w-100">Sonuçları göster</button>
-            </form>
+                        <button type="submit" class="btn btn-primary w-100">Sonuçları göster</button>
+                    </form>
+                </div>
+            </details>
         </aside>
 
         <main class="business-results">
@@ -139,227 +145,251 @@
                                 onchange="this.form.requestSubmit()">
                             <option value="" selected="@(string.IsNullOrEmpty(Model.SortBy))">Önerilen</option>
                             <option value="name_asc" selected="@(Model.SortBy == "name_asc")">İsim: A’dan Z’ye</option>
-                            <option value="name_desc" selected="@(Model.SortBy == "name_desc")">İsim: Z’den A’ya</option>
-                            <option value="price_asc" selected="@(Model.SortBy == "price_asc")">Fiyat: düşükten yükseğe</option>
-                            <option value="price_desc" selected="@(Model.SortBy == "price_desc")">Fiyat: yüksekten düşüğe</option>
-                        </select>
+                            <option value="name_desc" selected="@(Model.SortBy == "name_desc")">İsim: Z’den A’ya
+                            </option>
+                            <option value="price_asc" selected="@(Model.SortBy == "price_asc")">Fiyat: düşükten yükseğe
+                            </option>
+                            <option value="price_desc" selected="@(Model.SortBy == "price_desc")">Fiyat: yüksekten
+                                düşüğe</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-            </div>
-            @if (Model.Businesses.Count == 0)
-            {
-                <div class="empty-state">
-                    <h3>İşletme bulunamadı</h3>
-                    <p class="mb-0">Aramanı veya filtrelerini değiştirip tekrar deneyebilirsin.</p>
-                </div>
-            }
-            else
-            {
-                <div class="catalog-grid">
-                    @foreach (var business in Model.Businesses)
-                    {
-                        var favoriteBusinessIds = ViewBag.FavoriteBusinessIds as HashSet<int>
-                         ?? new HashSet<int>();
-
-                        var isFavorite = favoriteBusinessIds.Contains(business.Id);
-                        var cover = business.Photos.OrderByDescending(photo => photo.UploadedAt).FirstOrDefault();
-                        <div class="catalog-card">
-                            <div class="catalog-cover">
-                                @if (ViewBag.CanFavorite == true)
-                                {
-                                    <form asp-controller="BusinessFavorites" asp-action="ToggleFavorite" method="post"
-                                          class="favorite-button-form">
-
-                                        @Html.AntiForgeryToken()
-
-                                        <input type="hidden" name="businessProfileId" value="@business.Id" />
-
-                                        <button type="submit" class="favorite-button"
-                                                title="@(isFavorite ? "Favorilerden çıkar" : "Favorilere ekle")">
-
-                                            @(isFavorite ? "♥" : "♡")
-
-                                        </button>
-                                    </form>
-                                }
-                                @if (cover != null)
-                                {
-                                    <img src="@cover.FilePath" alt="@business.Name işletme fotoğrafı" loading="lazy" />
-                                }
-                                else
-                                {
-                                    <span class="catalog-placeholder" aria-hidden="true">✳</span>
-                                }
-                                <span class="catalog-cover-label">@business.Category.Name</span>
-                            </div>
-                            <a asp-controller="Businesses" asp-action="Details" asp-route-id="@business.Id"
-                               class="catalog-card-link">
-                                <div class="catalog-card-body">
-                                    <span class="catalog-location">@business.City · @business.District</span>
-                                    <h3>@business.Name</h3>
-                                    @if (!string.IsNullOrWhiteSpace(business.Description))
-                                    {
-                                        <p class="catalog-description">@(business.Description.Length > 110 ?
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    business.Description[..110]
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        + "..." : business.Description)</p>
-                                        }
-                                        <span class="catalog-card-action">İşletmeyi incele <span aria-hidden="true">↗</span></span>
-                                    </div>
-                                </a>
-                            </div>
-                        }
+                @if (Model.Businesses.Count == 0)
+                {
+                    <div class="empty-state">
+                        <h3>İşletme bulunamadı</h3>
+                        <p class="mb-0">Aramanı veya filtrelerini değiştirip tekrar deneyebilirsin.</p>
                     </div>
                 }
-            </main>
-        </div>
-    </section>
-
-    @section Scripts {
-        <script>
-            const categorySelect = document.getElementById("CategoryId");
-
-            categorySelect?.addEventListener("change", function () {
-                this.form.requestSubmit();
-            });
-            // Türkçe karakter ve büyük/küçük harf normalizasyonu
-            function normalizeTurkishText(text) {
-                return text
-                    .toLocaleLowerCase("tr-TR")
-                    .replace(/ı/g, "i")
-                    .normalize("NFD")
-                    .replace(/[\u0300-\u036f]/g, "")
-                    .replace(/ç/g, "c")
-                    .replace(/ğ/g, "g")
-                    .replace(/ö/g, "o")
-                    .replace(/ş/g, "s")
-                    .replace(/ü/g, "u");
-            }
-
-            const provinces = [
-                                                    @foreach (var province in Model.Provinces)
+                else
                 {
-                    <text>
-                            {
-                                id: @province.Id,
-                            name: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(province.Name))
-                                                                                                    },
-                    </text>
-                                                    }
-                                                ];
+                    <div class="catalog-grid">
+                        @foreach (var business in Model.Businesses)
+                        {
+                            var favoriteBusinessIds = ViewBag.FavoriteBusinessIds as HashSet<int>
+                             ?? new HashSet<int>();
 
-            const districts = [
-                                                    @foreach (var district in Model.Districts)
-                {
-                    <text>
-                                                                                                    @Html.Raw(System.Text.Json.JsonSerializer.Serialize(district.Name)),
-                    </text>
-                                                    }
-                                                ];
+                            var isFavorite = favoriteBusinessIds.Contains(business.Id);
+                            var cover = business.Photos.OrderByDescending(photo => photo.UploadedAt).FirstOrDefault();
+                            <div class="catalog-card">
+                                <div class="catalog-cover">
+                                    @if (ViewBag.CanFavorite == true)
+                                    {
+                                        <form asp-controller="BusinessFavorites" asp-action="ToggleFavorite" method="post"
+                                              class="favorite-button-form">
 
-            function setupAutocomplete(input, suggestionBox, items, onSelect) {
-                if (!input || !suggestionBox) return;
+                                            @Html.AntiForgeryToken()
 
-                function renderSuggestions() {
-                    const searchText = normalizeTurkishText(input.value.trim());
+                                            <input type="hidden" name="businessProfileId" value="@business.Id" />
 
-                    suggestionBox.innerHTML = "";
+                                            <button type="submit" class="favorite-button"
+                                                    title="@(isFavorite ? "Favorilerden çıkar" : "Favorilere ekle")">
 
-                    if (!searchText) {
-                        suggestionBox.style.display = "none";
-                        return;
+                                                @(isFavorite ? "♥" : "♡")
+
+                                            </button>
+                                        </form>
+                                    }
+                                    @if (cover != null)
+                                    {
+                                        <img src="@cover.FilePath" alt="@business.Name işletme fotoğrafı" loading="lazy" />
+                                    }
+                                    else
+                                    {
+                                        <span class="catalog-placeholder" aria-hidden="true">✳</span>
+                                    }
+                                    <span class="catalog-cover-label">@business.Category.Name</span>
+                                </div>
+                                <a asp-controller="Businesses" asp-action="Details" asp-route-id="@business.Id"
+                                   class="catalog-card-link">
+                                    <div class="catalog-card-body">
+                                        <span class="catalog-location">@business.City · @business.District</span>
+                                        <h3>@business.Name</h3>
+                                        @if (!string.IsNullOrWhiteSpace(business.Description))
+                                        {
+                                            <p class="catalog-description">@(business.Description.Length > 110 ?
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    business.Description[..110]
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        + "..." : business.Description)</p>
+                                            }
+                                            <span class="catalog-card-action">İşletmeyi incele <span aria-hidden="true">↗</span></span>
+                                        </div>
+                                    </a>
+                                </div>
+                            }
+                        </div>
                     }
+                </main>
+            </div>
+        </section>
 
-                    const matches = items
-                        .filter(item => {
+        @section Scripts {
+            <script>
+                const categorySelect = document.getElementById("CategoryId");
+
+                categorySelect?.addEventListener("change", function () {
+                    this.form.requestSubmit();
+                });
+                // Türkçe karakter ve büyük/küçük harf normalizasyonu
+                function normalizeTurkishText(text) {
+                    return text
+                        .toLocaleLowerCase("tr-TR")
+                        .replace(/ı/g, "i")
+                        .normalize("NFD")
+                        .replace(/[\u0300-\u036f]/g, "")
+                        .replace(/ç/g, "c")
+                        .replace(/ğ/g, "g")
+                        .replace(/ö/g, "o")
+                        .replace(/ş/g, "s")
+                        .replace(/ü/g, "u");
+                }
+
+                const provinces = [
+                                                                @foreach (var province in Model.Provinces)
+                    {
+                        <text>
+                                {
+                                    id: @province.Id,
+                                name: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(province.Name))
+                                                                                                                        },
+                        </text>
+                                                                }
+                                                            ];
+
+                const districts = [
+                                                                @foreach (var district in Model.Districts)
+                    {
+                        <text>
+                                                                                                                        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(district.Name)),
+                        </text>
+                                                                }
+                                                            ];
+
+                function setupAutocomplete(input, suggestionBox, items, onSelect) {
+                    if (!input || !suggestionBox) return;
+
+                    function renderSuggestions() {
+                        const searchText = normalizeTurkishText(input.value.trim());
+
+                        suggestionBox.innerHTML = "";
+
+                        if (!searchText) {
+                            suggestionBox.style.display = "none";
+                            return;
+                        }
+
+                        const matches = items
+                            .filter(item => {
+                                const name = typeof item === "string" ? item : item.name;
+
+                                return normalizeTurkishText(name).includes(searchText);
+                            })
+                            .slice(0, 8);
+
+                        if (matches.length === 0) {
+                            suggestionBox.style.display = "none";
+                            return;
+                        }
+
+                        matches.forEach(item => {
                             const name = typeof item === "string" ? item : item.name;
 
-                            return normalizeTurkishText(name).includes(searchText);
-                        })
-                        .slice(0, 8);
+                            const option = document.createElement("div");
+                            option.className = "autocomplete-option";
+                            option.textContent = name;
+                            option.setAttribute("role", "option");
 
-                    if (matches.length === 0) {
-                        suggestionBox.style.display = "none";
+                            option.addEventListener("mousedown", function (event) {
+                                event.preventDefault();
+
+                                input.value = name;
+                                suggestionBox.style.display = "none";
+
+                                if (onSelect) {
+                                    onSelect(item);
+                                }
+                            });
+
+                            suggestionBox.appendChild(option);
+                        });
+
+                        suggestionBox.style.display = "block";
+                    }
+
+                    input.addEventListener("input", renderSuggestions);
+
+                    input.addEventListener("focus", renderSuggestions);
+
+                    input.addEventListener("blur", function () {
+                        setTimeout(() => {
+                            suggestionBox.style.display = "none";
+                        }, 150);
+                    });
+                }
+
+                const provinceSearch = document.getElementById("provinceSearch");
+                const provinceId = document.getElementById("provinceId");
+
+                const provinceForm = provinceSearch.closest("form");
+
+                setupAutocomplete(
+                    provinceSearch,
+                    document.getElementById("provinceSuggestions"),
+                    provinces,
+                    function (selectedProvince) {
+                        provinceId.value = selectedProvince.id;
+                        provinceForm.requestSubmit();
+                    }
+                );
+
+                // Kullanıcı öneriye tıklamadan tam il adını yazarsa da eşleştir.
+                provinceForm.addEventListener("submit", function (event) {
+                    const typedProvince = normalizeTurkishText(provinceSearch.value.trim());
+
+                    if (!typedProvince) {
+                        provinceId.value = "";
                         return;
                     }
 
-                    matches.forEach(item => {
-                        const name = typeof item === "string" ? item : item.name;
+                    const selectedProvince = provinces.find(province =>
+                        normalizeTurkishText(province.name) === typedProvince
+                    );
 
-                        const option = document.createElement("div");
-                        option.className = "autocomplete-option";
-                        option.textContent = name;
-                        option.setAttribute("role", "option");
+                    if (!selectedProvince) {
+                        event.preventDefault();
+                        provinceId.value = "";
+                        provinceSearch.focus();
+                        return;
+                    }
 
-                        option.addEventListener("mousedown", function (event) {
-                            event.preventDefault();
-
-                            input.value = name;
-                            suggestionBox.style.display = "none";
-
-                            if (onSelect) {
-                                onSelect(item);
-                            }
-                        });
-
-                        suggestionBox.appendChild(option);
-                    });
-
-                    suggestionBox.style.display = "block";
-                }
-
-                input.addEventListener("input", renderSuggestions);
-
-                input.addEventListener("focus", renderSuggestions);
-
-                input.addEventListener("blur", function () {
-                    setTimeout(() => {
-                        suggestionBox.style.display = "none";
-                    }, 150);
-                });
-            }
-
-            const provinceSearch = document.getElementById("provinceSearch");
-            const provinceId = document.getElementById("provinceId");
-
-            const provinceForm = provinceSearch.closest("form");
-
-            setupAutocomplete(
-                provinceSearch,
-                document.getElementById("provinceSuggestions"),
-                provinces,
-                function (selectedProvince) {
                     provinceId.value = selectedProvince.id;
-                    provinceForm.requestSubmit();
-                }
-            );
+                });
 
-            // Kullanıcı öneriye tıklamadan tam il adını yazarsa da eşleştir.
-            provinceForm.addEventListener("submit", function (event) {
-                const typedProvince = normalizeTurkishText(provinceSearch.value.trim());
-
-                if (!typedProvince) {
-                    provinceId.value = "";
-                    return;
-                }
-
-                const selectedProvince = provinces.find(province =>
-                    normalizeTurkishText(province.name) === typedProvince
+                setupAutocomplete(
+                    document.getElementById("District"),
+                    document.getElementById("districtSuggestions"),
+                    districts
                 );
 
-                if (!selectedProvince) {
-                    event.preventDefault();
-                    provinceId.value = "";
-                    provinceSearch.focus();
-                    return;
+                // Masaüstünde filtre panelini açık, mobilde kapalı tut.
+                const filterDisclosure = document.querySelector(
+                    ".business-filter-panel .listing-filter-disclosure"
+                );
+
+                const filterMediaQuery = window.matchMedia("(max-width: 760px)");
+
+                function updateFilterDisclosure() {
+                    if (!filterDisclosure) return;
+
+                    if (filterMediaQuery.matches) {
+                        filterDisclosure.removeAttribute("open");
+                    } else {
+                        filterDisclosure.setAttribute("open", "");
+                    }
                 }
 
-                provinceId.value = selectedProvince.id;
-            });
+                updateFilterDisclosure();
 
-            setupAutocomplete(
-                document.getElementById("District"),
-                document.getElementById("districtSuggestions"),
-                districts
-            );
-        </script>
-    }
+                filterMediaQuery.addEventListener("change", updateFilterDisclosure);
+            </script>
+        }

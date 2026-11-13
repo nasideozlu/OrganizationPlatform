@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap');
 
 :root {
   --ink: #172d2a;
@@ -214,6 +214,7 @@ textarea.form-control { min-height: 120px; }
   .business-dashboard-gallery { margin: 18px 0 15px; }
   .business-dashboard-gallery .detail-slide-stage { height: min(100vw, 390px); }
 }
+
 .business-edit-link { display: grid; place-items: center; flex: 0 0 37px; height: 37px; margin-left: auto; border: 1px solid rgba(255,255,255,.2); border-radius: 50%; color: #fff; }
 .business-profile-description { flex: 1; max-width: 580px; padding: 27px 0 19px; color: #d3e0da; font-size: .91rem; line-height: 1.7; }
 .business-profile-contact { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-top: 17px; border-top: 1px solid rgba(255,255,255,.16); color: #e0e9e3; font-size: .76rem; }
@@ -1140,7 +1141,7 @@ body { background: var(--paper); }
 .explore-favorite-form button { display: grid; width: 40px; height: 40px; place-items: center; border: 1px solid rgba(255,255,255,.7); border-radius: 50%; background: rgba(255,255,255,.96); color: #ba4c5b; font-size: 1.35rem; line-height: 1; box-shadow: 0 3px 12px rgba(23,43,35,.17); }
 .explore-favorite-form button:hover { transform: scale(1.06); }
 .home-search-empty { margin: 0 0 24px; padding: 16px; border: 1px solid #e7e9e3; border-radius: 14px; background: #fff; color: var(--muted); text-align: center; }
-.explore-business-cta { display: flex; align-items: center; justify-content: space-between; gap: 22px; margin: 35px 0 0; padding: 30px 34px; border-radius: 20px; background: #eaf1e9; }
+.explore-business-cta { display: flex; align-items: center; justify-content: space-between; gap: 22px; margin: 35px 0 0; padding: 30px 34px; border: 1px solid rgba(168,121,39,.2); border-radius: 20px; background: linear-gradient(135deg,#f5eee3 0%,#fbf8f2 100%); box-shadow: 0 12px 32px rgba(57,47,41,.06); }
 .explore-business-cta h2 { margin: 7px 0; color: var(--ink); font: 750 clamp(1.25rem,2.6vw,1.7rem) 'Manrope',sans-serif; }
 .explore-business-cta p { margin: 0; color: var(--muted); font-size: .88rem; }
 @media (max-width: 900px) {
@@ -1733,4 +1734,199 @@ body { background: var(--paper); }
 
 .filter-accordion-content .form-check {
     margin-bottom: 10px;
+}
+
+/* Happy Days Planner & Co. design system */
+:root {
+  --ink: #392f29;
+  --muted: #8c7968;
+  --green: #a87927;
+  --green-dark: #80591d;
+  --mint: #f2e9dc;
+  --paper: #faf7f2;
+  --line: #e9dfd2;
+  --bs-primary: #a87927;
+  --bs-primary-rgb: 168,121,39;
+  --champagne: #c49a50;
+  --soft-beige: #e9dfd2;
+  --espresso: #392f29;
+  --warm-taupe: #8c7968;
+}
+
+body { background: var(--paper); color: var(--espresso); font-family: 'DM Sans',sans-serif; }
+h1,h2,h3,h4,h5,h6,
+.listing-heading h1,.explore-hero h1,.explore-section-heading h2,
+.detail-profile-title h1,.dashboard-welcome h1,.business-profile-top h2,
+.admin-welcome h1,.section-heading h2,.catalog-card-body h4,.explore-card-content h3,
+.business-results .catalog-card h3,.dashboard-card-head h2,.dashboard-card-head h3,
+.venue-detail-panel h2,.venue-price-card h2,.detail-panel-heading h2,.detail-panel-heading h3,
+.feature-card h3,.dashboard-section-title h2 {
+  font-family: 'Playfair Display',Georgia,serif;
+  font-weight: 500;
+  letter-spacing: -.025em;
+}
+a { color: var(--green-dark); }
+a:hover { color: var(--espresso); }
+.site-header { border-color: rgba(196,154,80,.2); background: rgba(250,247,242,.96); }
+.site-topbar-inner { min-height: 86px; }
+.site-topbar .navbar-brand { display: inline-flex; width: 148px; height: 86px; align-items: center; flex: 0 0 auto; }
+.brand-logo { display: block; width: 100%; height: 100%; object-fit: contain; object-position: left center; mix-blend-mode: darken; }
+.site-topbar .site-search-form { border-color: var(--line); background: #fffdfa; }
+.site-topbar .site-search-form button { background: var(--soft-beige); color: var(--espresso); }
+.site-subnav { border-color: var(--line); background: rgba(250,247,242,.97); }
+.site-subnav .nav-link { color: var(--espresso); }
+.site-subnav .nav-link:hover { color: var(--green-dark); }
+.site-subnav .nav-link.active,.site-subnav .nav-link[aria-current="page"] { color: var(--green-dark); }
+.site-nav-toggle { display: none; width: 40px; height: 40px; align-items: center; justify-content: center; flex-direction: column; gap: 5px; padding: 8px; border: 1px solid rgba(196,154,80,.42); border-radius: 8px; background: #fffdfa; }
+.site-nav-toggle span { display: block; width: 19px; height: 2px; border-radius: 2px; background: var(--green-dark); }
+.site-nav-collapse .navbar-nav { justify-content: center; }
+.site-top-actions .site-icon-link,.site-top-actions .site-account-link { border-color: var(--line); color: var(--espresso); background: #fffdfa; }
+.site-footer { border-color: var(--line); background: #f5efe6; }
+.footer-inner { color: var(--warm-taupe); }
+.footer-brand { display: inline-flex; align-items: center; }
+.footer-brand-logo { display: block; width: 128px; height: 86px; object-fit: contain; mix-blend-mode: darken; }
+.btn { min-height: 44px; border-radius: 9px; font-family: 'DM Sans',sans-serif; }
+.btn-primary { --bs-btn-color: var(--espresso); --bs-btn-bg: #a87927; --bs-btn-border-color: #a87927; --bs-btn-hover-color: var(--espresso); --bs-btn-hover-bg: #c49a50; --bs-btn-hover-border-color: #c49a50; --bs-btn-active-color: var(--espresso); --bs-btn-active-bg: #946a22; --bs-btn-active-border-color: #946a22; box-shadow: 0 5px 13px rgba(57,47,41,.1); }
+.btn-outline-primary { --bs-btn-color: var(--green-dark); --bs-btn-border-color: rgba(168,121,39,.48); --bs-btn-hover-bg: var(--green-dark); --bs-btn-hover-border-color: var(--green-dark); --bs-btn-hover-color: #fff; }
+.form-control,.form-select { border-color: var(--line); border-radius: 8px; background-color: #fffdfa; color: var(--espresso); }
+.form-control:focus,.form-select:focus { border-color: var(--champagne); box-shadow: 0 0 0 .2rem rgba(196,154,80,.18); }
+.card,.form-shell,.venue-filter-panel,.business-filter-panel,.venue-detail-panel,.venue-price-card,.venue-provider-card { border-color: var(--line); border-radius: 14px; box-shadow: 0 8px 24px rgba(57,47,41,.055); }
+.profile-card,.table-shell,.feature-card,.customer-side-card,.profile-health-card,.account-detail-card,.business-detail-card,
+.approval-queue-section,.approval-photo-card,.approval-detail-card,.approval-decision-card,.detail-panel,
+.business-reviews-section,.venue-reviews-panel { border-color: var(--line); background-color: #fffdfa; }
+.table thead th { background: #f2ebe1; color: var(--warm-taupe); }
+.table tbody td { border-color: #f0e8de; }
+.empty-state { border-color: #d7c7af; background: #fffdfa; }
+.cta-strip,.planner-progress { background: #f1e9de; color: var(--espresso); }
+.planner-progress strong,.dashboard-text-link,.dashboard-section-title>a { color: var(--green-dark); }
+.form-shell { box-shadow: 0 14px 42px rgba(57,47,41,.08); }
+.form-aside .eyebrow,.form-aside .form-aside-note { color: #e8d2ac; }
+.form-aside p { color: rgba(255,255,255,.78); }
+.business-profile-summary { background: linear-gradient(140deg,#392f29,#594738); }
+.business-profile-top .business-avatar { border-color: rgba(255,255,255,.2); background: rgba(255,255,255,.09); color: #e8d2ac; }
+.business-category { color: #e8d2ac; }
+.business-profile-description,.business-profile-contact { color: rgba(255,255,255,.82); }
+.admin-welcome { background: linear-gradient(135deg,#392f29,#594738); }
+.plan-start-card { background: linear-gradient(135deg,#392f29,#594738); }
+.plan-start-card .btn-primary,.hero .btn-primary { background: #a87927; border-color: #a87927; color: var(--espresso); }
+.plan-start-card .btn-primary:hover,.hero .btn-primary:hover { background: #c49a50; border-color: #c49a50; }
+.detail-profile-meta a,.detail-profile-meta .detail-meta-rating { color: var(--green-dark); }
+.detail-profile-heading { border-color: var(--line); }
+.approval-status-pill { border-color: #e2d0b0; background: #f7f0e5; color: #765522; }
+.approval-feature-list span { border-color: #e1d7c7; background: #faf7f2; color: #655542; }
+.business-tool-icon,.dashboard-icon,.detail-icon,.discover-item-icon { background: #f2e9dc; color: var(--green-dark); }
+.explore-section-heading h2,.dashboard-section-title h2,.detail-panel-heading h2,.detail-panel-heading h3 { color: var(--espresso); }
+.detail-photo-slider .detail-slide-empty { background: linear-gradient(135deg,#f2e9dc,#faf7f2); color: var(--espresso); }
+.listing-heading { margin-bottom: 34px; }
+.listing-heading h1 { color: var(--espresso); font-size: clamp(2.25rem,4.2vw,3.3rem); }
+.eyebrow,.dashboard-kicker,.explore-section-kicker { color: var(--green-dark); }
+.eyebrow-dot { background: var(--champagne); box-shadow: 0 0 0 4px rgba(196,154,80,.14); }
+.explore-home { background: var(--paper); }
+.explore-hero { background-color: var(--espresso); }
+.explore-hero-shade { background: linear-gradient(90deg,rgba(39,31,26,.84) 0%,rgba(57,47,41,.63) 48%,rgba(57,47,41,.16) 100%),linear-gradient(0deg,rgba(39,31,26,.38),transparent 42%); }
+.explore-overline,.explore-hero h1 em { color: #e8d2ac; }
+.explore-hero h1 { font-family: 'Playfair Display',Georgia,serif; font-weight: 500; letter-spacing: -.025em; }
+.explore-hero-links a:hover { color: #e8d2ac; }
+.explore-hero-foot i,.explore-overline span { background: var(--champagne); }
+.explore-category-chip,.explore-card,.catalog-card,.venue-list-card,.business-tool-card,.customer-discover-item { border-color: var(--line); border-radius: 14px; box-shadow: 0 7px 22px rgba(57,47,41,.055); }
+.explore-category-chip:hover,.explore-card:hover,.catalog-card:hover,.venue-list-card:hover,.business-tool-card:hover { box-shadow: 0 13px 30px rgba(57,47,41,.1); }
+.explore-card-image,.catalog-cover,.venue-list-cover { background: #eee6db; }
+.explore-card-link,.catalog-card-action,.venue-list-card-action { color: var(--green-dark); }
+.business-profile-summary,.admin-welcome,.form-aside,.plan-start-card,.hero { background: linear-gradient(135deg,#392f29,#584538); color: #fff; }
+.business-dashboard-gallery .detail-slide-stage { background: var(--espresso); }
+.detail-photo-slider { border-color: var(--line); border-radius: 14px; box-shadow: 0 9px 26px rgba(57,47,41,.07); }
+.detail-slide-arrow { background: rgba(57,47,41,.72); }
+.detail-slide-arrow:hover { background: rgba(57,47,41,.92); }
+.detail-slide-count { background: rgba(57,47,41,.82); }
+.profile-health-card,.business-reviews-section,.venue-reviews-panel { border-color: var(--line); border-radius: 14px; box-shadow: 0 7px 22px rgba(57,47,41,.05); }
+.filter-accordion summary,.mobile-filter-panel-summary { color: var(--espresso); }
+.filter-accordion summary::after,.mobile-filter-panel-summary::after { color: var(--green-dark); }
+.badge.bg-success { background-color: #f1e6d2!important; color: #70531f!important; }
+.text-success { color: var(--green-dark)!important; }
+.alert-success { border-color: #e5d4b6; background: #f8f1e6; color: #624b2d; }
+.favorite-button { color: #9f7151; }
+:focus-visible { outline-color: rgba(168,121,39,.65); }
+
+/* Replace remaining green-tinted surfaces with the Happy Days palette. */
+.venue-price-card { background: #f6efe4; }
+.venue-price-row { border-color: #e9dfd2; color: #8c7968; }
+.venue-fact { background: #f8f4ed; }
+.venue-feature-chips span { border-color: #eadcc5; background: #fbf7f0; color: #6b5947; }
+.public-business-contact { background: #f6efe4; }
+.health-progress { background: #efe7da; }
+.health-progress span { background: linear-gradient(90deg,#a87927,#c49a50); }
+.health-checklist li { color: #8c7968; }
+.health-checklist .is-complete { color: #65513a; }
+.health-checklist .is-complete > span { background: #f2e9dc; color: #80591d; }
+.campaign-management-icon { background: #f2e9dc; color: #80591d; }
+.status-pill.campaign-live { color: #70531f; background: #f4ead6; }
+.campaign-management-package { background: #f8f3ea; }
+.venue-discovery-hero { background: linear-gradient(112deg,#f1e6d5 0%,#faf7f2 66%,#f4e8e4 100%); }
+.venue-discovery-decoration { color: rgba(168,121,39,.09); }
+.venue-results-count { background: #f2e9dc; color: #80591d; }
+.venue-feature-option input,.feature-option input { accent-color: #a87927; }
+
+@media (max-width: 600px) {
+  .site-topbar-inner { min-height: 0; }
+  .site-topbar .navbar-brand { width: 112px; height: 75px; }
+  .footer-brand-logo { width: 102px; height: 68px; }
+  .listing-heading h1 { font-size: clamp(2rem,9vw,2.7rem); }
+  .footer-inner { min-height: 0; flex-direction: column; gap: 7px; padding-top: 18px; padding-bottom: 18px; text-align: center; }
+}
+@media (max-width: 767.98px) {
+  .site-topbar-inner { display: grid; grid-template-columns: auto minmax(0,1fr); grid-template-rows: auto auto; align-items: center; gap: 7px 10px; padding-top: 6px; padding-bottom: 7px; }
+  .site-topbar .navbar-brand { grid-column: 1; grid-row: 1; }
+  .site-top-actions { grid-column: 2; grid-row: 1; justify-content: flex-end; gap: 6px; }
+  .site-nav-toggle { display: flex; grid-column: 1; grid-row: 2; align-self: center; }
+  .site-topbar-inner > .site-search-form { grid-column: 2; grid-row: 2; width: 100%; min-width: 0; height: 40px; flex: none; margin: 0; }
+  .site-subnav-inner { max-width: none; min-height: 0; padding: 0 16px; }
+  .site-nav-collapse { width: 100%; }
+  .site-nav-collapse .navbar-nav { min-height: 0; flex-direction: column; align-items: stretch; gap: 0; padding: 7px 0 10px; }
+  .site-nav-collapse .nav-link { min-height: 44px; padding: 11px 8px !important; border-bottom: 1px solid var(--line); font-size: .9rem; }
+  .site-nav-collapse.collapse:not(.show) { display: none; }
+}
+@media (min-width: 768px) {
+  .site-nav-collapse.collapse { display: block !important; }
+}
+
+/* Mobile discovery toolbar: collapsible filters sit beside sorting. */
+.listing-filter-disclosure > summary { display: none; }
+.listing-filter-content { display: block; }
+@media (max-width: 760px) {
+  .venue-discovery-layout,
+  .business-discovery-layout { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); align-items: start; gap: 12px; }
+  .venue-filter-panel,
+  .business-filter-panel { grid-column: 1; grid-row: 2; position: static; min-width: 0; padding: 0; border: 0; background: transparent; box-shadow: none; }
+  .listing-filter-disclosure { overflow: visible; border: 1px solid var(--line); border-radius: 12px; background: #fffdfa; box-shadow: 0 4px 14px rgba(57,47,41,.04); }
+  .listing-filter-disclosure > summary { display: flex; min-height: 48px; align-items: center; justify-content: space-between; padding: 10px 13px; color: var(--espresso); cursor: pointer; font-size: .88rem; font-weight: 700; list-style: none; }
+  .listing-filter-disclosure > summary::-webkit-details-marker { display: none; }
+  .listing-filter-disclosure > summary::after { content: '+'; color: var(--green-dark); font-size: 1.2rem; }
+  .listing-filter-disclosure[open] > summary::after { content: '−'; }
+  .listing-filter-content { display: none; padding: 0 12px 13px; }
+  .listing-filter-disclosure[open] > .listing-filter-content { display: block; }
+  .listing-filter-content .filter-panel-heading { margin: 0 0 14px; }
+  .venue-results { display: contents; }
+  .venue-results-heading { display: contents; }
+  .venue-results-heading > div { grid-column: 1/-1; grid-row: 1; }
+  .venue-results-heading > div p { margin-bottom: 0; }
+  .venue-sort-form { grid-column: 2; grid-row: 2; width: 100%; min-width: 0; gap: 6px; }
+  .venue-sort-form label { font-size: .77rem; }
+  .venue-sort-form select { min-width: 0; min-height: 48px; padding-right: 28px; font-size: .78rem; }
+  .venue-catalog-grid,
+  .venue-results > .empty-state { grid-column: 1/-1; }
+  .business-results { display: contents; }
+  .business-results > .venue-results-heading { display: contents; }
+  .business-results > .venue-results-heading > h2 { grid-column: 1/-1; grid-row: 1; margin: 0; }
+  .business-results-controls { display: contents; }
+  .business-results-controls > span { grid-column: 1/-1; grid-row: 3; }
+  .business-sort-form { grid-column: 2; grid-row: 2; width: 100%; min-width: 0; gap: 6px; }
+  .business-sort-form label { font-size: .77rem; }
+  .business-sort-form select { min-width: 0; min-height: 48px; padding-right: 28px; font-size: .76rem; }
+  .business-results > .catalog-grid,
+  .business-results > .empty-state { grid-column: 1/-1; grid-row: 4; }
+}
+.explore-hero { background-image: url('/images/happy-days-home-wedding.png'); background-position: center 48%; }
+.explore-hero-shade { background: linear-gradient(90deg,rgba(48,36,25,.82) 0%,rgba(57,43,30,.56) 44%,rgba(57,43,30,.08) 100%),linear-gradient(0deg,rgba(39,29,20,.4),transparent 44%); }
+@media (max-width: 600px) {
+  .explore-hero { background-position: 60% center; }
 }

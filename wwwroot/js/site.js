@@ -3,6 +3,16 @@
 
 // Write your JavaScript code.
 
+// Keep listing filters expanded on desktop and optionally collapsible on mobile.
+const listingFilterQuery = window.matchMedia('(min-width: 761px)');
+const syncListingFilterDisclosure = () => {
+  document.querySelectorAll('.listing-filter-disclosure').forEach((disclosure) => {
+    disclosure.open = listingFilterQuery.matches;
+  });
+};
+syncListingFilterDisclosure();
+listingFilterQuery.addEventListener('change', syncListingFilterDisclosure);
+
 document.querySelectorAll('[data-photo-slider]').forEach((slider) => {
   const slides = Array.from(slider.querySelectorAll('[data-slide-index]'));
   const current = slider.querySelector('[data-slide-current]');

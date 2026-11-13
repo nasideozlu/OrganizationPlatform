@@ -17,6 +17,9 @@
 
     <div class="venue-discovery-layout">
         <aside class="venue-filter-panel">
+            <details class="listing-filter-disclosure">
+                <summary>Filtreler</summary>
+                <div class="listing-filter-content">
             <div class="filter-panel-heading">
                 <h2>Filtreler</h2>
                 <a asp-controller="Venues" asp-action="Index">Temizle</a>
@@ -120,6 +123,8 @@
                     Mekânları listele
                 </button>
             </form>
+                </div>
+            </details>
         </aside>
 
         <div class="venue-results">
