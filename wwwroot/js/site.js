@@ -23,24 +23,3 @@ document.querySelectorAll('[data-photo-slider]').forEach((slider) => {
   slider.querySelector('[data-slide-next]')?.addEventListener('click', () => showSlide(activeIndex + 1));
   showSlide(0);
 });
-
-document.querySelectorAll('[data-mobile-panel]').forEach((toggle) => {
-  toggle.addEventListener('click', () => {
-    const panel = document.getElementById(toggle.dataset.mobilePanel);
-    if (!panel) return;
-
-    const willOpen = !panel.classList.contains('is-mobile-panel-open');
-    const listing = toggle.closest('.listing-page');
-    listing?.querySelectorAll('.is-mobile-panel-open').forEach((openPanel) => {
-      openPanel.classList.remove('is-mobile-panel-open');
-    });
-    listing?.querySelectorAll('[data-mobile-panel]').forEach((otherToggle) => {
-      otherToggle.setAttribute('aria-expanded', 'false');
-    });
-
-    if (willOpen) {
-      panel.classList.add('is-mobile-panel-open');
-      toggle.setAttribute('aria-expanded', 'true');
-    }
-  });
-});
