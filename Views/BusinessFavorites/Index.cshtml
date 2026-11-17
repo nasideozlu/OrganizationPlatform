@@ -20,7 +20,7 @@
            asp-action="Index"
            asp-fragment="kesfet"
            class="btn btn-primary">
-            Keşfe dön <span aria-hidden="true">↗</span>
+            Keşfe dön
         </a>
     </header>
 
@@ -43,7 +43,7 @@
         @if (Model.BusinessFavorites.Any())
         {
             <div class="favorites-section">
-                <header class="favorites-section-heading"><div><span class="dashboard-kicker">KAYDETTİKLERİN</span><h2>İşletmeler <small>@Model.BusinessFavorites.Count</small></h2></div><a asp-controller="Businesses" asp-action="Index">İşletmeleri keşfet ↗</a></header>
+                <header class="favorites-section-heading"><div><span class="dashboard-kicker">KAYDETTİKLERİN</span><h2>İşletmeler <small>@Model.BusinessFavorites.Count</small></h2></div><a asp-controller="Businesses" asp-action="Index">İşletmeleri keşfet</a></header>
 
                 <div class="management-card-grid favorite-business-grid">
                     @foreach (var favorite in Model.BusinessFavorites)
@@ -93,7 +93,7 @@
                                        asp-action="Details"
                                        asp-route-id="@business.Id"
                                        class="btn btn-primary">
-                                        Profili görüntüle <span aria-hidden="true">↗</span>
+                                        Profili görüntüle
                                     </a>
 
                                     <form asp-controller="BusinessFavorites"
@@ -125,7 +125,7 @@
         @if (Model.VenueFavorites.Any())
         {
             <div class="favorites-section">
-                <header class="favorites-section-heading"><div><span class="dashboard-kicker">KAYDETTİKLERİN</span><h2>Mekânlar <small>@Model.VenueFavorites.Count</small></h2></div><a asp-controller="Venues" asp-action="Index">Mekânları keşfet ↗</a></header>
+                <header class="favorites-section-heading"><div><span class="dashboard-kicker">KAYDETTİKLERİN</span><h2>Mekânlar <small>@Model.VenueFavorites.Count</small></h2></div><a asp-controller="Venues" asp-action="Index">Mekânları keşfet</a></header>
 
                 <div class="management-card-grid favorite-business-grid">
                     @foreach (var favorite in Model.VenueFavorites)
@@ -175,7 +175,7 @@
                                        asp-action="Details"
                                        asp-route-id="@venue.Id"
                                        class="btn btn-primary">
-                                        Mekânı görüntüle <span aria-hidden="true">↗</span>
+                                        Mekânı görüntüle
                                     </a>
 
                                     <form asp-controller="BusinessFavorites"

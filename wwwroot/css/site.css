@@ -1767,10 +1767,10 @@ h1,h2,h3,h4,h5,h6,
 }
 a { color: var(--green-dark); }
 a:hover { color: var(--espresso); }
-.site-header { border-color: rgba(196,154,80,.2); background: rgba(250,247,242,.96); }
+.site-header { border-color: rgba(196,154,80,.2); background: #faf7f2; backdrop-filter: none; }
 .site-topbar-inner { min-height: 86px; }
-.site-topbar .navbar-brand { display: inline-flex; width: 148px; height: 86px; align-items: center; flex: 0 0 auto; }
-.brand-logo { display: block; width: 100%; height: 100%; object-fit: contain; object-position: left center; mix-blend-mode: darken; }
+.site-topbar .navbar-brand { display: inline-flex; width: 190px; height: 86px; align-items: center; flex: 0 0 auto; }
+.brand-logo { display: block; width: 100%; height: 100%; object-fit: contain; object-position: left center; mix-blend-mode: multiply; }
 .site-topbar .site-search-form { border-color: var(--line); background: #fffdfa; }
 .site-topbar .site-search-form button { background: var(--soft-beige); color: var(--espresso); }
 .site-subnav { border-color: var(--line); background: rgba(250,247,242,.97); }
@@ -1784,7 +1784,7 @@ a:hover { color: var(--espresso); }
 .site-footer { border-color: var(--line); background: #f5efe6; }
 .footer-inner { color: var(--warm-taupe); }
 .footer-brand { display: inline-flex; align-items: center; }
-.footer-brand-logo { display: block; width: 128px; height: 86px; object-fit: contain; mix-blend-mode: darken; }
+.footer-brand-logo { display: block; width: 160px; height: 86px; object-fit: contain; mix-blend-mode: multiply; }
 .btn { min-height: 44px; border-radius: 9px; font-family: 'DM Sans',sans-serif; }
 .btn-primary { --bs-btn-color: var(--espresso); --bs-btn-bg: #a87927; --bs-btn-border-color: #a87927; --bs-btn-hover-color: var(--espresso); --bs-btn-hover-bg: #c49a50; --bs-btn-hover-border-color: #c49a50; --bs-btn-active-color: var(--espresso); --bs-btn-active-bg: #946a22; --bs-btn-active-border-color: #946a22; box-shadow: 0 5px 13px rgba(57,47,41,.1); }
 .btn-outline-primary { --bs-btn-color: var(--green-dark); --bs-btn-border-color: rgba(168,121,39,.48); --bs-btn-hover-bg: var(--green-dark); --bs-btn-hover-border-color: var(--green-dark); --bs-btn-hover-color: #fff; }
@@ -1868,8 +1868,8 @@ a:hover { color: var(--espresso); }
 
 @media (max-width: 600px) {
   .site-topbar-inner { min-height: 0; }
-  .site-topbar .navbar-brand { width: 112px; height: 75px; }
-  .footer-brand-logo { width: 102px; height: 68px; }
+  .site-topbar .navbar-brand { width: 136px; height: 75px; }
+  .footer-brand-logo { width: 122px; height: 68px; }
   .listing-heading h1 { font-size: clamp(2rem,9vw,2.7rem); }
   .footer-inner { min-height: 0; flex-direction: column; gap: 7px; padding-top: 18px; padding-bottom: 18px; text-align: center; }
 }
@@ -1933,3 +1933,81 @@ a:hover { color: var(--espresso); }
 .explore-category-chip-featured { border-color: #eadcc5; background: #f6efe4; color: #514033; }
 .explore-category-chip > span { background: #f2e9dc; color: #80591d; }
 .explore-category-chip:hover { border-color: #d9c29a; background: #fbf7f0; color: #80591d; }
+
+/* Consistent, high-contrast buttons for the Happy Days palette. */
+.btn-primary {
+  --bs-btn-color: #fffaf2;
+  --bs-btn-bg: #80591d;
+  --bs-btn-border-color: #80591d;
+  --bs-btn-hover-color: #fffaf2;
+  --bs-btn-hover-bg: #634318;
+  --bs-btn-hover-border-color: #634318;
+  --bs-btn-active-color: #fffaf2;
+  --bs-btn-active-bg: #392f29;
+  --bs-btn-active-border-color: #392f29;
+}
+.site-topbar .site-search-form button {
+  background: #80591d;
+  color: #fffaf2;
+}
+.site-topbar .site-search-form button:hover,
+.site-topbar .site-search-form button:focus-visible {
+  background: #634318;
+  color: #fffaf2;
+}
+.site-login-button,
+.site-logout-button { background: #fffaf2; color: #80591d; }
+.explore-results-meta { border-color: var(--line); color: var(--warm-taupe); }
+.explore-results-meta span:first-child { color: var(--green-dark); }
+
+/* Warm palette cleanup for legacy sage and green UI surfaces. */
+.explore-category-chip { border-color: var(--line); background: #fffdfa; color: var(--espresso); }
+.explore-category-chip > span,
+.explore-category-chip-featured { border-color: #eadcc5; background: #f6efe4; color: #80591d; }
+.explore-category-chip:hover { border-color: #d9c29a; background: #fbf7f0; color: #80591d; }
+.catalog-cover,.venue-list-cover,.explore-card-image,.venue-discovery-image,
+.favorite-business-image,.public-venue-placeholder { background: #f1e9de; color: #80591d; }
+.venue-discovery-hero { background: linear-gradient(112deg,#f1e6d5 0%,#faf7f2 66%,#f4e8e4 100%); }
+.venue-results-count { background: #f2e9dc; color: #80591d; }
+.venue-fact,.public-business-facts > div,.business-price-summary,.public-contact-note,
+.business-public-reviews .business-rating-section { background: #f6efe4; }
+.venue-feature-chips span,.feature-option:has(input:checked),.approval-feature-list span {
+  border-color: #eadcc5;
+  background: #fbf7f0;
+  color: #6b5947;
+}
+.business-price-more,.explore-card-link,.catalog-card-action,.venue-list-card-action { color: #80591d; }
+.status-pill.campaign-live,.status-pill.is-active,.badge.bg-success,
+.campaign-management-icon,.campaign-empty-icon,.approval-queue-section > header h2 small {
+  border-color: #eadcc5;
+  background: #f4ead6;
+  color: #70531f;
+}
+.text-success { color: #80591d !important; }
+.alert-success { border-color: #e5d4b6; background: #f8f1e6; color: #624b2d; }
+.rating-thanks > span { background: #f2e9dc; color: #80591d; }
+.authorized-person-photo,.authorized-person-avatar { background: #f2e9dc; color: #80591d; box-shadow: 0 0 0 1px #e9dfd2; }
+.catalog-category-title,.business-results-controls > span { color: #6b5947; }
+.status-pill { background: #f4ead6; color: #70531f; }
+.status-pill.is-inactive { background: #f2ebe1; color: #8c7968; }
+.business-rating-section { border-color: var(--line); background: #fffdfa; }
+.public-package-venues span,.package-venue-list span,.campaign-management-package { background: #f6efe4; }
+.customer-home-intro { border-color: var(--line); background: linear-gradient(120deg,#fffdfa 0%,#f6efe4 100%); }
+.management-empty,.empty-state { border-color: #e5d8c5; }
+.business-sort-form select,.venue-sort-form select { border-color: var(--line); }
+.btn-outline-secondary {
+  --bs-btn-color: #6b5947;
+  --bs-btn-bg: #f6efe4;
+  --bs-btn-border-color: #e5d8c5;
+  --bs-btn-hover-color: #392f29;
+  --bs-btn-hover-bg: #efe2ce;
+  --bs-btn-hover-border-color: #d9c29a;
+  --bs-btn-active-color: #392f29;
+  --bs-btn-active-bg: #e9dfd2;
+  --bs-btn-active-border-color: #d9c29a;
+}
+.plan-start-card .dashboard-kicker { color: #e8d2ac; }
+.plan-start-card p { color: rgba(255,255,255,.82); }
+.plan-start-card .btn-primary,
+.plan-start-card .btn-primary:hover { color: #fffaf2; }
+.favorites-section-heading h2 small { background: #f2e9dc; color: #80591d; }

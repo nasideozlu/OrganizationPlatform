@@ -34,7 +34,7 @@
                     <div class="field"><label asp-for="Password">Parola</label><input asp-for="Password" type="password" class="form-control" autocomplete="new-password" placeholder="Parola oluştur" /><span asp-validation-for="Password"></span></div>
                     <div class="field"><label asp-for="PasswordConfirmation">Parola tekrarı</label><input asp-for="PasswordConfirmation" type="password" class="form-control" autocomplete="new-password" placeholder="Parolanı tekrar gir" /><span asp-validation-for="PasswordConfirmation"></span></div>
                 </div>
-                <button type="submit" class="btn btn-primary form-submit">İşletme hesabı oluştur <span aria-hidden="true">↗</span></button>
+                <button type="submit" class="btn btn-primary form-submit">İşletme hesabı oluştur</button>
             </form>
             <p class="form-bottom">Zaten hesabın var mı? <a asp-controller="Account" asp-action="Login" asp-route-audience="business">Giriş yap</a></p>
         </div>
