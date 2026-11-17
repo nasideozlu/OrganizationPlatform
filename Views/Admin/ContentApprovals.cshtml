@@ -32,7 +32,7 @@
                 {
                     <article class="approval-queue-card">
                         <div><strong>@business.Name</strong><span>@business.CategoryName · @business.City@(string.IsNullOrWhiteSpace(business.District) ? "" : $", {business.District}")</span></div>
-                        <a asp-action="ReviewBusiness" asp-route-id="@business.Id" class="btn btn-outline-primary btn-sm">İncele <span aria-hidden="true">↗</span></a>
+                        <a asp-action="ReviewBusiness" asp-route-id="@business.Id" class="btn btn-outline-primary btn-sm">İncele</a>
                     </article>
                 }
             }
@@ -50,7 +50,7 @@
                 {
                     <article class="approval-queue-card">
                         <div><strong>@venue.Name</strong><span>@venue.BusinessName · @venue.City@(string.IsNullOrWhiteSpace(venue.District) ? "" : $", {venue.District}") · @venue.Capacity kişi</span></div>
-                        <a asp-action="ReviewVenue" asp-route-id="@venue.Id" class="btn btn-outline-primary btn-sm">İncele <span aria-hidden="true">↗</span></a>
+                        <a asp-action="ReviewVenue" asp-route-id="@venue.Id" class="btn btn-outline-primary btn-sm">İncele</a>
                     </article>
                 }
             }
