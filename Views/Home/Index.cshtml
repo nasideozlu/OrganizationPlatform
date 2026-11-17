@@ -35,10 +35,6 @@
             }
             <p>Her mutlu gün, güzel bir planla başlar. Mekânını bul, sana uygun ekibi keşfet ve seçenekleri karşılaştır.</p>
 
-            <div class="explore-hero-links">
-                <a href="#mekanlar">Mekânlara göz at <span aria-hidden="true">↓</span></a>
-                <a href="#isletmeler">Hizmet verenleri keşfet <span aria-hidden="true">↓</span></a>
-            </div>
         </div>
         <div class="explore-hero-foot">
             <span>Gerçek işletme profilleri</span><i></i><span>Fotoğraflar, fiyatlar ve aktif fırsatlar</span>
@@ -69,8 +65,7 @@
                                 <h2 id="home-venues-title">Günün geçeceği yeri bul.</h2>
                                 <p>Fotoğraf, konum ve kapasiteye göre mekânları karşılaştır.</p>
                             </div>
-                            <a class="explore-all-link" asp-controller="Venues" asp-action="Index">Tüm mekânlar <span
-                                aria-hidden="true">↗</span></a>
+                            <a class="explore-all-link" asp-controller="Venues" asp-action="Index">Tüm mekânlar</a>
                             </header>
                             @if (Model.Venues.Count == 0)
                             {
@@ -145,7 +140,7 @@
                                                 <h3>@venue.Name</h3>
 
                                                 <span class="explore-card-link">
-                                                    Mekânı incele <span aria-hidden="true">↗</span>
+                                                    Mekânı incele
                                                 </span>
                                             </a>
                                         </article>
@@ -161,8 +156,7 @@
                                     <h2 id="home-businesses-title">Güvendiğin ekibi keşfet.</h2>
                                     <p>İşletme profillerinde hizmetleri, fiyatları, paketleri ve fırsatları incele.</p>
                                 </div>
-                                <a class="explore-all-link" asp-controller="Businesses" asp-action="Index">Tüm işletmeler <span
-                                    aria-hidden="true">↗</span></a>
+                                <a class="explore-all-link" asp-controller="Businesses" asp-action="Index">Tüm işletmeler</a>
                                 </header>
                                 @if (Model.Businesses.Count == 0)
                                 {
@@ -226,7 +220,7 @@
                                                                     @business.City@(string.IsNullOrWhiteSpace(business.District) ? "" : $" ·           {business.District}")</span>
                                                                     <h3>@business.Name</h3>
                                                                     <p>@(campaign?.Name ?? (string.IsNullOrWhiteSpace(business.Description) ? "Profili açıp sunduğu hizmetleri incele." : business.Description))</p>
-                                                                    <span class="explore-card-link">İşletmeyi incele <span aria-hidden="true">↗</span></span>
+                                                                    <span class="explore-card-link">İşletmeyi incele</span>
                                                                 </a>
                                                             </article>
                                                         }
@@ -242,7 +236,7 @@
                                             <p>Profilini oluştur, fiyat ve paketlerini müşterilerle paylaş.</p>
                                         </div>
                                         <a asp-controller="Account" asp-action="Login" asp-route-audience="business"
-                                           class="btn btn-primary">İşletmeni ekle <span aria-hidden="true">↗</span></a>
+                                           class="btn btn-primary">İşletmeni ekle</a>
                                     </section>
                                 </div>
                             </div>

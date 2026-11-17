@@ -19,7 +19,7 @@
                 <div asp-validation-summary="All" class="validation-summary-errors"></div>
                 <div class="field"><label asp-for="Email">E-posta adresi</label><input asp-for="Email" class="form-control" autocomplete="email" placeholder="ornek@mail.com" /><span asp-validation-for="Email"></span></div>
                 <div class="field"><label asp-for="Password">Parola</label><input asp-for="Password" type="password" class="form-control" autocomplete="current-password" placeholder="Parolanı gir" /><span asp-validation-for="Password"></span></div>
-                <button type="submit" class="btn btn-primary form-submit">Giriş yap <span aria-hidden="true">↗</span></button>
+                <button type="submit" class="btn btn-primary form-submit">Giriş yap</button>
             </form>
             <div class="login-signup">
                 <p>@(isBusiness ? "Happy Days Planner & Co.'da yeni misin?" : "Henüz hesabın yok mu?")</p>

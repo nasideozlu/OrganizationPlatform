@@ -9,7 +9,7 @@
 
     <div class="customer-overview">
         <article class="plan-start-card">
-            <div class="plan-card-copy"><span class="dashboard-kicker">İLK ADIM</span><h2>Güzel günün<br />buradan başlasın.</h2><p>Mekânları fotoğraf, konum ve kapasiteye göre incele. Ardından etkinliğine uygun hizmet verenleri keşfet.</p><div class="customer-plan-actions"><a class="btn btn-primary" asp-controller="Venues" asp-action="Index">Mekânları keşfet <span aria-hidden="true">↗</span></a><a class="customer-secondary-link" asp-controller="Businesses" asp-action="Index">İşletmelere göz at</a></div></div>
+            <div class="plan-card-copy"><span class="dashboard-kicker">İLK ADIM</span><h2>Güzel günün<br />buradan başlasın.</h2><p>Mekânları fotoğraf, konum ve kapasiteye göre incele. Ardından etkinliğine uygun hizmet verenleri keşfet.</p><div class="customer-plan-actions"><a class="btn btn-primary" asp-controller="Venues" asp-action="Index">Mekânları keşfet</a><a class="customer-secondary-link" asp-controller="Businesses" asp-action="Index">İşletmelere göz at</a></div></div>
             <div class="plan-card-illustration" aria-hidden="true"><div class="plan-sun"></div><div class="plan-ring ring-one"></div><div class="plan-ring ring-two"></div><div class="plan-flower">✳</div><div class="plan-date"><small>KEŞFET</small><strong>seçenekler</strong></div></div>
         </article>
         <aside class="customer-side-card">
@@ -21,7 +21,7 @@
         </aside>
     </div>
 
-    <div class="dashboard-section-title"><div><span class="dashboard-kicker">HESABIN</span><h2>Kişisel bilgilerin</h2></div><a asp-controller="Profile" asp-action="EditCustomer">Düzenle <span aria-hidden="true">↗</span></a></div>
+    <div class="dashboard-section-title"><div><span class="dashboard-kicker">HESABIN</span><h2>Kişisel bilgilerin</h2></div><a asp-controller="Profile" asp-action="EditCustomer">Düzenle</a></div>
     <div class="customer-account-grid">
         <article class="account-detail-card"><span class="detail-icon">♙</span><div><small>Ad soyad</small><strong>@Model.Name @Model.Surname</strong></div></article>
         <article class="account-detail-card"><span class="detail-icon">✉</span><div><small>E-posta</small><strong>@Model.ApplicationUser.Email</strong></div></article>
