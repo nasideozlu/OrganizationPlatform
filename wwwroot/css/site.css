@@ -1566,7 +1566,7 @@ body { background: var(--paper); }
     display: none;
     position: absolute;
     top: calc(100% + 5px);
-    left: 0;
+    left: 4px;
     right: 0;
     z-index: 1000;
     max-height: 220px;
@@ -2011,3 +2011,39 @@ a:hover { color: var(--espresso); }
 .plan-start-card .btn-primary,
 .plan-start-card .btn-primary:hover { color: #fffaf2; }
 .favorites-section-heading h2 small { background: #f2e9dc; color: #80591d; }
+
+/* Keep the customer sign-in action visible and give the mobile search row more room. */
+@media (max-width: 600px) {
+  .site-topbar .navbar-brand { width: 116px; height: 72px; }
+  .site-login-button { display: inline-flex; }
+  .site-top-actions .site-login-button,
+  .site-top-actions .site-business-button {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: .34rem .45rem;
+    font-size: .62rem;
+    line-height: 1.1;
+    text-align: center;
+    white-space: nowrap;
+  }
+}
+@media (max-width: 767.98px) {
+  .site-topbar-inner:has(> .site-search-form) { position: relative; }
+  .site-topbar-inner:has(> .site-search-form) > .site-nav-toggle {
+    position: absolute;
+    z-index: 2;
+    left: 0;
+    bottom: 7px;
+    grid-column: auto;
+    grid-row: auto;
+  }
+  .site-topbar-inner:has(> .site-search-form) > .site-search-form {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: calc(100% - 48px);
+    margin: 0 0 0 48px;
+  }
+}
